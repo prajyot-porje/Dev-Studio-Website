@@ -6,7 +6,6 @@ import WorkSection from './components/WorkSection';
 import TestimonialsSection from './components/TestimonialsSection';
 import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
-import CtaBannerSection from './components/CtaBannerSection';
 
 export default function Home() {
   return (
@@ -15,10 +14,9 @@ export default function Home() {
       <ServicesSection />
       <WhyUsSection />
       <ProcessSection />
-      <WorkSection />
       <AboutSection />
+      <WorkSection />
       <TestimonialsSection />
-      <CtaBannerSection />
       <ContactSection />
     </>
   );

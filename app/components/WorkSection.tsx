@@ -1,413 +1,359 @@
 'use client';
 
-import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
+import { type CSSProperties, useLayoutEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import ProjectCard, { type ProjectCardProps } from './ProjectCard';
 
-const projects = [
+const projects: ProjectCardProps[] = [
   {
-    client: 'NAMRL',
-    fullName: 'North American Medical Research & Learning Center',
-    industry: 'Clinical Research & Training',
-    region: 'US Client',
-    period: 'Jun – Jul 2025',
-    oneLiner: 'High-performance website for a global medical research and training platform.',
+    clientName: 'NAMRL',
+    projectTitle: 'Clinical Learning Platform',
     description:
-      'Built a component-driven frontend for a US-based clinical research training platform — with Framer Motion animations, accessibility improvements, and full deployment on cPanel for a fast, global-ready experience.',
-    stack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'shadcn/ui', 'Framer Motion'],
-    link: 'https://namrl.com',
-    color: '#0f3460',
-    accent: '#16c79a',
+      'High-performance website for a North American medical research and training center, focused on clarity, accessibility, and a polished launch experience for global learners.',
+    techStack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Framer Motion'],
+    outcomesHeading: 'Key Outcomes',
+    outcomes: [
+      'Shipped a component-driven marketing platform with smooth motion and a sharper information hierarchy.',
+      'Improved accessibility and content discoverability for clinical training programs and career pathways.',
+      'Delivered a launch-ready frontend with a fast production deployment pipeline.',
+    ],
+    metrics: [
+      { label: 'FCP', value: '0.3s' },
+      { label: 'SEO', value: '100/100' },
+      { label: 'TBT', value: '0s' },
+      { label: 'Learners', value: '10K+' },
+    ],
+    href: 'https://namrl.com',
+    imageSrc: '/namrl.png',
   },
   {
-    client: 'Kiyomi Facilities',
-    fullName: 'Kiyomi Facilities',
-    industry: 'Industrial & Residential Facility Management',
-    region: 'India Client',
-    period: 'Aug – Sep 2025',
-    oneLiner: 'Scalable, fully responsive website for a B2B facility management company.',
+    clientName: 'Kiyomi Facilities',
+    projectTitle: 'Service-Led B2B Website',
     description:
-      'Designed and built a reusable component architecture for a facility management company serving both industrial and residential clients — fully responsive, cross-browser compatible, and production deployed.',
-    stack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'shadcn/ui', 'Framer Motion'],
-    link: 'https://kiyomifacilities.in',
-    color: '#1a1a2e',
-    accent: '#e94560',
+      'Responsive corporate website for an industrial and residential facilities company, designed to present multiple service lines cleanly across desktop and mobile.',
+    techStack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Framer Motion'],
+    outcomesHeading: 'Project Highlights',
+    outcomes: [
+      'Created a scalable content layout that speaks to both industrial and residential buyer journeys.',
+      'Built reusable sections for service storytelling, trust signals, and lead-focused calls to action.',
+      'Production deployment delivered with strong responsiveness across browsers and screen sizes.',
+    ],
+    metrics: [
+      { label: 'Perf', value: '98/100' },
+      { label: 'SEO', value: '100/100' },
+      { label: 'LCP', value: '0.6s' },
+      { label: 'Projects', value: '500+' },
+    ],
+    href: 'https://kiyomifacilities.in',
+    imageSrc: '/kiyomi.png',
   },
   {
-    client: 'Cresults Consulting',
-    fullName: 'Cresults Consulting',
-    industry: 'Quality Consulting',
-    region: 'US Client',
-    period: 'Ongoing',
-    status: 'Active Retainer since Jan 2026',
-    oneLiner: 'Managing 4 WordPress sites and full LinkedIn presence for a US quality consulting firm.',
+    clientName: 'Cresults Consulting',
+    projectTitle: 'Retainer Web Operations',
     description:
-      'Monthly retainer covering WordPress maintenance across 4 properties, SEO fixes, content updates, LinkedIn post design, and LinkedIn ad campaign management — all ongoing.',
-    sites: ['cresultsconsulting.com', 'smart-qc.com', 'smart-qa.com', 'fdaaware.com'],
-    stack: ['WordPress', 'LinkedIn Ads', 'SEO', 'Content Management'],
-    color: '#2d1b69',
-    accent: '#b388ff',
+      'Ongoing digital support for a US quality consulting firm, covering WordPress maintenance, SEO fixes, content updates, and LinkedIn campaign execution across multiple properties.',
+    techStack: ['WordPress', 'SEO', 'LinkedIn Ads', 'Content Ops'],
+    outcomesHeading: 'Key Outcomes',
+    outcomes: [
+      'Centralized monthly support across four sites without slowing down content or campaign execution.',
+      'Handled recurring maintenance, SEO corrections, and marketing updates through a single retainer workflow.',
+      'Extended the engagement into LinkedIn design and ad operations for consistent outbound visibility.',
+    ],
+    metrics: [
+      { label: 'Sites', value: '4' },
+      { label: 'Retainer', value: 'Active' },
+      { label: 'SEO', value: 'Monthly' },
+      { label: 'Channels', value: '2' },
+    ],
+    href: '#contact',
   },
 ];
 
 export default function WorkSection() {
-  const [ref, isVisible] = useIntersectionObserver<HTMLElement>({ threshold: 0.1 });
+  const sectionRef = useRef<HTMLElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [marginBottom, setMarginBottom] = useState('0px');
+  const trackStyle = {
+    '--work-card-count': projects.length,
+  } as CSSProperties;
+
+  useLayoutEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const section = sectionRef.current;
+    const track = trackRef.current;
+
+    if (!section || !track) {
+      return;
+    }
+
+    const mm = gsap.matchMedia();
+
+    const ctx = gsap.context(() => {
+      mm.add('(min-width: 900px)', () => {
+        const getDistance = () =>
+          Math.max(0, track.scrollWidth - window.innerWidth);
+
+        // Calculate scroll distance for horizontal scrolling
+        const updateMargin = () => {
+          const dist = getDistance();
+          setMarginBottom(`${dist}px`);
+        };
+
+        updateMargin();
+        window.addEventListener('resize', updateMargin);
+
+        gsap.set(track, { x: 0 });
+
+        const animation = gsap.to(track, {
+          x: () => -getDistance(),
+          ease: 'none',
+          force3D: true,
+          overwrite: 'auto',
+          scrollTrigger: {
+            trigger: section,
+            // Start scrolling the track exactly when the element sticks at -20vh
+            start: 'top top-=20vh',
+            end: () => `+=${getDistance()}`,
+            scrub: 0.55,
+            fastScrollEnd: true,
+            invalidateOnRefresh: true,
+            onRefresh: () => updateMargin(),
+            snap:
+              projects.length > 1
+                ? {
+                    snapTo: 1 / (projects.length - 1),
+                    delay: 0,
+                    duration: { min: 0.16, max: 0.34 },
+                    ease: 'power3.out',
+                  }
+                : undefined,
+          },
+        });
+
+        return () => {
+          window.removeEventListener('resize', updateMargin);
+          animation.scrollTrigger?.kill();
+          animation.kill();
+        };
+      });
+
+      mm.add('(max-width: 899px)', () => {
+        gsap.set(track, { clearProps: 'transform,width' });
+        setMarginBottom('0px');
+        ScrollTrigger.refresh();
+      });
+    }, section);
+
+    return () => {
+      ctx.revert();
+      mm.revert();
+    };
+  }, []);
 
   return (
-    <section
-      id="work"
-      ref={ref}
-      style={{
-        background: 'var(--bg-primary)',
-      }}
-    >
-      <div className="section-container">
-        {/* Header */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            marginBottom: '64px',
-            flexWrap: 'wrap',
-            gap: '20px',
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
-            transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-          }}
-        >
-          <div>
-            <p
-              style={{
-                fontSize: 'var(--text-sm)',
-                fontWeight: 600,
-                color: 'var(--text-tertiary)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                marginBottom: '16px',
-              }}
-            >
-              Selected Work
-            </p>
-            <h2 className="section-heading">
-              Real projects. Real clients.
-              <br />
-              Real results.
-            </h2>
+    <>
+      <section
+        id="work"
+        ref={sectionRef}
+        className="work-section"
+      >
+      <div className="work-visible-wrapper">
+        <div className="work-shell-container">
+          <div className="work-header">
+            <div className="work-header-content">
+              <p className="work-label">Selected Work</p>
+              <h2 className="section-heading work-title">
+                Real projects. Real clients.
+              </h2>
+            </div>
           </div>
         </div>
 
-        {/* Projects grid */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '32px',
-          }}
-        >
-          {projects.map((project, i) => (
-            <div
-              key={project.client}
-              className="glass-card"
-              style={{
-                overflow: 'hidden',
-                cursor: 'default',
-                opacity: isVisible ? 1 : 0,
-                transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
-                transition: `all 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${200 + i * 120}ms`,
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                borderRadius: 'var(--radius-xl)',
-              }}
-            >
-              {/* Left — Project image area */}
-              <div
-                style={{
-                  width: '100%',
-                  minHeight: '320px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-              >
+        <div className="work-stage">
+          <div className="work-viewport">
+            <div ref={trackRef} className="work-track" style={trackStyle}>
+              {projects.map((project) => (
                 <div
-                  className="project-preview"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    background: `linear-gradient(135deg, ${project.color} 0%, ${project.accent}33 100%)`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
-                  }}
+                  key={`${project.clientName}-${project.projectTitle}`}
+                  className="work-page"
+                  data-work-card
                 >
-                  <div
-                    style={{
-                      width: '60%',
-                      height: '60%',
-                      borderRadius: 'var(--radius-lg)',
-                      border: `1px solid ${project.accent}44`,
-                      background: `${project.accent}11`,
-                      backdropFilter: 'blur(20px)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 'var(--text-2xl)',
-                        fontWeight: 700,
-                        color: project.accent,
-                        letterSpacing: '-0.03em',
-                        opacity: 0.9,
-                      }}
-                    >
-                      {project.client.split(' ')[0]}
-                    </span>
-                    {project.link && (
-                      <span
-                        style={{
-                          fontSize: 'var(--text-xs)',
-                          color: project.accent,
-                          opacity: 0.6,
-                        }}
-                      >
-                        {project.link.replace('https://', '')}
-                      </span>
-                    )}
+                  <div className="work-card-shell">
+                    <ProjectCard {...project} />
                   </div>
                 </div>
-              </div>
-
-              {/* Right — Project details */}
-              <div
-                style={{
-                  padding: '36px 32px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                }}
-              >
-                {/* Client + badge row */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    marginBottom: '4px',
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  <h3
-                    style={{
-                      fontSize: 'var(--text-xl)',
-                      fontWeight: 600,
-                      color: 'var(--text-primary)',
-                      letterSpacing: '-0.02em',
-                    }}
-                  >
-                    {project.client}
-                  </h3>
-                  <span
-                    style={{
-                      fontSize: 'var(--text-xs)',
-                      color: 'var(--text-tertiary)',
-                      padding: '3px 10px',
-                      borderRadius: 'var(--radius-full)',
-                      border: '1px solid var(--border-color)',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {project.region}
-                  </span>
-                  {project.status && (
-                    <span
-                      style={{
-                        fontSize: 'var(--text-xs)',
-                        color: '#34c759',
-                        padding: '3px 10px',
-                        borderRadius: 'var(--radius-full)',
-                        border: '1px solid rgba(52, 199, 89, 0.3)',
-                        background: 'rgba(52, 199, 89, 0.08)',
-                        whiteSpace: 'nowrap',
-                        fontWeight: 500,
-                      }}
-                    >
-                      ● {project.status}
-                    </span>
-                  )}
-                </div>
-
-                {/* Industry and period */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    marginBottom: '16px',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 'var(--text-xs)',
-                      color: 'var(--text-tertiary)',
-                    }}
-                  >
-                    {project.industry}
-                  </span>
-                  <span style={{ color: 'var(--border-color)' }}>·</span>
-                  <span
-                    style={{
-                      fontSize: 'var(--text-xs)',
-                      color: 'var(--text-tertiary)',
-                    }}
-                  >
-                    {project.period}
-                  </span>
-                </div>
-
-                {/* One-liner */}
-                <p
-                  style={{
-                    fontSize: 'var(--text-base)',
-                    fontWeight: 500,
-                    color: 'var(--text-primary)',
-                    lineHeight: 1.5,
-                    marginBottom: '12px',
-                  }}
-                >
-                  {project.oneLiner}
-                </p>
-
-                {/* Description */}
-                <p
-                  style={{
-                    fontSize: 'var(--text-sm)',
-                    color: 'var(--text-secondary)',
-                    lineHeight: 1.7,
-                    marginBottom: '20px',
-                  }}
-                >
-                  {project.description}
-                </p>
-
-                {/* Sites list (Cresults only) */}
-                {project.sites && (
-                  <div style={{ marginBottom: '16px' }}>
-                    <p
-                      style={{
-                        fontSize: 'var(--text-xs)',
-                        color: 'var(--text-tertiary)',
-                        marginBottom: '6px',
-                        fontWeight: 500,
-                      }}
-                    >
-                      Sites managed:
-                    </p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                      {project.sites.map((site) => (
-                        <span
-                          key={site}
-                          style={{
-                            fontSize: 'var(--text-xs)',
-                            color: 'var(--accent-blue)',
-                            padding: '2px 10px',
-                            borderRadius: 'var(--radius-full)',
-                            background: 'var(--accent-blue-subtle)',
-                          }}
-                        >
-                          {site}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Tech stack tags */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                  {project.stack.map((tech) => (
-                    <span
-                      key={tech}
-                      style={{
-                        fontSize: 'var(--text-xs)',
-                        color: 'var(--text-tertiary)',
-                        padding: '4px 12px',
-                        borderRadius: 'var(--radius-full)',
-                        border: '1px solid var(--border-color)',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Link */}
-                {project.link && (
-                  <a
-                    href={project.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      fontSize: 'var(--text-sm)',
-                      fontWeight: 500,
-                      color: 'var(--accent-blue)',
-                      textDecoration: 'none',
-                      marginTop: '16px',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      transition: 'opacity 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.opacity = '0.7';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.opacity = '1';
-                    }}
-                  >
-                    Visit site
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="7" y1="17" x2="17" y2="7" />
-                      <polyline points="7 7 17 7 17 17" />
-                    </svg>
-                  </a>
-                )}
-              </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
 
-        {/* Bottom note */}
-        <div
-          style={{
-            textAlign: 'center',
-            marginTop: '48px',
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-            transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s',
-          }}
-        >
-          <p
-            style={{
-              fontSize: 'var(--text-sm)',
-              color: 'var(--text-tertiary)',
-              fontWeight: 500,
-            }}
-          >
-            All projects delivered on time · 2 international clients · 1 active US retainer
-          </p>
-        </div>
+              
       </div>
 
       <style jsx>{`
-        @media (max-width: 900px) {
-          .glass-card {
-            grid-template-columns: 1fr !important;
+        .work-section {
+          position: sticky;
+          top: -20vh;
+          z-index: 1;
+          background: var(--bg-primary);
+        }
+
+        .work-visible-wrapper {
+          height: 120vh;
+          display: flex;
+          flex-direction: column;
+          /* Adjusted top padding moves content up within the 100vh visible area */
+          padding-top: calc(20vh + clamp(3.75rem, 6vh, 5.5rem));
+          /* Re-introduced bottom padding so cards are never flush against bottom edge */
+          padding-bottom: clamp(2rem, 5vh, 4rem);
+          box-sizing: border-box;
+          overflow: visible;
+        }
+
+        .work-shell-container {
+          width: 100%;
+          max-width: var(--container-max);
+          margin: 0 auto;
+          padding: 0 var(--container-padding);
+        }
+
+        .work-header {
+          position: relative;
+          z-index: 2;
+          margin-bottom: clamp(1.5rem, 4vh, 3rem);
+        }
+
+        .work-header-content {
+          max-width: 800px;
+        }
+
+        .work-label {
+          font-size: var(--text-sm);
+          font-weight: 600;
+          color: var(--text-tertiary);
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          margin-bottom: 0.75rem;
+        }
+
+        .work-title {
+          margin: 0;
+          line-height: 1.1;
+        }
+
+        .work-stage {
+          flex: 1;
+          display: flex;
+          align-items: stretch;
+          padding-top: 0.5rem;
+        }
+
+        .work-viewport {
+          width: 100%;
+          overflow-x: hidden;
+          overflow-y: visible; /* Prevents vertical clipping of cards/shadows */
+          /* Huge padding prevents clipping during hover states or shadows */
+          padding: 3rem 0;
+          margin: -3rem 0;
+          display: flex;
+          align-items: stretch;
+        }
+
+        .work-track {
+          display: flex;
+          align-items: stretch;
+          width: calc(var(--work-card-count) * 100vw);
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
+        }
+
+        .work-page {
+          display: flex;
+          align-items: center; /* Vertically centers the cards */
+          justify-content: center;
+          flex: 0 0 100vw;
+          width: 100vw;
+          padding: 0 var(--container-padding);
+          box-sizing: border-box;
+        }
+
+        .work-card-shell {
+          width: min(
+            calc(100vw - (2 * var(--container-padding))),
+            var(--container-max)
+          );
+          margin: 0 auto;
+        }
+
+        .work-footnote {
+          padding-top: clamp(1.5rem, 3vh, 2.5rem);
+          padding-bottom: clamp(1rem, 2vh, 1.5rem);
+          text-align: center;
+        }
+
+        .work-footnote-text {
+          font-size: var(--text-sm);
+          color: var(--text-tertiary);
+          font-weight: 500;
+          margin: 0;
+        }
+
+        @media (max-width: 899px) {
+          .work-section {
+            position: relative;
+            top: 0;
+            height: auto !important;
+            margin-bottom: 0 !important;
+          }
+
+          .work-visible-wrapper {
+            height: auto;
+            padding: var(--section-padding) 0;
+            gap: 2rem;
+          }
+
+          .work-header {
+            margin-bottom: 0;
+          }
+
+          .work-stage {
+            min-height: auto;
+          }
+
+          .work-viewport {
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            padding: 0;
+            margin: 0;
+          }
+
+          .work-viewport::-webkit-scrollbar {
+            display: none;
+          }
+
+          .work-track {
+            width: max-content !important;
+          }
+
+          .work-page {
+            scroll-snap-align: start;
+            width: calc(100vw - var(--container-padding));
+            min-width: calc(100vw - var(--container-padding));
+            padding-right: 0;
+          }
+
+          .work-card-shell {
+            width: 100%;
           }
         }
       `}</style>
-    </section>
+      </section>
+      <div aria-hidden="true" style={{ height: marginBottom, width: '100%', pointerEvents: 'none' }} />
+    </>
   );
 }

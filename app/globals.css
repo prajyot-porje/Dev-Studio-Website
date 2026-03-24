@@ -155,7 +155,6 @@ body {
   line-height: 1.6;
   transition: background-color var(--duration-normal) var(--ease-out),
               color var(--duration-normal) var(--ease-out);
-  overflow-x: hidden;
 }
 
 /* ===== SCROLLBAR ===== */

@@ -30,6 +30,7 @@ export default function Footer() {
         borderTop: '1px solid var(--border-color)',
         position: 'relative',
         overflow: 'hidden',
+        zIndex: 10,
       }}
     >
       {/* Top section */}

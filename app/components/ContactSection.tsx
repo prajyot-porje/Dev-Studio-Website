@@ -86,6 +86,8 @@ export default function ContactSection() {
       viewport={{ amount: 0.7, once: true }}
       style={{
         background: 'var(--bg-primary)',
+        position: 'relative',
+        zIndex: 3,
       }}
     >
       <div className="section-container" style={{ maxWidth: '720px' }}>

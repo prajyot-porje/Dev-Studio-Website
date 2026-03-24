@@ -59,12 +59,19 @@ export default function TestimonialsSection() {
   return (
     <motion.section
       id="testimonials"
+      className="testimonials-section"
       initial="hidden"
       whileInView="visible"
       viewport={{ amount: 0.8, once: true }}
       onViewportEnter={() => setActiveIndex(0)}
       style={{
-        background: 'var(--bg-secondary)',
+        background: 'var(--bg-secondary)', // Reverted to original dark background in dark mode, matches About Us in light mode
+        position: 'sticky',
+        top: 0,
+        zIndex: 2,
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
       }}
     >
       <div
@@ -74,7 +81,7 @@ export default function TestimonialsSection() {
           gridTemplateColumns: '1fr 1fr',
           gap: '80px',
           alignItems: 'center',
-          minHeight: '100vh',
+          width: '100%',
         }}
       >
         {/* Left side */}
@@ -270,8 +277,8 @@ export default function TestimonialsSection() {
                       color: isActive || isBehind
                         ? 'var(--bg-primary)'
                         : 'var(--text-primary)',
-                    }}
-                  >
+                  }}
+                >
                     {testimonial.author}
                   </p>
                   <p
@@ -295,6 +302,12 @@ export default function TestimonialsSection() {
 
       <style jsx>{`
         @media (max-width: 900px) {
+          .testimonials-section {
+            position: relative !important;
+            padding: var(--section-padding) 0;
+            min-height: auto !important;
+          }
+
           .section-container {
             grid-template-columns: 1fr !important;
             gap: 48px !important;
