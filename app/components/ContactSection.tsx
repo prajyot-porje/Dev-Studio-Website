@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { RippleElement } from '@/components/ui/ripple-element';
 
 const steps = [
@@ -79,7 +79,7 @@ export default function ContactSection() {
   };
 
   return (
-    <motion.section
+    <m.section
       id="contact"
       initial="hidden"
       whileInView="visible"
@@ -92,7 +92,7 @@ export default function ContactSection() {
     >
       <div className="section-container" style={{ maxWidth: '720px' }}>
         {/* Header */}
-        <motion.div
+        <m.div
           variants={{
             hidden: { opacity: 0, y: 20 },
             visible: { opacity: 1, y: 0 }
@@ -122,10 +122,10 @@ export default function ContactSection() {
             Ready to bring your vision to life? Tell us about your project
             and we&apos;ll get back to you within 24 hours.
           </p>
-        </motion.div>
+        </m.div>
 
         {/* Form container */}
-        <motion.div
+        <m.div
           layout
           variants={{
             hidden: { opacity: 0, y: 50 },
@@ -568,7 +568,7 @@ export default function ContactSection() {
             </div>
             </>
           ) : (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -582,7 +582,7 @@ export default function ContactSection() {
                 minHeight: '400px',
               }}
             >
-              <motion.div
+              <m.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', damping: 15, delay: 0.2 }}
@@ -601,16 +601,16 @@ export default function ContactSection() {
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
-              </motion.div>
+              </m.div>
               <h3 style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px' }}>
                 Message Received
               </h3>
               <p style={{ fontSize: 'var(--text-base)', color: 'var(--text-secondary)', maxWidth: '320px', lineHeight: 1.6 }}>
                 Your response has been received. We will contact you soon.
               </p>
-            </motion.div>
+            </m.div>
           )}
-        </motion.div>
+        </m.div>
       </div>
 
       <style jsx>{`
@@ -620,6 +620,6 @@ export default function ContactSection() {
           }
         }
       `}</style>
-    </motion.section>
+    </m.section>
   );
 }

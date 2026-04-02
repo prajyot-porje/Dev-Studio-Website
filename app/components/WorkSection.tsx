@@ -1,6 +1,7 @@
 'use client';
 
 import { type CSSProperties, useLayoutEffect, useRef, useState } from 'react';
+import { m } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import ProjectCard, { type ProjectCardProps } from './ProjectCard';
@@ -72,19 +73,24 @@ const projects: ProjectCardProps[] = [
 
 export default function WorkSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const [marginBottom, setMarginBottom] = useState('0px');
+  const spacerRef = useRef<HTMLDivElement>(null);
   const trackStyle = {
     '--work-card-count': projects.length,
   } as CSSProperties;
 
   useLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+    /* // PERF: limitCallbacks reduces scroll event frequency, normalizeScroll smooths mobile */
+    ScrollTrigger.config({ limitCallbacks: true });
+    ScrollTrigger.normalizeScroll(true);
 
     const section = sectionRef.current;
+    const container = containerRef.current;
     const track = trackRef.current;
 
-    if (!section || !track) {
+    if (!section || !container || !track) {
       return;
     }
 
@@ -98,11 +104,24 @@ export default function WorkSection() {
         // Calculate scroll distance for horizontal scrolling
         const updateMargin = () => {
           const dist = getDistance();
-          setMarginBottom(`${dist}px`);
+          /* // PERF: direct DOM mutation replaces React state re-render on every refresh */
+          if (spacerRef.current) spacerRef.current.style.height = `${dist}px`;
+        };
+
+        let resizeFrame = 0;
+        const scheduleUpdateMargin = () => {
+          if (resizeFrame) return;
+          resizeFrame = requestAnimationFrame(() => {
+            updateMargin();
+            resizeFrame = 0;
+          });
         };
 
         updateMargin();
-        window.addEventListener('resize', updateMargin);
+
+        const resizeObserver = new ResizeObserver(scheduleUpdateMargin);
+        resizeObserver.observe(track);
+        resizeObserver.observe(container);
 
         gsap.set(track, { x: 0 });
 
@@ -112,14 +131,18 @@ export default function WorkSection() {
           force3D: true,
           overwrite: 'auto',
           scrollTrigger: {
-            trigger: section,
+            trigger: container,
             // Start scrolling the track exactly when the element sticks at -20vh
-            start: 'top top-=20vh',
+            start: 'top -20vh',
             end: () => `+=${getDistance()}`,
             scrub: 0.55,
             fastScrollEnd: true,
             invalidateOnRefresh: true,
             onRefresh: () => updateMargin(),
+            onEnter: () => gsap.set(track, { willChange: 'transform' }),
+            onLeave: () => gsap.set(track, { willChange: 'auto' }),
+            onEnterBack: () => gsap.set(track, { willChange: 'transform' }),
+            onLeaveBack: () => gsap.set(track, { willChange: 'auto' }),
             snap:
               projects.length > 1
                 ? {
@@ -133,7 +156,8 @@ export default function WorkSection() {
         });
 
         return () => {
-          window.removeEventListener('resize', updateMargin);
+          resizeObserver.disconnect();
+          if (resizeFrame) cancelAnimationFrame(resizeFrame);
           animation.scrollTrigger?.kill();
           animation.kill();
         };
@@ -141,19 +165,19 @@ export default function WorkSection() {
 
       mm.add('(max-width: 899px)', () => {
         gsap.set(track, { clearProps: 'transform,width' });
-        setMarginBottom('0px');
+        if (spacerRef.current) spacerRef.current.style.height = '0px';
         ScrollTrigger.refresh();
       });
     }, section);
 
     return () => {
-      ctx.revert();
       mm.revert();
+      ctx.revert();
     };
   }, []);
 
   return (
-    <>
+    <div ref={containerRef} className="work-scroll-container">
       <section
         id="work"
         ref={sectionRef}
@@ -162,12 +186,40 @@ export default function WorkSection() {
       <div className="work-visible-wrapper">
         <div className="work-shell-container">
           <div className="work-header">
-            <div className="work-header-content">
-              <p className="work-label">Selected Work</p>
-              <h2 className="section-heading work-title">
-                Real projects. Real clients.
+            <m.div 
+              className="work-header-content"
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <p style={{
+                margin: '0 0 8px',
+                fontSize: '0.625rem',
+                fontWeight: 600,
+                color: 'var(--text-tertiary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                fontFamily: "'Poppins', system-ui, -apple-system, sans-serif",
+              }}>
+                Proven Impact
+              </p>
+              <h2 style={{
+                margin: 0,
+                fontSize: 'clamp(2rem, 5vw, 3rem)',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                letterSpacing: '-0.03em',
+                lineHeight: 1.08,
+                fontFamily: "'Poppins', system-ui, -apple-system, sans-serif",
+              }}>
+                Engineered for growth.
+                <br />
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
+                  Designed to convert.
+                </span>
               </h2>
-            </div>
+            </m.div>
           </div>
         </div>
 
@@ -265,7 +317,6 @@ export default function WorkSection() {
           display: flex;
           align-items: stretch;
           width: calc(var(--work-card-count) * 100vw);
-          will-change: transform;
           transform: translate3d(0, 0, 0);
         }
 
@@ -282,7 +333,7 @@ export default function WorkSection() {
         .work-card-shell {
           width: min(
             calc(100vw - (2 * var(--container-padding))),
-            var(--container-max)
+            1060px
           );
           margin: 0 auto;
         }
@@ -353,7 +404,7 @@ export default function WorkSection() {
         }
       `}</style>
       </section>
-      <div aria-hidden="true" style={{ height: marginBottom, width: '100%', pointerEvents: 'none' }} />
-    </>
+      <div aria-hidden="true" ref={spacerRef} style={{ width: '100%', pointerEvents: 'none' }} />
+    </div>
   );
 }

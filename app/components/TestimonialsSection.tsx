@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 const testimonials = [
   {
@@ -57,7 +57,7 @@ export default function TestimonialsSection() {
   }, [activeIndex]);
 
   return (
-    <motion.section
+    <m.section
       id="testimonials"
       className="testimonials-section"
       initial="hidden"
@@ -85,7 +85,7 @@ export default function TestimonialsSection() {
         }}
       >
         {/* Left side */}
-        <motion.div
+        <m.div
           variants={{
             hidden: { opacity: 0, x: -30 },
             visible: { opacity: 1, x: 0 }
@@ -159,7 +159,7 @@ export default function TestimonialsSection() {
                 )}
                 {/* Progress animation for current testimonial */}
                 {i === activeIndex && (
-                   <motion.div
+                   <m.div
                      initial={{ width: '0%' }}
                      animate={{ width: '100%' }}
                      transition={{
@@ -178,10 +178,10 @@ export default function TestimonialsSection() {
               </button>
             ))}
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Right side — stacking cards */}
-        <motion.div
+        <m.div
           style={{
             position: 'relative',
             height: '420px',
@@ -201,7 +201,7 @@ export default function TestimonialsSection() {
             const isAhead = i > activeIndex;
 
             return (
-              <motion.div
+              <m.div
                 key={i}
                 onClick={() => {
                   if (isAhead) setActiveIndex(i);
@@ -209,7 +209,7 @@ export default function TestimonialsSection() {
                 variants={{
                   hidden: { opacity: 0, y: 80 },
                   visible: {
-                    opacity: Math.abs(offset) > 2 ? 0 : isActive ? 1 : isBehind ? 0.4 : 0.7,
+                    opacity: isActive ? 1 : isBehind ? 0.4 : 0.7 - (Math.abs(offset) * 0.15),
                     y: isActive ? 0 : isBehind ? offset * 12 : offset * 16,
                     scale: isActive ? 1 : isBehind ? 1 + offset * 0.02 : 1 - offset * 0.03,
                     transition: { duration: 0.8, ease: "easeOut" }
@@ -235,8 +235,8 @@ export default function TestimonialsSection() {
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   cursor: isAhead ? 'pointer' : 'default',
+                  /* // PERF: replaced animated blur with opacity+scale — eliminates paint-storm on scroll */
                   zIndex: testimonials.length - Math.abs(offset),
-                  filter: isActive ? 'none' : `blur(${Math.abs(offset) * 0.5}px)`,
                   pointerEvents: isActive || isAhead ? 'auto' : 'none',
                 }}
               >
@@ -294,10 +294,10 @@ export default function TestimonialsSection() {
                     {testimonial.role}
                   </p>
                 </div>
-              </motion.div>
+              </m.div>
             );
           })}
-        </motion.div>
+        </m.div>
       </div>
 
       <style jsx>{`
@@ -317,6 +317,6 @@ export default function TestimonialsSection() {
           }
         }
       `}</style>
-    </motion.section>
+    </m.section>
   );
 }

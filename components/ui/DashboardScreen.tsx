@@ -5,34 +5,24 @@ import gsap from "gsap";
 
 export default function DashboardScreen() {
   const pathRef = useRef<SVGPathElement>(null);
-  const [projects, setProjects] = useState(0);
-  const [clients, setClients] = useState(0);
-  const [days, setDays] = useState(0);
+  const numRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
   useEffect(() => {
-    // Metric animation
+    // Metric animation (PERF: Direct DOM update instead of React setState)
     const timer = setTimeout(() => {
-      const pObj = { val: 0 };
-      const cObj = { val: 0 };
-      const dObj = { val: 0 };
+      const vals = { p: 0, c: 0, d: 0 };
 
-      gsap.to(pObj, {
-        val: 47,
+      gsap.to(vals, {
+        p: 47,
+        c: 23,
+        d: 18,
         duration: 1.2,
         ease: "power2.out",
-        onUpdate: () => setProjects(Math.round(pObj.val))
-      });
-      gsap.to(cObj, {
-        val: 23,
-        duration: 1.2,
-        ease: "power2.out",
-        onUpdate: () => setClients(Math.round(cObj.val))
-      });
-      gsap.to(dObj, {
-        val: 18,
-        duration: 1.2,
-        ease: "power2.out",
-        onUpdate: () => setDays(Math.round(dObj.val))
+        onUpdate: () => {
+          if (numRefs.current[0]) numRefs.current[0].innerHTML = Math.round(vals.p).toString();
+          if (numRefs.current[1]) numRefs.current[1].innerHTML = Math.round(vals.c).toString();
+          if (numRefs.current[2]) numRefs.current[2].innerHTML = Math.round(vals.d).toString();
+        }
       });
     }, 600);
 
@@ -65,13 +55,18 @@ export default function DashboardScreen() {
       {/* ROW 2: Metrics */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, height: 64, marginBottom: 12 }}>
         {[
-          { label: "Projects", val: projects, trend: "+12% ↑" },
-          { label: "Clients", val: clients, trend: "+8% ↑" },
-          { label: "Avg Days", val: days, trend: "-3 ↓" }
+          { label: "Projects", trend: "+12% ↑" },
+          { label: "Clients", trend: "+8% ↑" },
+          { label: "Avg Days", trend: "-3 ↓" }
         ].map((m, i) => (
           <div key={i} style={{ background: "var(--bg-elevated)", borderRadius: 10, padding: "10px 12px", border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 2 }}>
             <span style={{ fontSize: 9, color: "var(--text-faint)", fontWeight: 400 }}>{m.label}</span>
-            <span style={{ fontSize: 18, color: "var(--text-primary)", fontWeight: 600, fontFamily: "var(--font-outfit)" }}>{m.val}</span>
+            <span 
+              ref={(el) => { numRefs.current[i] = el; }}
+              style={{ fontSize: 18, color: "var(--text-primary)", fontWeight: 600, fontFamily: "var(--font-outfit)" }}
+            >
+              0
+            </span>
             <span style={{ fontSize: 9, fontWeight: 500, color: "#22C55E" }}>{m.trend}</span>
           </div>
         ))}

@@ -1,0 +1,101 @@
+# SCROLL & RUNTIME PERFORMANCE AUDIT: DEV STUDIO
+Project: Next.js 14 + Framer Motion (Lazy) + GSAP + Spline
+
+---
+
+### 🔴 SCROLL KILLERS (immediate jank cause)
+
+1. **File: `app/components/HeroSection.tsx` (Line 128)**
+   - **Issue:** Uses `feTurbulence` in SVG filter for the grain texture overlay.
+   - **Reason:** Fractal noise generation is computed on every frame if the compositor thinks the area is dynamic. Even if static, it's a massive overhead for the GPU/CPU during initial paints and layer compositing.
+   - **Exact Fix:** Replace SVG `feTurbulence` with a static 64x64px or 128x128px noise PNG/WebP tiled background.
+   ```css
+   /* current */
+   background-image: url("data:image/svg+xml,...feTurbulence...");
+   /* fix */
+   background-image: url("/static-noise.png");
+   background-repeat: repeat;
+   ```
+
+2. **File: `app/components/TestimonialsSection.tsx` (Line 239)**
+   - **Issue:** `filter: blur(${Math.abs(offset) * 0.5}px)` animated on scroll/index change.
+   - **Reason:** Static blurs are okay, but *animating* blur values (especially on stacked absolute elements) forces the browser to repaint the entire layer on every tick. This is a primary cause of frame drops.
+   - **Exact Fix:** Remove the dynamic blur or use a pre-rendered blur effect. If the aesthetic is required, use `opacity` or `scale` to imply depth instead.
+
+3. **File: `app/components/WhyChooseUs.tsx` (Lines 577, 605)**
+   - **Issue:** `backdrop-filter: blur(8px)` and `blur(12px)` in `Performance-First` card.
+   - **Reason:** `backdrop-filter` is one of the most expensive CSS properties because it requires the browser to "read back" the pixels behind the element, apply a blur, and then composite. In a section with multiple animations (orbital rotation), this tanks the frame rate.
+   - **Exact Fix:** Set `will-change: backdrop-filter` to hint the browser, or better, replace with a semi-transparent `rgba` background WITHOUT blur if performance remains low.
+
+---
+
+### 🟡 SMOOTHNESS ISSUES (causes choppiness)
+
+1. **File: `app/components/WorkSection.tsx` (Line 124)**
+   - **Issue:** `invalidateOnRefresh: true` in ScrollTrigger.
+   - **Reason:** On every resize or layout shift, ScrollTrigger recalculates all values. While useful for responsiveness, on a heavy horizontal scroll section, it causes a "jump" or high-CPU spike on even minor height changes (common on mobile browsers with hiding address bars).
+   - **Exact Fix:** Only use `invalidateOnRefresh` if the scroll distance *actually* changes based on width. Consider debouncing the refresh.
+
+2. **File: `app/components/WorkSection.tsx` (Line 122)**
+   - **Issue:** `scrub: 0.55` is good, but the "fake" scroll height (`marginBottom: dist`) causes layout shifts when it updates.
+   - **Reason:** Updating a state-bound `marginBottom` (Line 104) triggers a full React re-render of the parent, which might be overkill.
+   - **Exact Fix:** Use `gsap.set` or a `useRef` to update a spacer element's height directly in the `onRefresh` callback avoiding the React state loop.
+
+3. **File: `app/components/Navbar.tsx` (Line 64)**
+   - **Issue:** `backdrop-blur-2xl` on fixed navbar.
+   - **Reason:** As the user scrolls, every pixel behind the navbar must be re-calculated and re-blurred.
+   - **Exact Fix:** Limit the blur radius or use a solid background with slightly higher opacity on mobile devices where GPU power is lower.
+
+---
+
+### 🟢 MICRO OPTIMIZATIONS (polish)
+
+1. **File: `app/components/WorkSection.tsx` (Line 84)**
+   - **Optimization:** Add global GSAP configuration for smoother handling.
+   - **Exact Fix:** 
+   ```javascript
+   ScrollTrigger.config({ limitCallbacks: true });
+   ScrollTrigger.normalizeScroll(true); // Crucial for mobile smoothing
+   ```
+
+2. **File: `components/ui/SplineScene.tsx` (Check usage in `HeroSection.tsx`)**
+   - **Optimization:** Spline is a massive resource hog.
+   - **Exact Fix:** Ensure `Spline` is only rendering when in view (which it is, in Hero), but more importantly, consider a "low-res" mode or a static fallback for mobile devices to prevent thermal throttling which leads to scroll jank.
+
+3. **File: `app/components/WhyChooseUs.tsx` (Line 553)**
+   - **Optimization:** `animate={{ rotate: 360 }}` infinite loop.
+   - **Exact Fix:** Add `will-change: transform` to the rotating container to ensure it stays on its own compositor layer permanently.
+
+---
+
+### 📋 SCROLLTRIGGER INVENTORY
+
+| File | Trigger Element | Scrub Value | Pin | Properties Animated | GPU Safe |
+|------|-----------------|-------------|-----|-------------------|----------|
+| `WorkSection.tsx` | `.work-scroll-container` | 0.55 | No (uses sticky) | `x` (track) | Yes (`force3D: true`) |
+| `TestimonialsSection.tsx`| `m.section` | N/A (Manual/Auto) | Sticky top 0 | `y`, `scale`, `opacity`, `filter` | **NO** (`filter: blur`) |
+| `WhyChooseUs.tsx` | Bento Cards (useInView) | N/A | No | `y`, `opacity` | Yes (`will-change: transform`) |
+
+---
+
+### ⚡ TOP 5 FIXES FOR IMMEDIATE SCROLL SMOOTHNESS
+
+1. **FIX:** Replace `feTurbulence` with a static grain image in `HeroSection.tsx`.
+   - **Impact:** High (Eliminates core compositor jank).
+   - **Effort:** Very Low (1 CSS line change + 1 asset).
+
+2. **FIX:** Remove `filter: blur` animation from `TestimonialsSection.tsx`.
+   - **Impact:** High (Eliminates paint-storm during scroll/interaction).
+   - **Effort:** Low (Remove 1 line of style).
+
+3. **FIX:** Enable `ScrollTrigger.normalizeScroll(true)` and `limitCallbacks`.
+   - **Impact:** Medium-High (Smoother mobile experience, prevents callback overlap).
+   - **Effort:** Ultra Low (2 lines of JS).
+
+4. **FIX:** Replace `backdrop-filter` in `WhyChooseUs.tsx` with solid/semi-transparent fallbacks.
+   - **Impact:** Medium (Improves frame consistency in mid-page).
+   - **Effort:** Low (CSS adjustment).
+
+5. **FIX:** Use `will-change: backdrop-filter, transform` more aggressively on elements moving during scroll.
+   - **Impact:** Medium (Reduces calculation overhead before layers move).
+   - **Effort:** Low (CSS additions).

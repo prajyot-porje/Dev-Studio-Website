@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface Ripple {
@@ -64,7 +64,7 @@ export const RippleElement = React.forwardRef<HTMLElement, RippleElementProps>(
         </span>
         <AnimatePresence>
           {ripples.map((ripple) => (
-            <motion.span
+            <m.span
               key={ripple.id}
               initial={{ top: ripple.y, left: ripple.x, scale: 0, opacity: 0.25 }}
               animate={{ scale: 4, opacity: 0 }}

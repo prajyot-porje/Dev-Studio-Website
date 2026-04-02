@@ -69,32 +69,6 @@ export default function ProcessSection() {
           </h2>
         </div>
 
-        {/* Spline 3D Scene */}
-        <div
-          className="spline-wrapper"
-          style={{
-            width: '100%',
-            height: '600px',
-            borderRadius: 'var(--radius-xl)',
-            overflow: 'hidden',
-            marginBottom: '56px',
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'scale(0.96)' : 'scale(0.92)',
-            transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s',
-          }}
-        >
-          <iframe
-            src="https://my.spline.design/webdiagram-lQaAdaC6UxW4xKABFD1EVLcs"
-            style={{
-              width: '100%',
-              height: '100%',
-              border: 'none',
-            }}
-            loading="lazy"
-            title="Process 3D Scene"
-          />
-        </div>
-
         {/* Steps */}
         <div
           style={{

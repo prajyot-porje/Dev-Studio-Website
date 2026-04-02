@@ -1,14 +1,24 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "./components/ThemeProvider";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import { cn } from "@/lib/utils";
+
+const poppins = Poppins({
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  variable: "--font-sans",
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+});
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -23,31 +33,35 @@ export const metadata: Metadata = {
   },
 };
 
+import { LoadingProvider } from "@/components/LoadingContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", poppins.variable, inter.variable)}>
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                var t = localStorage.getItem('devstudio-theme');
-                if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                document.documentElement.setAttribute('data-theme', t);
-              })();
-            `,
-          }}
+             __html: `
+               (function() {
+                 var t = localStorage.getItem('devstudio-theme');
+                 if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                 document.documentElement.setAttribute('data-theme', t);
+               })();
+             `,
+           }}
         />
       </head>
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${poppins.variable} ${inter.variable} antialiased`}>
         <ThemeProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
+          <LoadingProvider>
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+          </LoadingProvider>
         </ThemeProvider>
       </body>
     </html>

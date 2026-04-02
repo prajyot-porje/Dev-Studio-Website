@@ -1,6 +1,6 @@
 import HeroSection from './components/HeroSection';
 import ServicesSection from './components/ServicesSection';
-import WhyUsSection from './components/WhyUsSection';
+import WhyChooseUsSection from './components/WhyChooseUs';
 import ProcessSection from './components/ProcessSection';
 import WorkSection from './components/WorkSection';
 import TestimonialsSection from './components/TestimonialsSection';
@@ -12,7 +12,7 @@ export default function Home() {
     <>
       <HeroSection />
       <ServicesSection />
-      <WhyUsSection />
+      <WhyChooseUsSection />
       <ProcessSection />
       <AboutSection />
       <WorkSection />

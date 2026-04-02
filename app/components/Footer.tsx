@@ -147,7 +147,7 @@ export default function Footer() {
       >
         <AnimatedText
           text="Dev Studio"
-          className="w-full"
+          className="w-full "
           textClassName="font-semibold tracking-wide"
           textStyle={{
             fontSize: 'var(--text-footer)',

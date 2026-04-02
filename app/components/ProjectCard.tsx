@@ -1,8 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
+import { memo } from 'react';
 import styles from './ProjectCard.module.css';
 
 export type ProjectMetric = {
@@ -28,9 +29,18 @@ const imageMap: Record<string, string> = {
   kiyomi: '/kiyomi.png',
 };
 
+/**
+ * Spring-tuned easing — matches the reference's snappy-yet-smooth feel.
+ * Using a tight custom cubic-bezier that overshoots slightly on y lift.
+ */
 const hoverTransition = {
-  duration: 0.35,
-  ease: [0.16, 1, 0.3, 1] as const,
+  duration: 0.40,
+  ease: [0.23, 1.0, 0.32, 1.0] as const,
+};
+
+const mockupTransition = {
+  duration: 0.45,
+  ease: [0.16, 1.0, 0.30, 1.0] as const,
 };
 
 function normalizeKey(value: string) {
@@ -60,7 +70,7 @@ function FallbackMockup({ clientName }: { clientName: string }) {
   );
 }
 
-export default function ProjectCard({
+export default memo(function ProjectCard({
   clientName,
   projectTitle,
   description,
@@ -75,35 +85,38 @@ export default function ProjectCard({
     imageSrc ??
     imageMap[normalizeKey(clientName)] ??
     imageMap[normalizeKey(projectTitle)];
+
   const ctaHref = href ?? '#contact';
   const isExternalLink = /^https?:\/\//.test(ctaHref);
   const supportingText = outcomes[0] ?? description;
 
   return (
-    <motion.article
-      whileHover={{ y: -6 }}
+    <m.article
+      whileHover={{ y: -8, scale: 1.004 }}
       transition={hoverTransition}
       className={styles.root}
     >
       <div className={styles.inner}>
+
+        {/* ── Left: Preview panel ─────────────────────────────────────────── */}
         <div className={styles.lightPanel}>
           <div className={styles.previewGlow} />
 
           <div className={styles.previewHeader}>
             <p className={styles.previewEyebrow}>Project Preview</p>
             <p className={styles.previewText}>
-              A cleaner, faster presentation layer with clearer hierarchy and stronger visual
-              trust.
+              A cleaner, faster presentation layer with clearer hierarchy and
+              stronger visual trust signals.
             </p>
           </div>
 
           <div className={styles.previewStage}>
             {resolvedImage ? (
-              <motion.div
-                whileHover={{ y: -8, rotate: -1 }}
-                transition={hoverTransition}
+              <m.div
+                whileHover={{ y: -10, rotate: -1.2, scale: 1.02 }}
+                transition={mockupTransition}
                 className={styles.mockupWrap}
-                style={{ transformOrigin: '50% 80%' }}
+                style={{ transformOrigin: '50% 85%' }}
               >
                 <div className={styles.mockupShadow} />
                 <div className={styles.mockupMedia}>
@@ -115,7 +128,7 @@ export default function ProjectCard({
                     className={styles.mockupImage}
                   />
                 </div>
-              </motion.div>
+              </m.div>
             ) : (
               <FallbackMockup clientName={clientName} />
             )}
@@ -124,11 +137,14 @@ export default function ProjectCard({
           <div className={styles.previewFooter}>
             <p className={styles.previewFooterLabel}>{outcomesHeading}</p>
             <p className={styles.previewFooterValue}>
-              {metrics[0]?.value ? `${metrics[0].value} ${metrics[0].label}` : ''}
+              {metrics[0]?.value
+                ? `${metrics[0].value} ${metrics[0].label}`
+                : '—'}
             </p>
           </div>
         </div>
 
+        {/* ── Right: Content panel ────────────────────────────────────────── */}
         <div className={styles.darkPanel}>
           <div className={styles.contentHeader}>
             <p className={styles.eyebrow}>{clientName}</p>
@@ -143,7 +159,10 @@ export default function ProjectCard({
 
           <div className={styles.metricGrid}>
             {metrics.slice(0, 4).map((metric) => (
-              <div key={`${metric.label}-${metric.value}`} className={styles.metricCard}>
+              <div
+                key={`${metric.label}-${metric.value}`}
+                className={styles.metricCard}
+              >
                 <p className={styles.metricValue}>{metric.value}</p>
                 <p className={styles.metricLabel}>{metric.label}</p>
               </div>
@@ -151,27 +170,28 @@ export default function ProjectCard({
           </div>
 
           <div className={styles.stackList}>
-            {techStack.slice(0, 4).map((tech) => (
+            {techStack.slice(0, 5).map((tech) => (
               <span key={tech} className={styles.stackPill}>
                 {tech}
               </span>
             ))}
           </div>
 
-          <motion.a
+          <m.a
             href={ctaHref}
             target={isExternalLink ? '_blank' : undefined}
             rel={isExternalLink ? 'noreferrer noopener' : undefined}
-            whileHover={{ x: 2, y: -1 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ x: 3, y: -1 }}
+            whileTap={{ scale: 0.97 }}
             transition={hoverTransition}
             className={styles.cta}
           >
             <span>View Case Study</span>
-            <ArrowUpRight className={styles.ctaIcon} strokeWidth={2.2} />
-          </motion.a>
+            <ArrowUpRight className={styles.ctaIcon} strokeWidth={2.4} />
+          </m.a>
         </div>
+
       </div>
-    </motion.article>
+    </m.article>
   );
-}
+});

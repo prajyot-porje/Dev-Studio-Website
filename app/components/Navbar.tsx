@@ -35,7 +35,22 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    let ticking = false;
+
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      if (ticking) return;
+      ticking = true;
+
+      requestAnimationFrame(() => {
+        setScrolled((current) => {
+          const next = scrollY > 20;
+          return current === next ? current : next;
+        });
+        ticking = false;
+      });
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -72,7 +87,7 @@ export default function Navbar() {
         <a
           href="#"
           style={{
-            fontWeight: 700,
+            fontWeight: 600,
             fontSize: 'var(--text-lg)',
             color: 'var(--text-primary)',
             textDecoration: 'none',
@@ -82,7 +97,7 @@ export default function Navbar() {
             transition: 'color 0.3s ease',
           }}
         >
-          DevStudio
+          Dev Studio
         </a>
       </div>
 
@@ -184,6 +199,16 @@ export default function Navbar() {
           Get in Touch
         </RippleElement>
       </div>
+      <style>{`
+        @media (max-width: 768px) {
+          .glass-navbar {
+            /* // PERF: removes backdrop-filter on mobile fixed navbar — biggest mobile scroll win */
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            background: rgba(13,13,13,0.92) !important;
+          }
+        }
+      `}</style>
     </nav>
   );
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { motion, Variants } from "framer-motion"
+import { m, Variants } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 interface AnimatedTextProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -65,8 +65,8 @@ const AnimatedText = React.forwardRef<HTMLDivElement, AnimatedTextProps>(
         className={cn("flex items-center justify-center", className)}
         {...props}
       >
-        <motion.div
-          style={{ display: "flex", overflow: "hidden", ...textStyle }}
+        <m.div
+          style={{ display: "flex", overflow: "hidden", fontFamily: "var(--font-inter), system-ui, sans-serif", ...textStyle }}
           variants={container}
           initial="hidden"
           whileInView={replay ? "visible" : "hidden"}
@@ -74,11 +74,11 @@ const AnimatedText = React.forwardRef<HTMLDivElement, AnimatedTextProps>(
           className={cn("font-semibold", textClassName)}
         >
           {letters.map((letter, index) => (
-            <motion.span key={index} variants={child}>
+            <m.span key={index} variants={child}>
               {letter === " " ? "\u00A0" : letter}
-            </motion.span>
+            </m.span>
           ))}
-        </motion.div>
+        </m.div>
       </div>
     )
   }
