@@ -1,7 +1,10 @@
 'use client';
 
-import { useRef, useState, useEffect, type CSSProperties } from 'react';
-import { m, useInView } from 'framer-motion';
+import { useRef, useState, type CSSProperties } from 'react';
+import { m } from 'framer-motion';
+import { ArrowUpRight } from 'lucide-react';
+import Image from 'next/image';
+import SectionReveal from '@/components/ui/SectionReveal';
 
 /* ═══════════════════════════════════════════════════════════════
    DESIGN SYSTEM — Matching WhyChooseUs / WorkSection
@@ -10,42 +13,35 @@ const FONT = "'Poppins', system-ui, -apple-system, sans-serif";
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 /* ═══════════════════════════════════════════════════════════════
-   SERVICE DATA — stripped to icon + title + description
+   SERVICE DATA
    ═══════════════════════════════════════════════════════════════ */
 const services = [
   {
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-        <line x1="8" y1="21" x2="16" y2="21" />
-        <line x1="12" y1="17" x2="12" y2="21" />
-      </svg>
-    ),
-    title: 'Web Development',
-    description:
-      'Fast, modern websites and web apps built with Next.js and TypeScript. Clean code, production-ready, delivered on time.',
+    titleTop: 'SEO & AEO',
+    titleBottom: 'Optimization',
+    description: 'Data-driven search engine & AI optimisation, putting your business where buyers look.',
+    image: '/magnifying-glass.png',
+    imagePos: { bottom: '-2%', right: '-2%', width: '55%', height: '55%' },
+    imageScale: 1.35,
+    link: '#contact'
   },
   {
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-        <path d="M2 17l10 5 10-5" />
-        <path d="M2 12l10 5 10-5" />
-      </svg>
-    ),
-    title: 'AI Integrations & Automation',
-    description:
-      'Intelligent features and automation pipelines — chatbots, document processing, and custom AI-powered workflows.',
+    titleTop: 'Premium web',
+    titleBottom: 'development',
+    description: 'Fast, modern websites built with Next.js and TypeScript. Clean, production-ready code.',
+    image: '/macbook.png',
+    imagePos: { bottom: '-5%', right: '-7%', width: '68%', height: '60%' },
+    imageScale: 1.0,
+    link: '#contact'
   },
   {
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-      </svg>
-    ),
-    title: 'Digital Presence Management',
-    description:
-      'Ongoing LinkedIn management, content updates, and website maintenance. Your digital presence, handled.',
+    titleTop: 'Intelligent AI',
+    titleBottom: 'integrations',
+    description: 'Automate workflows & scale effortlessly with custom LLM pipelines and smart agents.',
+    image: '/robot.png',
+    imagePos: { bottom: '0%', right: '0%', width: '55%', height: '55%' },
+    imageScale: 1.0,
+    link: '#contact'
   },
 ];
 
@@ -60,52 +56,27 @@ interface CardPosition {
 }
 
 const STACKED: CardPosition[] = [
-  { x: '-6%',  y: '12px',  rotate: '-8deg', zIndex: 2 },  // Left (behind)
-  { x: '0%',   y: '0px',   rotate: '0deg',  zIndex: 3 },  // Center (top)
-  { x: '6%',   y: '12px',  rotate: '8deg',  zIndex: 1 },  // Right (behind)
+  { x: '-6%', y: '12px', rotate: '-8deg', zIndex: 2 },  // Left (behind)
+  { x: '0%', y: '0px', rotate: '0deg', zIndex: 3 },  // Center (top)
+  { x: '6%', y: '12px', rotate: '8deg', zIndex: 1 },  // Right (behind)
 ];
 
 const SPREAD: CardPosition[] = [
   { x: 'calc(-100% - 16px)', y: '0px', rotate: '0deg', zIndex: 2 },
-  { x: '0%',                  y: '0px', rotate: '0deg', zIndex: 3 },
-  { x: 'calc(100% + 16px)',  y: '0px', rotate: '0deg', zIndex: 1 },
+  { x: '0%', y: '0px', rotate: '0deg', zIndex: 3 },
+  { x: 'calc(100% + 16px)', y: '0px', rotate: '0deg', zIndex: 1 },
 ];
 
 /* ═══════════════════════════════════════════════════════════════
    COMPONENT
    ═══════════════════════════════════════════════════════════════ */
 export default function ServicesSection() {
-  const sectionRef = useRef<HTMLElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
   const [hasSpread, setHasSpread] = useState(false);
-
-  /* Heading reveal — uses Framer Motion useInView */
-  const headingRef = useRef<HTMLDivElement>(null);
-  const headingInView = useInView(headingRef, { once: true, margin: '-80px' });
-
-  /* Card animation trigger — IntersectionObserver with 0.85 threshold */
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setHasSpread(true);
-          observer.unobserve(section);
-        }
-      },
-      { threshold: 0.85 }
-    );
-
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <section
       id="services"
-      ref={sectionRef}
       className="services-section"
     >
       {/* ── Inline styles (scoped via JSX) ── */}
@@ -142,13 +113,13 @@ export default function ServicesSection() {
           height: clamp(300px, 38vh, 420px);
         }
 
-        /* ── Individual card ── */
-        .service-card {
+        /* ── Individual card shell ── */
+        .service-card-shell {
           position: absolute;
-          width: min(320px, 28vw);
-          height: clamp(280px, 34vh, 380px);
-          border-radius: 28px;
-          padding: 36px 32px;
+          width: min(370px, 33vw);
+          height: clamp(340px, 40vh, 440px);
+          border-radius: 36px;
+          padding: 8px;
           display: flex;
           flex-direction: column;
           cursor: default;
@@ -158,56 +129,147 @@ export default function ServicesSection() {
           will-change: transform;
         }
 
-        .service-card:nth-child(1) { transition-delay: 60ms; }
-        .service-card:nth-child(2) { transition-delay: 0ms; }
-        .service-card:nth-child(3) { transition-delay: 120ms; }
+        .service-card-shell:nth-child(1) { transition-delay: 60ms; }
+        .service-card-shell:nth-child(2) { transition-delay: 0ms; }
+        .service-card-shell:nth-child(3) { transition-delay: 120ms; }
 
-        /* ── Card background — light mode ── */
-        .service-card {
-          background: linear-gradient(145deg, #fafafa 0%, #f0f0f2 100%);
-          border: 1px solid rgba(0, 0, 0, 0.06);
+        /* ── Outer Shell background — light mode ── */
+        .service-card-shell {
+          background: #ECEDEF;
+          border: 1px solid rgba(0, 0, 0, 0.07);
           box-shadow:
-            0 20px 60px -10px rgba(0, 0, 0, 0.12),
-            0 8px 24px -6px rgba(0, 0, 0, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            inset 0 1px 0 rgba(255, 255, 255, 0.90),
+            0 1px 2px  rgba(0, 0, 0, 0.04),
+            0 4px 8px  rgba(0, 0, 0, 0.04),
+            0 16px 32px rgba(0, 0, 0, 0.07),
+            0 40px 72px rgba(0, 0, 0, 0.09),
+            0 80px 120px rgba(0, 0, 0, 0.06);
         }
 
-        /* ── Card background — dark mode ── */
-        [data-theme="dark"] .service-card {
-          background: linear-gradient(145deg, #1a1a1e 0%, #0d0d10 100%);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+        /* ── Outer Shell background — dark mode ── */
+        :global([data-theme="dark"]) .service-card-shell,
+        :global(.dark) .service-card-shell {
+          background: #121316;
+          border: 1px solid rgba(255, 255, 255, 0.05);
           box-shadow:
-            0 20px 60px -10px rgba(0, 0, 0, 0.5),
-            0 8px 24px -6px rgba(0, 0, 0, 0.35),
-            inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            inset 0 1px 0 rgba(255, 255, 255, 0.06),
+            0 8px 32px rgba(0, 0, 0, 0.4),
+            0 24px 64px rgba(0, 0, 0, 0.3);
         }
 
-        .service-card:hover {
+        /* ── Inner layer ── */
+        .service-card-inner {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          border-radius: 28px;
+          padding: 32px 28px;
+          display: flex;
+          flex-direction: column;
+          background: linear-gradient(165deg, #ffffff 0%, #F7F8FA 60%, #F2F4F7 100%);
+          border: 1px solid rgba(0, 0, 0, 0.055);
           box-shadow:
-            0 24px 72px -8px rgba(0, 0, 0, 0.18),
-            0 12px 32px -4px rgba(0, 0, 0, 0.12),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            inset 0 1px 0 rgba(255, 255, 255, 1),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.04),
+            0 1px 3px rgba(0, 0, 0, 0.04),
+            0 4px 12px rgba(0, 0, 0, 0.04);
+          transition: box-shadow 300ms var(--ease-out);
+          overflow: hidden;
         }
 
-        [data-theme="dark"] .service-card:hover {
+        :global([data-theme="dark"]) .service-card-inner,
+        :global(.dark) .service-card-inner {
+          background: linear-gradient(165deg, #1a1c20 0%, #141518 20%, #101114 45%, #0c0d10 65%, #090a0c 85%, #060708 100%);
+          border: 1px solid rgba(255, 255, 255, 0.07);
           box-shadow:
-            0 24px 72px -8px rgba(0, 0, 0, 0.65),
-            0 12px 32px -4px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.30),
+            0 4px 8px rgba(0, 0, 0, 0.12),
+            0 12px 28px rgba(0, 0, 0, 0.18),
+            0 28px 56px rgba(0, 0, 0, 0.16),
+            0 48px 80px rgba(0, 0, 0, 0.10);
         }
 
-        /* ── Icon container ── */
-        .service-icon {
-          width: 56px;
-          height: 56px;
-          border-radius: 16px;
+        /* ── Hover ── */
+        .service-card-shell:hover .service-card-inner {
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 1),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.04),
+            0 8px 16px rgba(0, 0, 0, 0.06),
+            0 16px 32px rgba(0, 0, 0, 0.06),
+            0 32px 56px rgba(0, 0, 0, 0.06);
+        }
+
+        :global([data-theme="dark"]) .service-card-shell:hover .service-card-inner,
+        :global(.dark) .service-card-shell:hover .service-card-inner {
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.30),
+            0 8px 16px rgba(0, 0, 0, 0.20),
+            0 16px 36px rgba(0, 0, 0, 0.24),
+            0 36px 72px rgba(0, 0, 0, 0.20),
+            0 64px 120px rgba(0, 0, 0, 0.15);
+        }
+
+        .service-image-wrapper {
+          position: absolute;
+          z-index: 1;
+          pointer-events: none;
+        }
+
+        .service-image {
+          object-fit: contain !important;
+          object-position: center !important;
+          filter: drop-shadow(0 35px 35px rgba(0,0,0,0.5)) drop-shadow(0 15px 15px rgba(0,0,0,0.3));
+          transition: filter 0.4s var(--ease-out), transform 0.8s var(--ease-spring);
+          will-change: transform, filter;
+        }
+
+        :global([data-theme="dark"]) .service-image,
+        :global(.dark) .service-image {
+          filter: drop-shadow(0 40px 40px rgba(0,0,0,0.95)) drop-shadow(0 20px 20px rgba(0,0,0,0.8));
+        }
+
+        .service-card-shell:hover .service-image {
+          transform: scale(1.06) translateY(-4px);
+        }
+        
+        .learn-more-btn {
+          margin-top: auto;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+        }
+
+        .learn-more-icon {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          background: var(--text-primary);
+          color: var(--bg-primary);
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-bottom: 24px;
-          background: var(--accent-blue-subtle);
-          color: var(--accent-blue);
-          flex-shrink: 0;
+          transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+        }
+
+        .service-card-shell:hover .learn-more-icon {
+          transform: scale(1.08);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        :global([data-theme="dark"]) .service-card-shell:hover .learn-more-icon,
+        :global(.dark) .service-card-shell:hover .learn-more-icon {
+          box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .learn-more-text {
+          font-size: 0.75rem;
+          font-weight: 650;
+          letter-spacing: 0.05em;
+          color: var(--text-primary);
+          text-transform: uppercase;
         }
 
         /* ── Mobile graceful degradation ── */
@@ -227,7 +289,7 @@ export default function ServicesSection() {
             gap: 20px;
           }
 
-          .service-card {
+          .service-card-shell {
             position: relative !important;
             width: 100% !important;
             max-width: 360px;
@@ -240,136 +302,165 @@ export default function ServicesSection() {
               transform 700ms var(--ease-out) !important;
           }
 
-          .service-card.mobile-visible {
+          .service-card-shell.mobile-visible {
             opacity: 1;
             transform: translateY(0) !important;
           }
         }
 
         @media (min-width: 769px) and (max-width: 1024px) {
-          .service-card {
-            width: min(280px, 26vw);
-            height: clamp(260px, 32vh, 350px);
-            padding: 28px 24px;
+          .service-card-shell {
+            width: min(320px, 30vw);
+            height: clamp(300px, 36vh, 380px);
           }
         }
       `}</style>
 
-      <div className="services-inner">
-        {/* ═══ Heading Block ═══ */}
-        <m.div
-          ref={headingRef}
-          initial={{ opacity: 0, y: 28 }}
-          animate={headingInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
-          transition={{ duration: 0.72, ease: EASE }}
-          style={{
-            textAlign: 'center',
-            maxWidth: 560,
-          }}
-        >
-          <p
-            style={{
-              margin: '0 0 8px',
-              fontSize: '0.625rem',
-              fontWeight: 600,
-              color: 'var(--text-tertiary)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              fontFamily: FONT,
-            }}
-          >
-            What We Do
-          </p>
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 'clamp(2rem, 5vw, 3rem)',
-              fontWeight: 700,
-              color: 'var(--text-primary)',
-              letterSpacing: '-0.03em',
-              lineHeight: 1.08,
-              fontFamily: FONT,
-            }}
-          >
-            Services built for growth.
-            <br />
-            <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
-              Delivered with precision.
-            </span>
-          </h2>
-        </m.div>
-
-        {/* ═══ Cards Arena ═══ */}
-        <div ref={cardsRef} className="services-cards-arena">
-          {services.map((service, i) => {
-            const pos = hasSpread ? SPREAD[i] : STACKED[i];
-
-            // Build transform string for desktop
-            const desktopTransform = `translateX(${pos.x}) translateY(${pos.y}) rotate(${pos.rotate})`;
-
-            return (
-              <div
-                key={service.title}
-                className={`service-card${hasSpread ? ' mobile-visible' : ''}`}
+      <SectionReveal rootMargin="-80px" threshold={0.85} onChange={(inView) => { if (inView) setHasSpread(true); }}>
+        {(sectionInView) => (
+          <div className="services-inner">
+            {/* ═══ Heading Block ═══ */}
+            <m.div
+              initial={{ opacity: 0, y: 28 }}
+              animate={sectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+              transition={{ duration: 0.72, ease: EASE }}
+              style={{
+                textAlign: 'center',
+                maxWidth: 560,
+              }}
+            >
+              <p
                 style={{
-                  zIndex: pos.zIndex,
-                  transform: desktopTransform,
-                } as CSSProperties}
+                  margin: '0 0 8px',
+                  fontSize: '0.625rem',
+                  fontWeight: 600,
+                  color: 'var(--text-tertiary)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  fontFamily: FONT,
+                }}
               >
-                {/* Top highlight line */}
-                <div
-                  aria-hidden
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 28,
-                    right: 28,
-                    height: 1,
-                    background:
-                      'linear-gradient(90deg, transparent 0%, var(--glass-highlight) 30%, var(--glass-highlight) 70%, transparent 100%)',
-                    borderRadius: '0 0 4px 4px',
-                    pointerEvents: 'none',
-                  }}
-                />
+                What We Do
+              </p>
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: 'clamp(2rem, 5vw, 3.25rem)',
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1.1,
+                  fontFamily: FONT,
+                }}
+              >
+                Our Expertise.
+                <br />
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
+                  Built for your business growth.
+                </span>
+              </h2>
+            </m.div>
 
-                {/* Icon */}
-                <div className="service-icon">
-                  {service.icon}
-                </div>
+            {/* ═══ Cards Arena ═══ */}
+            <div ref={cardsRef} className="services-cards-arena">
+              {services.map((service, i) => {
+                const pos = hasSpread ? SPREAD[i] : STACKED[i];
 
-                {/* Title */}
-                <h3
-                  style={{
-                    margin: '0 0 12px',
-                    fontSize: '1.25rem',
-                    fontWeight: 700,
-                    color: 'var(--text-primary)',
-                    letterSpacing: '-0.02em',
-                    lineHeight: 1.2,
-                    fontFamily: FONT,
-                  }}
-                >
-                  {service.title}
-                </h3>
+                // Build transform string for desktop
+                const desktopTransform = `translateX(${pos.x}) translateY(${pos.y}) rotate(${pos.rotate})`;
 
-                {/* Description */}
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: '0.8125rem',
-                    fontWeight: 400,
-                    color: 'var(--text-secondary)',
-                    lineHeight: 1.55,
-                    fontFamily: FONT,
-                  }}
-                >
-                  {service.description}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+                return (
+                  <div
+                    key={service.titleTop}
+                    className={`service-card-shell${hasSpread ? ' mobile-visible' : ''}`}
+                    style={{
+                      zIndex: pos.zIndex,
+                      transform: desktopTransform,
+                    } as CSSProperties}
+                  >
+                    <div className="service-card-inner">
+                      {/* Top highlight line */}
+                      <div
+                        aria-hidden
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 28,
+                          right: 28,
+                          height: 1,
+                          background:
+                            'linear-gradient(90deg, transparent 0%, var(--glass-highlight) 30%, var(--glass-highlight) 70%, transparent 100%)',
+                          borderRadius: '0 0 4px 4px',
+                          pointerEvents: 'none',
+                        }}
+                      />
+
+                      {/* Text Content Layer */}
+                      <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', height: '100%' }}>
+
+                        {/* Two-part Heading */}
+                        <h3
+                          style={{
+                            margin: '0 0 16px',
+                            fontSize: 'clamp(1.5rem, 2.8vw, 2rem)',
+                            fontWeight: 700,
+                            letterSpacing: '-0.04em',
+                            lineHeight: 1.05,
+                            fontFamily: FONT,
+                          }}
+                        >
+                          <span style={{ color: 'var(--text-primary)', display: 'block' }}>{service.titleTop}</span>
+                          <span style={{ color: 'var(--text-tertiary)', display: 'block' }}>{service.titleBottom}</span>
+                        </h3>
+
+                        {/* Description */}
+                        <p
+                          style={{
+                            margin: '0 0 32px',
+                            fontSize: '0.9rem',
+                            fontWeight: 400,
+                            color: 'var(--text-secondary)',
+                            lineHeight: 1.6,
+                            fontFamily: FONT,
+                            maxWidth: '90%',
+                          }}
+                        >
+                          {service.description}
+                        </p>
+
+                        {/* Learn More Button */}
+                        <a href={service.link} className="learn-more-btn" style={{ textDecoration: 'none' }}>
+                          <div className="learn-more-icon">
+                            <ArrowUpRight size={18} strokeWidth={2.5} />
+                          </div>
+                          <span className="learn-more-text">
+                            Learn More
+                          </span>
+                        </a>
+                      </div>
+
+                      {/* Large Icon Image Layer */}
+                      <div className="service-image-wrapper" style={{
+                        ...(service.imagePos || {}),
+                        transform: `scale(${service.imageScale || 1})`
+                      }}>
+                        <Image
+                          src={service.image}
+                          alt={service.titleTop}
+                          fill
+                          className="service-image"
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          style={{ objectFit: 'contain', objectPosition: 'center' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </SectionReveal>
     </section>
   );
 }

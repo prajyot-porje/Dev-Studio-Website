@@ -5,6 +5,7 @@ import { m, useInView } from 'framer-motion';
 import { useTheme } from '@/app/components/ThemeProvider';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
+import SectionReveal from '@/components/ui/SectionReveal';
 
 const Globe = dynamic(() => import('@/components/globe'), { ssr: false });
 import { HexagonBackground } from '@/components/hexagon';
@@ -29,12 +30,16 @@ interface BentoCardProps {
   children: ReactNode;
   index: number;
   style?: CSSProperties;
+  externalInView?: boolean;
+  premiumStatic?: boolean;
 }
 
-function BentoCard({ area, children, index, style }: BentoCardProps) {
+function BentoCard({ area, children, index, style, externalInView, premiumStatic }: BentoCardProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const localInView = useInView(ref, { once: true, margin: '-60px' });
+  const inView = externalInView ?? localInView;
   const [hover, setHover] = useState(false);
+  const { theme } = useTheme();
 
   return (
     <m.div
@@ -49,24 +54,28 @@ function BentoCard({ area, children, index, style }: BentoCardProps) {
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        borderRadius: 18,
-        overflow: 'hidden',
+        borderRadius: 24,
+        overflow: 'visible',
         /* // PERF: promotes backdrop-filter elements to GPU layer — reduces repaint cost */
-        willChange: 'transform, backdrop-filter',
+        willChange: 'transform, opacity',
         transform: 'translateZ(0)',
         ...style,
       }}
     >
-      {/* Layer 1: Shadow — soft, diffused, premium */}
+      {/* Layer 1: Shadow — Work Section Premium System */}
       <div
         aria-hidden
         style={{
           position: 'absolute',
           inset: 0,
-          borderRadius: 18,
-          boxShadow: hover
-            ? '0 8px 32px -8px rgba(0,0,0,0.18), 0 24px 56px -12px rgba(0,0,0,0.14), 0 0 0 1px var(--accent-blue-glow)'
-            : '0 2px 8px -2px rgba(0,0,0,0.1), 0 8px 28px -6px rgba(0,0,0,0.08), 0 0 0 1px var(--border-color)',
+          borderRadius: 24,
+          boxShadow: theme === 'dark'
+            ? (hover
+              ? 'inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.30), 0 8px 16px rgba(0, 0, 0, 0.20), 0 16px 36px rgba(0, 0, 0, 0.24), 0 36px 72px rgba(0, 0, 0, 0.20), 0 64px 120px rgba(0, 0, 0, 0.15)'
+              : 'inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.30), 0 4px 8px rgba(0, 0, 0, 0.12), 0 12px 28px rgba(0, 0, 0, 0.18), 0 28px 56px rgba(0, 0, 0, 0.16), 0 48px 80px rgba(0, 0, 0, 0.10)')
+            : (hover
+              ? 'inset 0 1px 0 rgba(255, 255, 255, 1), inset 0 -1px 0 rgba(0, 0, 0, 0.04), 0 8px 16px rgba(0, 0, 0, 0.06), 0 16px 32px rgba(0, 0, 0, 0.06), 0 32px 56px rgba(0, 0, 0, 0.06)'
+              : 'inset 0 1px 0 rgba(255, 255, 255, 1), inset 0 -1px 0 rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04)'),
           transition: `box-shadow 350ms ${EASE_CSS}`,
           pointerEvents: 'none',
           zIndex: 0,
@@ -79,10 +88,14 @@ function BentoCard({ area, children, index, style }: BentoCardProps) {
         style={{
           position: 'absolute',
           inset: 0,
-          borderRadius: 18,
-          background: 'var(--card-bg)',
-          border: `1px solid ${hover ? 'var(--accent-blue-glow)' : 'var(--border-color)'}`,
-          transition: `all 400ms ${EASE_CSS}`,
+          borderRadius: 24,
+          background: theme === 'dark'
+            ? 'linear-gradient(165deg, #1a1c20 0%, #141518 20%, #101114 45%, #0c0d10 65%, #090a0c 85%, #060708 100%)'
+            : 'linear-gradient(165deg, #ffffff 0%, #F7F8FA 60%, #F2F4F7 100%)',
+          border: theme === 'dark'
+            ? '1px solid rgba(255, 255, 255, 0.07)'
+            : '1px solid rgba(0, 0, 0, 0.055)',
+          transition: `background 400ms ${EASE_CSS}, border-color 400ms ${EASE_CSS}`,
           zIndex: 1,
         }}
       />
@@ -96,7 +109,9 @@ function BentoCard({ area, children, index, style }: BentoCardProps) {
           left: 0,
           right: 0,
           height: 1,
-          background: 'linear-gradient(90deg, transparent 5%, var(--glass-highlight) 35%, var(--glass-highlight) 65%, transparent 95%)',
+          background: theme === 'dark'
+            ? 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.12) 30%, rgba(255, 255, 255, 0.12) 70%, transparent 100%)'
+            : 'transparent',
           zIndex: 2,
           pointerEvents: 'none',
         }}
@@ -107,12 +122,12 @@ function BentoCard({ area, children, index, style }: BentoCardProps) {
         style={{
           position: 'relative',
           zIndex: 3,
-          padding: sp(4),
+          padding: '1.75rem',
           display: 'flex',
           flexDirection: 'column',
           flex: 1,
           overflow: 'hidden',
-          borderRadius: 18,
+          borderRadius: 24,
         }}
       >
         {children}
@@ -129,7 +144,7 @@ function CardTitle({ children }: { children: ReactNode }) {
     <h3
       style={{
         margin: 0,
-        fontSize: '1rem',
+        fontSize: '1.2rem',
         fontWeight: 600,
         color: 'var(--text-primary)',
         letterSpacing: '-0.02em',
@@ -147,7 +162,7 @@ function CardDesc({ children }: { children: ReactNode }) {
     <p
       style={{
         margin: `${sp(1)} 0 0`,
-        fontSize: '0.75rem',
+        fontSize: '0.80rem',
         fontWeight: 400,
         color: 'var(--text-secondary)',
         lineHeight: 1.4,
@@ -163,9 +178,9 @@ function CardDesc({ children }: { children: ReactNode }) {
    CARD 1 — UNIQUE DESIGN (Hero — largest visual weight, 2 cols)
    Layout: Visual → Text (unchanged per specification)
    ═══════════════════════════════════════════════════════════════ */
-function CardUniqueDesign() {
+function CardUniqueDesign({ externalInView }: { externalInView?: boolean }) {
   return (
-    <BentoCard area="hero" index={0}>
+    <BentoCard area="hero" index={0} externalInView={externalInView}>
       {/* Hex grid background */}
       <div
         style={{
@@ -187,7 +202,7 @@ function CardUniqueDesign() {
         </div>
       </div>
 
-      
+
 
       {/* <div style={{ position: 'relative', zIndex: 2 }}>
         <CardTitle>Unique Design</CardTitle>
@@ -205,141 +220,85 @@ function CardUniqueDesign() {
    Layout: Text → Marquee (reversed per spec)
    Marquee: 2 rows, alternating direction, SVG logos from /public/icons
    ═══════════════════════════════════════════════════════════════ */
-function CardFutureTech() {
+function CardFutureTech({ externalInView }: { externalInView?: boolean }) {
   const { theme } = useTheme();
 
   const icons = [
-    { name: 'Figma', file: '/icons/Figma.svg', invertInLight: false },
-    { name: 'Next.js', file: '/icons/Next.js.svg', invertInLight: false, invertInDark: true },
-    { name: 'React', file: '/icons/React.svg', invertInLight: false },
-    { name: 'Tailwind CSS', file: '/icons/Tailwind CSS.svg', invertInLight: false },
-    { name: 'TypeScript', file: '/icons/TypeScript.svg', invertInLight: false },
-    { name: 'Vercel', file: '/icons/Vercel.svg', invertInLight: false, invertInDark: true },
-    { name: 'Claude', file: '/icons/claude-color.svg', invertInLight: false },
-    { name: 'Gemini', file: '/icons/gemini-color.svg', invertInLight: false },
-    { name: 'OpenAI', file: '/icons/openai.svg', invertInLight: false, invertInDark: true },
+    { name: 'Figma', file: '/icons/Figma.svg' },
+    { name: 'Next.js', file: '/icons/Next.js.svg', invertAlways: true },
+    { name: 'React', file: '/icons/React.svg' },
+    { name: 'Tailwind CSS', file: '/icons/Tailwind CSS.svg', invertAlways: false },
+    { name: 'TypeScript', file: '/icons/TypeScript.svg' },
+    { name: 'Claude', file: '/icons/claude-color.svg' },
+    { name: 'Gemini', file: '/icons/gemini-color.svg' },
+    { name: 'Google Search Console', file: '/icons/google-search-console-icon.svg' },
+    { name: 'OpenAI', file: '/icons/openai.svg', invertAlways: true },
+    { name: 'WordPress', file: '/icons/wordpress-logo-svgrepo-com.svg', invertAlways: true },
   ];
 
-  // Duplicate for seamless loop
-  const row1 = [...icons, ...icons];
-  const row2 = [...icons, ...icons];
-
-  const iconBg = theme === 'dark'
-    ? 'linear-gradient(145deg, #1a1a2e, #0d0d1a)'
-    : 'linear-gradient(145deg, #f0f0f5, #e8e8f0)';
-
-  const iconBorder = theme === 'dark'
-    ? '1px solid rgba(255,255,255,0.08)'
-    : '1px solid rgba(0,0,0,0.08)';
+  const logoShadow = theme === 'dark'
+    ? 'drop-shadow(0 12px 32px rgba(0,0,0,1)) drop-shadow(0 4px 12px rgba(0,0,0,0.8))'
+    : 'drop-shadow(0 10px 24px rgba(0,0,0,0.22)) drop-shadow(0 4px 8px rgba(0,0,0,0.12))';
 
   return (
-    <BentoCard area="tech" index={1}>
+    <BentoCard area="tech" index={1} externalInView={externalInView}>
       {/* Text at top */}
       <div style={{ position: 'relative', zIndex: 2, marginBottom: sp(4) }}>
         <CardTitle>Future-Ready Technology</CardTitle>
-        <CardDesc>From AI automation to Web3, we build with the latest tech to keep you ahead.</CardDesc>
+        <CardDesc>From AI automation to modern web frameworks, we build with the latest tech to keep you ahead.</CardDesc>
       </div>
 
-      {/* Marquee area */}
+      {/* Tech Grid (Static) */}
       <div
         style={{
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          gap: sp(2),
+          gap: '24px',
           justifyContent: 'center',
+          alignItems: 'center',
           position: 'relative',
-          overflow: 'hidden',
         }}
       >
-        {/* Fade masks left/right */}
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2,
-          background: 'linear-gradient(to right, var(--card-bg) 0%, transparent 18%, transparent 82%, var(--card-bg) 100%)',
-        }} />
-
-        {/* Row 1 — scrolls LEFT */}
-        <div style={{ display: 'flex', gap: sp(2), position: 'relative', zIndex: 1 }}>
-          <div
-            className="wcu-marquee-left"
-            style={{ display: 'flex', gap: sp(2), flexShrink: 0 }}
-          >
-            {row1.map((icon, i) => (
-              <div
-                key={`r1-${i}`}
-                title={icon.name}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '20px', transform: 'translateX(-13px)' }}>
+          {icons.slice(0, 5).map((icon, i) => (
+            <div key={`r1-${i}`} title={icon.name} style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Image
+                src={icon.file}
+                alt={icon.name}
+                width={32}
+                height={32}
                 style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: '50%',
-                  background: iconBg,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: iconBorder,
-                  boxShadow: theme === 'dark'
-                    ? 'inset 0 1px 1px rgba(255,255,255,0.1), 0 4px 16px rgba(0,0,0,0.5)'
-                    : 'inset 0 1px 1px rgba(255,255,255,0.9), 0 4px 16px rgba(0,0,0,0.08)',
-                  cursor: 'default',
-                  flexShrink: 0,
-                  overflow: 'hidden',
+                  filter: `
+                    ${(icon as any).invertAlways && theme === 'dark' ? 'invert(1)' : ''}
+                    ${logoShadow}
+                  `,
+                  objectFit: 'contain',
+                  borderRadius: icon.name === 'TypeScript' ? '8px' : '0px'
                 }}
-              >
-                <Image
-                  src={icon.file}
-                  alt={icon.name}
-                  width={24}
-                  height={24}
-                  style={{
-                    filter: (icon as any).invertInDark && theme === 'dark' ? 'invert(1)' : 'none',
-                    objectFit: 'contain',
-                  }}
-                />
-              </div>
-            ))}
-          </div>
+              />
+            </div>
+          ))}
         </div>
-
-        {/* Row 2 — scrolls RIGHT */}
-        <div style={{ display: 'flex', gap: sp(2), position: 'relative', zIndex: 1 }}>
-          <div
-            className="wcu-marquee-right"
-            style={{ display: 'flex', gap: sp(2), flexShrink: 0 }}
-          >
-            {row2.map((icon, i) => (
-              <div
-                key={`r2-${i}`}
-                title={icon.name}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '17px', transform: 'translateX(17px)' }}>
+          {icons.slice(5, 10).map((icon, i) => (
+            <div key={`r2-${i}`} title={icon.name} style={{ width: 50, height: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Image
+                src={icon.file}
+                alt={icon.name}
+                width={32}
+                height={32}
                 style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: '50%',
-                  background: iconBg,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: iconBorder,
-                  boxShadow: theme === 'dark'
-                    ? 'inset 0 1px 1px rgba(255,255,255,0.1), 0 4px 16px rgba(0,0,0,0.5)'
-                    : 'inset 0 1px 1px rgba(255,255,255,0.9), 0 4px 16px rgba(0,0,0,0.08)',
-                  cursor: 'default',
-                  flexShrink: 0,
-                  overflow: 'hidden',
+                  filter: `
+                    ${(icon as any).invertAlways && theme === 'dark' ? 'invert(1)' : ''}
+                    ${logoShadow}
+                  `,
+                  objectFit: 'contain',
+                  borderRadius: icon.name === 'TypeScript' ? '8px' : '0px'
                 }}
-              >
-                <Image
-                  src={icon.file}
-                  alt={icon.name}
-                  width={24}
-                  height={24}
-                  style={{
-                    filter: (icon as any).invertInDark && theme === 'dark' ? 'invert(1)' : 'none',
-                    objectFit: 'contain',
-                  }}
-                />
-              </div>
-            ))}
-          </div>
+              />
+            </div>
+          ))}
         </div>
       </div>
     </BentoCard>
@@ -351,11 +310,11 @@ function CardFutureTech() {
    Layout: Visual → Text (unchanged per spec)
    Additions: DotPattern bg + neon globe glow (dark mode only)
    ═══════════════════════════════════════════════════════════════ */
-function CardInternational() {
+function CardInternational({ externalInView }: { externalInView?: boolean }) {
   const { theme } = useTheme();
 
   return (
-    <BentoCard area="globe" index={2}>
+    <BentoCard area="globe" index={2} externalInView={externalInView}>
       {/* Dot pattern background */}
       <DotPattern
         width={20}
@@ -453,126 +412,34 @@ function CardInternational() {
    CARD 4 — PERFORMANCE-FIRST (1 col)
    Layout: Text → Orbital (reversed per spec)
    ═══════════════════════════════════════════════════════════════ */
-function CardPerformance() {
-  const orbitLabels = ['LCP', 'SEO', 'Speed', 'A11y', 'CWV', 'Best Practices'];
+function CardPerformance({ externalInView }: { externalInView?: boolean }) {
+  const { theme } = useTheme();
 
   return (
-    <BentoCard area="perf" index={3}>
-      {/* Text at top */}
-      <div style={{ marginBottom: sp(3) }}>
-        <CardTitle>Performance-First</CardTitle>
-        <CardDesc>Every decision optimized for speed, SEO, and real-world performance.</CardDesc>
-      </div>
+    <BentoCard area="perf" index={3} externalInView={externalInView}>
+      <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column' }}>
 
-      {/* Orbital system */}
-      <div
-        style={{
-          flex: 1,
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Orbit track rings */}
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            width: 160,
-            height: 160,
-            borderRadius: '50%',
-            border: '1px solid var(--border-subtle)',
-            pointerEvents: 'none',
-          }}
-        />
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            width: 110,
-            height: 110,
-            borderRadius: '50%',
-            border: '1px dashed var(--border-subtle)',
-            opacity: 0.5,
-            pointerEvents: 'none',
-          }}
-        />
+        {/* Thunder Image Background/Underlay */}
+        <div style={{ position: 'absolute', right: '-12%', bottom: '-15%', width: '190px', height: '190px', zIndex: 0 }}>
+          <Image
+            src="/thunder.png"
+            alt="Performance Thunder illustration"
+            width={190}
+            height={190}
+            style={{
+              objectFit: 'contain',
+              filter: theme === 'dark'
+                ? 'drop-shadow(0 24px 32px rgba(0, 0, 0, 0.7)) drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5))'
+                : 'drop-shadow(0 24px 32px rgba(0, 0, 0, 0.35)) drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15))',
+              transform: 'rotate(-8deg)'
+            }}
+          />
+        </div>
 
-        {/* Rotating container */}
-        <m.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-          /* // PERF: keeps rotating element on dedicated compositor layer permanently */
-          style={{ width: 160, height: 160, position: 'relative', willChange: 'transform' }}
-        >
-          {orbitLabels.map((label, i) => {
-            const angle = (i / orbitLabels.length) * 360;
-            return (
-              <div
-                key={label}
-                style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: `rotate(${angle}deg) translate(72px) rotate(${-angle}deg)`,
-                }}
-              >
-                <m.div
-                  animate={{ rotate: -360 }}
-                  transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-                >
-                  <div
-                    style={{
-                      padding: '3px 8px',
-                      background: 'var(--glass-bg)',
-                      backdropFilter: 'blur(8px)',
-                      WebkitBackdropFilter: 'blur(8px)',
-                      borderRadius: 999,
-                      border: '1px solid var(--border-color)',
-                      fontSize: '0.5625rem',
-                      fontWeight: 500,
-                      color: 'var(--text-secondary)',
-                      whiteSpace: 'nowrap',
-                      fontFamily: FONT,
-                      boxShadow: '0 0 10px var(--accent-blue-subtle)',
-                    }}
-                  >
-                    {label}
-                  </div>
-                </m.div>
-              </div>
-            );
-          })}
-        </m.div>
-
-        {/* Center engine */}
-        <div
-          style={{
-            position: 'absolute',
-            width: 56,
-            height: 56,
-            borderRadius: '50%',
-            background: 'var(--glass-bg)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            border: '1.5px solid var(--accent-blue-glow)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: `0 0 28px var(--accent-blue-glow), inset 0 0 16px var(--accent-blue-subtle)`,
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M13 10V3L4 14h7v7l9-11h-7z"
-              stroke="var(--accent-blue)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+        {/* Text overlaid above */}
+        <div style={{ position: 'relative', zIndex: 1, marginBottom: 'auto' }}>
+          <CardTitle>Performance-First</CardTitle>
+          <CardDesc>Every decision optimized for speed, SEO, and real-world performance.</CardDesc>
         </div>
       </div>
     </BentoCard>
@@ -585,11 +452,11 @@ function CardPerformance() {
    Additions: DotPattern bg, hexagon SVG shine animation
    Dark mode fix: nodes use same colors as light mode
    ═══════════════════════════════════════════════════════════════ */
-function CardOneContact() {
+function CardOneContact({ externalInView }: { externalInView?: boolean }) {
   const { theme } = useTheme();
 
   return (
-    <BentoCard area="contact" index={4}>
+    <BentoCard area="contact" index={4} externalInView={externalInView} premiumStatic={true}>
       {/* Dot pattern background */}
       <DotPattern
         width={20}
@@ -659,7 +526,8 @@ function CardOneContact() {
                 borderRadius: 17,
                 /* Same in both modes: light bg / dark bg mirrored to light */
                 background: 'linear-gradient(180deg, #1c1c1c, #080808)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 0 24px rgba(255,80,20,0.15)',
+                border: '2px solid rgba(255,120,60,0.9)', // Solid Orange Border
+                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -667,7 +535,6 @@ function CardOneContact() {
                 zIndex: 1,
               }}
             >
-              <ShineBorder borderWidth={2} shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                 <path d="M12 11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" fill="white" fillOpacity={0.9} />
                 <path d="M18 21c0-3.31-2.69-6-6-6s-6 2.69-6 6" stroke="white" strokeOpacity={0.9} strokeWidth="2" strokeLinecap="round" />
@@ -676,19 +543,19 @@ function CardOneContact() {
             <div style={{
               position: 'absolute',
               zIndex: 1,
-              top: 'calc(100% + 15px)',
+              top: 'calc(100% + 20px)',
               fontSize: '0.625rem',
               color: 'var(--text-primary)',
-              fontWeight: 500,
+              fontWeight: 600,
               fontFamily: FONT,
               background: 'var(--bg-secondary)',
               padding: '3px 10px',
               borderRadius: 999,
               border: '1px solid var(--border-color)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.12)', // Label shadow
               whiteSpace: 'nowrap',
               letterSpacing: '0.01em',
             }}>
-              <ShineBorder borderWidth={1.5} duration={10} shineColor={theme === "dark" ? "white" : "black"} />
               <div>You</div>
             </div>
           </div>
@@ -714,34 +581,20 @@ function CardOneContact() {
 
           {/* Node 2: Dev Studio (Hexagon with SVG shine) */}
           <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-            <div style={{ width: 84, height: 84, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', filter: 'drop-shadow(0 8px 32px rgba(0,0,0,0.5)) drop-shadow(0 0 24px rgba(40,100,255,0.15))' }}>
+            <div style={{ width: 84, height: 84, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', filter: 'drop-shadow(0 8px 32px rgba(0,0,0,0.5))' }}>
               <svg viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible' }}>
                 {/* Fill */}
                 <path d="M 92.64 37.07 Q 98.00 50.00 92.64 62.93 L 89.30 71.01 Q 83.94 83.94 71.01 89.30 L 62.93 92.64 Q 50.00 98.00 37.07 92.64 L 28.99 89.30 Q 16.06 83.94 10.70 71.01 L 7.36 62.93 Q 2.00 50.00 7.36 37.07 L 10.70 28.99 Q 16.06 16.06 28.99 10.70 L 37.07 7.36 Q 50.00 2.00 62.93 7.36 L 71.01 10.70 Q 83.94 16.06 89.30 28.99 Z" fill="url(#ds-fill-v2)" />
-                {/* Static border */}
-                <path d="M 92.64 37.07 Q 98.00 50.00 92.64 62.93 L 89.30 71.01 Q 83.94 83.94 71.01 89.30 L 62.93 92.64 Q 50.00 98.00 37.07 92.64 L 28.99 89.30 Q 16.06 83.94 10.70 71.01 L 7.36 62.93 Q 2.00 50.00 7.36 37.07 L 10.70 28.99 Q 16.06 16.06 28.99 10.70 L 37.07 7.36 Q 50.00 2.00 62.93 7.36 L 71.01 10.70 Q 83.94 16.06 89.30 28.99 Z" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" />
-                {/* Animated shine stroke tracing hexagon perimeter */}
-                <path
-                  className="wcu-hex-shine-path"
-                  d="M 92.64 37.07 Q 98.00 50.00 92.64 62.93 L 89.30 71.01 Q 83.94 83.94 71.01 89.30 L 62.93 92.64 Q 50.00 98.00 37.07 92.64 L 28.99 89.30 Q 16.06 83.94 10.70 71.01 L 7.36 62.93 Q 2.00 50.00 7.36 37.07 L 10.70 28.99 Q 16.06 16.06 28.99 10.70 L 37.07 7.36 Q 50.00 2.00 62.93 7.36 L 71.01 10.70 Q 83.94 16.06 89.30 28.99 Z"
-                  fill="none"
-                  stroke="url(#ds-shine-grad)"
-                  strokeWidth="2.5"
-                  strokeDasharray="80 400"
-                  strokeLinecap="round"
-                  style={{
-                    animation: 'wcu-hex-shine 3s linear infinite',
-                  }}
-                />
+                {/* Static gradient border */}
+                <path d="M 92.64 37.07 Q 98.00 50.00 92.64 62.93 L 89.30 71.01 Q 83.94 83.94 71.01 89.30 L 62.93 92.64 Q 50.00 98.00 37.07 92.64 L 28.99 89.30 Q 16.06 83.94 10.70 71.01 L 7.36 62.93 Q 2.00 50.00 7.36 37.07 L 10.70 28.99 Q 16.06 16.06 28.99 10.70 L 37.07 7.36 Q 50.00 2.00 62.93 7.36 L 71.01 10.70 Q 83.94 16.06 89.30 28.99 Z" fill="none" stroke="url(#ds-border-grad)" strokeWidth="2.5" />
                 <defs>
                   <linearGradient id="ds-fill-v2" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
                     <stop stopColor="#1c1c1c" />
                     <stop offset="1" stopColor="#080808" />
                   </linearGradient>
-                  <linearGradient id="ds-shine-grad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#A07CFE" />
-                    <stop offset="0.5" stopColor="#FE8FB5" />
-                    <stop offset="1" stopColor="#FFBE7B" />
+                  <linearGradient id="ds-border-grad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="rgba(255,120,60,0.9)" />
+                    <stop offset="1" stopColor="rgba(30,100,255,0.85)" />
                   </linearGradient>
                 </defs>
               </svg>
@@ -757,19 +610,19 @@ function CardOneContact() {
             {/* Dev Studio label */}
             <div style={{
               position: 'absolute',
-              top: 'calc(100% + 5px)',
+              top: 'calc(100% + 10px)',
               fontSize: '0.625rem',
               color: 'var(--text-primary)',
-              fontWeight: 500,
+              fontWeight: 600,
               fontFamily: FONT,
               background: 'var(--bg-secondary)',
               padding: '3px 10px',
               borderRadius: 999,
               border: '1px solid var(--border-color)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.12)', // Label shadow
               whiteSpace: 'nowrap',
               letterSpacing: '0.01em',
             }}>
-              <ShineBorder borderWidth={1.5} duration={10} shineColor={theme === "dark" ? "white" : "black"} />
               <div>Dev Studio</div>
             </div>
           </div>
@@ -795,34 +648,15 @@ function CardOneContact() {
 
           {/* Node 3: Product (Hexagon with SVG shine) */}
           <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-            <div style={{ width: 64, height: 64, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', filter: 'drop-shadow(0 8px 32px rgba(0,0,0,0.5)) drop-shadow(0 0 24px rgba(40,100,255,0.15))' }}>
+            <div style={{ width: 64, height: 64, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', filter: 'drop-shadow(0 8px 32px rgba(0,0,0,0.5))' }}>
               <svg viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible' }}>
                 <path d="M 92.64 37.07 Q 98.00 50.00 92.64 62.93 L 89.30 71.01 Q 83.94 83.94 71.01 89.30 L 62.93 92.64 Q 50.00 98.00 37.07 92.64 L 28.99 89.30 Q 16.06 83.94 10.70 71.01 L 7.36 62.93 Q 2.00 50.00 7.36 37.07 L 10.70 28.99 Q 16.06 16.06 28.99 10.70 L 37.07 7.36 Q 50.00 2.00 62.93 7.36 L 71.01 10.70 Q 83.94 16.06 89.30 28.99 Z" fill="url(#prod-fill-v2)" />
-                {/* Static border */}
-                <path d="M 92.64 37.07 Q 98.00 50.00 92.64 62.93 L 89.30 71.01 Q 83.94 83.94 71.01 89.30 L 62.93 92.64 Q 50.00 98.00 37.07 92.64 L 28.99 89.30 Q 16.06 83.94 10.70 71.01 L 7.36 62.93 Q 2.00 50.00 7.36 37.07 L 10.70 28.99 Q 16.06 16.06 28.99 10.70 L 37.07 7.36 Q 50.00 2.00 62.93 7.36 L 71.01 10.70 Q 83.94 16.06 89.30 28.99 Z" fill="none" stroke="rgba(60,120,255,0.4)" strokeWidth="2.5" />
-                {/* Animated shine stroke */}
-                <path
-                  className="wcu-hex-shine-path"
-                  d="M 92.64 37.07 Q 98.00 50.00 92.64 62.93 L 89.30 71.01 Q 83.94 83.94 71.01 89.30 L 62.93 92.64 Q 50.00 98.00 37.07 92.64 L 28.99 89.30 Q 16.06 83.94 10.70 71.01 L 7.36 62.93 Q 2.00 50.00 7.36 37.07 L 10.70 28.99 Q 16.06 16.06 28.99 10.70 L 37.07 7.36 Q 50.00 2.00 62.93 7.36 L 71.01 10.70 Q 83.94 16.06 89.30 28.99 Z"
-                  fill="none"
-                  stroke="url(#prod-shine-grad)"
-                  strokeWidth="2.5"
-                  strokeDasharray="80 400"
-                  strokeLinecap="round"
-                  style={{
-                    animation: 'wcu-hex-shine 3s linear infinite',
-                    animationDelay: '1.5s',
-                  }}
-                />
+                {/* Solid blue border */}
+                <path d="M 92.64 37.07 Q 98.00 50.00 92.64 62.93 L 89.30 71.01 Q 83.94 83.94 71.01 89.30 L 62.93 92.64 Q 50.00 98.00 37.07 92.64 L 28.99 89.30 Q 16.06 83.94 10.70 71.01 L 7.36 62.93 Q 2.00 50.00 7.36 37.07 L 10.70 28.99 Q 16.06 16.06 28.99 10.70 L 37.07 7.36 Q 50.00 2.00 62.93 7.36 L 71.01 10.70 Q 83.94 16.06 89.30 28.99 Z" fill="none" stroke="#0064ff" strokeWidth="2.5" />
                 <defs>
                   <linearGradient id="prod-fill-v2" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
                     <stop stopColor="#141828" />
                     <stop offset="1" stopColor="#070a14" />
-                  </linearGradient>
-                  <linearGradient id="prod-shine-grad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#60a5fa" />
-                    <stop offset="0.5" stopColor="#a78bfa" />
-                    <stop offset="1" stopColor="#34d399" />
                   </linearGradient>
                 </defs>
               </svg>
@@ -842,19 +676,19 @@ function CardOneContact() {
             </div>
             <div style={{
               position: 'absolute',
-              top: 'calc(100% + 15px)',
+              top: 'calc(100% + 20px)',
               fontSize: '0.625rem',
               color: 'var(--text-primary)',
-              fontWeight: 500,
+              fontWeight: 600,
               fontFamily: FONT,
               background: 'var(--bg-secondary)',
               padding: '3px 10px',
               borderRadius: 999,
               border: '1px solid var(--border-color)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.12)', // Label shadow
               whiteSpace: 'nowrap',
               letterSpacing: '0.01em',
             }}>
-              <ShineBorder borderWidth={1.5} duration={10} shineColor={theme === "dark" ? "white" : "black"} />
               <div>Product</div>
             </div>
           </div>
@@ -870,9 +704,10 @@ function CardOneContact() {
    Layout: Text → Chart (reversed per spec)
    Removed: floating dots, arrow tip
    ═══════════════════════════════════════════════════════════════ */
-function CardLongRun() {
+function CardLongRun({ externalInView }: { externalInView?: boolean }) {
   const chartRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(chartRef, { once: true, margin: '-40px' });
+  const localChartInView = useInView(chartRef, { once: true, margin: '-40px' });
+  const isInView = externalInView ?? localChartInView;
 
   const points = [
     { x: 35, y: 120 },
@@ -1061,71 +896,74 @@ export default function WhyChooseUsSection() {
         }
       `}</style>
 
-      <div className="section-container" style={{ maxWidth: 1200 }}>
-        {/* Section Heading */}
-        <m.div
-          initial={{ opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.72, ease: EASE }}
-          style={{ maxWidth: 560, marginBottom: sp(8) }}
-        >
-          <p
-            style={{
-              margin: `0 0 ${sp(2)}`,
-              fontSize: '0.625rem',
-              fontWeight: 600,
-              color: 'var(--text-tertiary)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              fontFamily: FONT,
-            }}
-          >
-            Why choose us
-          </p>
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 'clamp(2rem, 5vw, 3rem)',
-              fontWeight: 700,
-              color: 'var(--text-primary)',
-              letterSpacing: '-0.03em',
-              lineHeight: 1.08,
-              fontFamily: FONT,
-            }}
-          >
-            Built different.
-            <br />
-            <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
-              Delivered right.
-            </span>
-          </h2>
-        </m.div>
+      <SectionReveal>
+        {(sectionInView) => (
+          <div className="section-container" style={{ maxWidth: 1200 }}>
+            {/* Section Heading */}
+            <m.div
+              initial={{ opacity: 0, y: 28 }}
+              animate={sectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+              transition={{ duration: 0.72, ease: EASE }}
+              style={{ maxWidth: 560, marginBottom: sp(8) }}
+            >
+              <p
+                style={{
+                  margin: `0 0 ${sp(2)}`,
+                  fontSize: '0.625rem',
+                  fontWeight: 600,
+                  color: 'var(--text-tertiary)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  fontFamily: FONT,
+                }}
+              >
+                Why choose us
+              </p>
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: 'clamp(2rem, 5vw, 3rem)',
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1.08,
+                  fontFamily: FONT,
+                }}
+              >
+                Built different.
+                <br />
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
+                  Delivered right.
+                </span>
+              </h2>
+            </m.div>
 
-        {/* Bento Grid */}
-        <div
-          className="wcu-bento-grid"
-          style={{
-            display: 'grid',
-            gridTemplateAreas: `
-              "hero     hero    globe"
-              "tech     perf    globe"
-              "contact  contact longrun"
-            `,
-            gridTemplateColumns: '1fr 1fr 1fr',
-            gridTemplateRows: 'minmax(200px, auto) minmax(200px, auto) minmax(170px, auto)',
-            gap: sp(2),
-            isolation: 'isolate',
-          }}
-        >
-          <CardUniqueDesign />
-          <CardFutureTech />
-          <CardInternational />
-          <CardPerformance />
-          <CardOneContact />
-          <CardLongRun />
-        </div>
-      </div>
+            {/* Bento Grid */}
+            <div
+              className="wcu-bento-grid"
+              style={{
+                display: 'grid',
+                gridTemplateAreas: `
+                  "hero     hero    globe"
+                  "tech     perf    globe"
+                  "contact  contact longrun"
+                `,
+                gridTemplateColumns: '1fr 1fr 1fr',
+                gridTemplateRows: 'minmax(200px, auto) minmax(200px, auto) minmax(170px, auto)',
+                gap: sp(2),
+                isolation: 'isolate',
+              }}
+            >
+              <CardUniqueDesign externalInView={sectionInView} />
+              <CardFutureTech externalInView={sectionInView} />
+              <CardInternational externalInView={sectionInView} />
+              <CardPerformance externalInView={sectionInView} />
+              <CardOneContact externalInView={sectionInView} />
+              <CardLongRun externalInView={sectionInView} />
+            </div>
+          </div>
+        )}
+      </SectionReveal>
     </section>
   );
 }

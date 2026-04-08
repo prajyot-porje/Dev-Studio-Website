@@ -9,6 +9,7 @@ interface AnimatedTextProps extends React.HTMLAttributes<HTMLDivElement> {
   duration?: number
   delay?: number
   replay?: boolean
+  inView?: boolean
   className?: string
   textClassName?: string
   textStyle?: React.CSSProperties
@@ -48,9 +49,9 @@ const AnimatedText = React.forwardRef<HTMLDivElement, AnimatedTextProps>(
         opacity: 1,
         y: 0,
         transition: {
-          type: "spring",
-          damping: 15,
-          stiffness: 150
+          type: "tween",
+          ease: [0.16, 1, 0.3, 1],
+          duration: 0.6
         }
       },
       hidden: {
@@ -69,12 +70,17 @@ const AnimatedText = React.forwardRef<HTMLDivElement, AnimatedTextProps>(
           style={{ display: "flex", overflow: "hidden", fontFamily: "var(--font-inter), system-ui, sans-serif", ...textStyle }}
           variants={container}
           initial="hidden"
-          whileInView={replay ? "visible" : "hidden"}
-          viewport={{ once: true, margin: "-100px" }}
+          {...(typeof (props as any).inView === 'boolean'
+            ? { animate: (props as any).inView ? 'visible' : 'hidden' }
+            : { whileInView: replay ? 'visible' : 'hidden', viewport: { once: true, margin: '-100px' } })}
           className={cn("font-semibold", textClassName)}
         >
           {letters.map((letter, index) => (
-            <m.span key={index} variants={child}>
+            <m.span 
+              key={index} 
+              variants={child}
+              style={{ willChange: "transform, opacity", display: "inline-block" }}
+            >
               {letter === " " ? "\u00A0" : letter}
             </m.span>
           ))}

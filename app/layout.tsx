@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "./components/ThemeProvider";
+import SmoothScroll from "@/components/SmoothScroll";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { cn } from "@/lib/utils";
@@ -45,23 +46,25 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-             __html: `
+            __html: `
                (function() {
                  var t = localStorage.getItem('devstudio-theme');
                  if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
                  document.documentElement.setAttribute('data-theme', t);
                })();
              `,
-           }}
+          }}
         />
       </head>
       <body className={`${poppins.variable} ${inter.variable} antialiased`}>
         <ThemeProvider>
-          <LoadingProvider>
-            <Navbar />
-            <main>{children}</main>
-            <Footer />
-          </LoadingProvider>
+          <SmoothScroll>
+            <LoadingProvider>
+              <Navbar />
+              <main>{children}</main>
+              <Footer />
+            </LoadingProvider>
+          </SmoothScroll>
         </ThemeProvider>
       </body>
     </html>

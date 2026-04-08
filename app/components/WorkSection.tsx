@@ -75,7 +75,6 @@ export default function WorkSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const spacerRef = useRef<HTMLDivElement>(null);
   const trackStyle = {
     '--work-card-count': projects.length,
   } as CSSProperties;
@@ -102,24 +101,24 @@ export default function WorkSection() {
           Math.max(0, track.scrollWidth - window.innerWidth);
 
         // Calculate scroll distance for horizontal scrolling
-        const updateMargin = () => {
+        const updateSpacerHeight = () => {
           const dist = getDistance();
           /* // PERF: direct DOM mutation replaces React state re-render on every refresh */
-          if (spacerRef.current) spacerRef.current.style.height = `${dist}px`;
+          if (containerRef.current) containerRef.current.style.height = `${dist}px`;
         };
 
         let resizeFrame = 0;
-        const scheduleUpdateMargin = () => {
+        const scheduleUpdateSpacer = () => {
           if (resizeFrame) return;
           resizeFrame = requestAnimationFrame(() => {
-            updateMargin();
+            updateSpacerHeight();
             resizeFrame = 0;
           });
         };
 
-        updateMargin();
+        updateSpacerHeight();
 
-        const resizeObserver = new ResizeObserver(scheduleUpdateMargin);
+        const resizeObserver = new ResizeObserver(scheduleUpdateSpacer);
         resizeObserver.observe(track);
         resizeObserver.observe(container);
 
@@ -132,13 +131,18 @@ export default function WorkSection() {
           overwrite: 'auto',
           scrollTrigger: {
             trigger: container,
-            // Start scrolling the track exactly when the element sticks at -20vh
-            start: 'top -20vh',
-            end: () => `+=${getDistance()}`,
+            // Start scrolling exactly when the spacer starts entering from bottom
+            // or when the sticky section is fully in place.
+            // Since section is 100vh and sticky at top:0, we start when container (spacer) reaches top:100vh? 
+            // Better: start: 'top 100%' means when spacer enters viewport.
+            // But we want it to stick first.
+            start: 'top 100%',
+            end: 'bottom 100%',
             scrub: 0.55,
+            anticipatePin: 1,
             fastScrollEnd: true,
             invalidateOnRefresh: true,
-            onRefresh: () => updateMargin(),
+            onRefresh: () => updateSpacerHeight(),
             onEnter: () => gsap.set(track, { willChange: 'transform' }),
             onLeave: () => gsap.set(track, { willChange: 'auto' }),
             onEnterBack: () => gsap.set(track, { willChange: 'transform' }),
@@ -146,11 +150,11 @@ export default function WorkSection() {
             snap:
               projects.length > 1
                 ? {
-                    snapTo: 1 / (projects.length - 1),
-                    delay: 0,
-                    duration: { min: 0.16, max: 0.34 },
-                    ease: 'power3.out',
-                  }
+                  snapTo: 1 / (projects.length - 1),
+                  delay: 0,
+                  duration: { min: 0.16, max: 0.34 },
+                  ease: 'power3.out',
+                }
                 : undefined,
           },
         });
@@ -165,7 +169,7 @@ export default function WorkSection() {
 
       mm.add('(max-width: 899px)', () => {
         gsap.set(track, { clearProps: 'transform,width' });
-        if (spacerRef.current) spacerRef.current.style.height = '0px';
+        if (containerRef.current) containerRef.current.style.height = '0px';
         ScrollTrigger.refresh();
       });
     }, section);
@@ -177,88 +181,84 @@ export default function WorkSection() {
   }, []);
 
   return (
-    <div ref={containerRef} className="work-scroll-container">
+    <>
       <section
         id="work"
         ref={sectionRef}
         className="work-section"
       >
-      <div className="work-visible-wrapper">
-        <div className="work-shell-container">
-          <div className="work-header">
-            <m.div 
-              className="work-header-content"
-              initial={{ opacity: 0, y: 28 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <p style={{
-                margin: '0 0 8px',
-                fontSize: '0.625rem',
-                fontWeight: 600,
-                color: 'var(--text-tertiary)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                fontFamily: "'Poppins', system-ui, -apple-system, sans-serif",
-              }}>
-                Proven Impact
-              </p>
-              <h2 style={{
-                margin: 0,
-                fontSize: 'clamp(2rem, 5vw, 3rem)',
-                fontWeight: 700,
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.03em',
-                lineHeight: 1.08,
-                fontFamily: "'Poppins', system-ui, -apple-system, sans-serif",
-              }}>
-                Engineered for growth.
-                <br />
-                <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
-                  Designed to convert.
-                </span>
-              </h2>
-            </m.div>
+        <div className="work-visible-wrapper">
+          <div className="work-shell-container">
+            <div className="work-header">
+              <m.div
+                className="work-header-content"
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <p style={{
+                  margin: '0 0 8px',
+                  fontSize: '0.625rem',
+                  fontWeight: 600,
+                  color: 'var(--text-tertiary)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  fontFamily: "'Poppins', system-ui, -apple-system, sans-serif",
+                }}>
+                  Proven Impact
+                </p>
+                <h2 style={{
+                  margin: 0,
+                  fontSize: 'clamp(2rem, 5vw, 3rem)',
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1.08,
+                  fontFamily: "'Poppins', system-ui, -apple-system, sans-serif",
+                }}>
+                  Engineered for growth.
+                  <br />
+                  <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
+                    Designed to convert.
+                  </span>
+                </h2>
+              </m.div>
+            </div>
           </div>
-        </div>
 
-        <div className="work-stage">
-          <div className="work-viewport">
-            <div ref={trackRef} className="work-track" style={trackStyle}>
-              {projects.map((project) => (
-                <div
-                  key={`${project.clientName}-${project.projectTitle}`}
-                  className="work-page"
-                  data-work-card
-                >
-                  <div className="work-card-shell">
-                    <ProjectCard {...project} />
+          <div className="work-stage">
+            <div className="work-viewport">
+              <div ref={trackRef} className="work-track" style={trackStyle}>
+                {projects.map((project) => (
+                  <div
+                    key={`${project.clientName}-${project.projectTitle}`}
+                    className="work-page"
+                    data-work-card
+                  >
+                    <div className="work-card-shell">
+                      <ProjectCard {...project} />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-              
-      </div>
-
-      <style jsx>{`
+        <style jsx>{`
         .work-section {
           position: sticky;
-          top: -20vh;
+          top: 0;
           z-index: 1;
           background: var(--bg-primary);
         }
 
         .work-visible-wrapper {
-          height: 120vh;
+          min-height: 100vh;
           display: flex;
           flex-direction: column;
-          /* Adjusted top padding moves content up within the 100vh visible area */
-          padding-top: calc(20vh + clamp(3.75rem, 6vh, 5.5rem));
-          /* Re-introduced bottom padding so cards are never flush against bottom edge */
+          padding-top: clamp(3.75rem, 6vh, 5.5rem);
           padding-bottom: clamp(2rem, 5vh, 4rem);
           box-sizing: border-box;
           overflow: visible;
@@ -304,9 +304,8 @@ export default function WorkSection() {
 
         .work-viewport {
           width: 100%;
-          overflow-x: hidden;
-          overflow-y: visible; /* Prevents vertical clipping of cards/shadows */
-          /* Huge padding prevents clipping during hover states or shadows */
+          overflow: clip;
+          overflow-y: visible;
           padding: 3rem 0;
           margin: -3rem 0;
           display: flex;
@@ -322,7 +321,7 @@ export default function WorkSection() {
 
         .work-page {
           display: flex;
-          align-items: center; /* Vertically centers the cards */
+          align-items: center;
           justify-content: center;
           flex: 0 0 100vw;
           width: 100vw;
@@ -336,19 +335,6 @@ export default function WorkSection() {
             1060px
           );
           margin: 0 auto;
-        }
-
-        .work-footnote {
-          padding-top: clamp(1.5rem, 3vh, 2.5rem);
-          padding-bottom: clamp(1rem, 2vh, 1.5rem);
-          text-align: center;
-        }
-
-        .work-footnote-text {
-          font-size: var(--text-sm);
-          color: var(--text-tertiary);
-          font-weight: 500;
-          margin: 0;
         }
 
         @media (max-width: 899px) {
@@ -404,7 +390,13 @@ export default function WorkSection() {
         }
       `}</style>
       </section>
-      <div aria-hidden="true" ref={spacerRef} style={{ width: '100%', pointerEvents: 'none' }} />
-    </div>
+      <div
+        aria-hidden="true"
+        ref={containerRef}
+        className="work-scroll-spacer"
+        style={{ width: '100%', pointerEvents: 'none' }}
+      />
+    </>
   );
 }
+

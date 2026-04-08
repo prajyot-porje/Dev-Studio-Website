@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { m } from 'framer-motion';
 import { RippleElement } from '@/components/ui/ripple-element';
 
@@ -43,6 +43,9 @@ export default function ContactSection() {
     message: '',
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const headerRef = useRef<HTMLDivElement | null>(null);
+  const formRef = useRef<HTMLDivElement | null>(null);
+  const successRef = useRef<HTMLDivElement | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const updateField = (field: string, value: string) => {
@@ -93,14 +96,21 @@ export default function ContactSection() {
       <div className="section-container" style={{ maxWidth: '720px' }}>
         {/* Header */}
         <m.div
+          ref={headerRef}
           variants={{
             hidden: { opacity: 0, y: 20 },
             visible: { opacity: 1, y: 0 }
           }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          onAnimationComplete={() => {
+            if (headerRef.current) {
+              headerRef.current.style.willChange = 'auto';
+            }
+          }}
           style={{
             textAlign: 'center',
             marginBottom: '48px',
+            willChange: 'transform, opacity',
           }}
         >
           <p
@@ -126,17 +136,23 @@ export default function ContactSection() {
 
         {/* Form container */}
         <m.div
+          ref={formRef}
           layout
           variants={{
             hidden: { opacity: 0, y: 50 },
-            visible: { 
-              opacity: 1, 
-              y: 0, 
-              transition: { duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 } 
+            visible: {
+              opacity: 1,
+              y: 0,
+              transition: { duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }
             }
           }}
           // The layout transition runs smoothly when content height changes
           transition={{ duration: 0.4 }}
+          onAnimationComplete={() => {
+            if (formRef.current) {
+              formRef.current.style.willChange = 'auto';
+            }
+          }}
           className="shadow-[0_20px_60px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
           style={{
             borderRadius: 'var(--radius-2xl)',
@@ -144,434 +160,441 @@ export default function ContactSection() {
             background: 'var(--card-bg)',
             backdropFilter: 'blur(16px)',
             overflow: 'hidden',
+            willChange: 'transform, opacity',
           }}
         >
           {/* Step indicator */}
           {!isSubmitted ? (
             <>
               <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '24px 40px',
-              borderBottom: '1px solid var(--border-color)',
-              gap: '12px',
-            }}
-          >
-            {steps.map((step, i) => (
-              <div
-                key={i}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  padding: '24px 40px',
+                  borderBottom: '1px solid var(--border-color)',
                   gap: '12px',
-                  flex: i < steps.length - 1 ? 1 : undefined,
+                }}
+              >
+                {steps.map((step, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      flex: i < steps.length - 1 ? 1 : undefined,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 'var(--text-sm)',
+                        fontWeight: 600,
+                        flexShrink: 0,
+                        transition: 'all 0.4s ease',
+                        background:
+                          i <= currentStep
+                            ? 'var(--text-primary)'
+                            : 'transparent',
+                        color:
+                          i <= currentStep
+                            ? 'var(--bg-primary)'
+                            : 'var(--text-tertiary)',
+                        border:
+                          i <= currentStep
+                            ? 'none'
+                            : '1px solid var(--border-color)',
+                      }}
+                    >
+                      {i < currentStep ? (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      ) : (
+                        i + 1
+                      )}
+                    </div>
+                    <span
+                      style={{
+                        fontSize: 'var(--text-sm)',
+                        fontWeight: 500,
+                        color:
+                          i <= currentStep
+                            ? 'var(--text-primary)'
+                            : 'var(--text-tertiary)',
+                        whiteSpace: 'nowrap',
+                        transition: 'color 0.3s ease',
+                      }}
+                    >
+                      {step.title}
+                    </span>
+                    {i < steps.length - 1 && (
+                      <div
+                        style={{
+                          flex: 1,
+                          height: '1px',
+                          background: 'var(--border-color)',
+                          marginLeft: '8px',
+                        }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Form content */}
+              <div
+                style={{
+                  position: 'relative',
+                  overflow: 'hidden',
                 }}
               >
                 <div
                   style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 'var(--text-sm)',
-                    fontWeight: 600,
-                    flexShrink: 0,
-                    transition: 'all 0.4s ease',
-                    background:
-                      i <= currentStep
-                        ? 'var(--text-primary)'
-                        : 'transparent',
-                    color:
-                      i <= currentStep
-                        ? 'var(--bg-primary)'
-                        : 'var(--text-tertiary)',
-                    border:
-                      i <= currentStep
-                        ? 'none'
-                        : '1px solid var(--border-color)',
+                    transition:
+                      'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+                    transform: `translateX(-${currentStep * 100}%)`,
                   }}
                 >
-                  {i < currentStep ? (
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  ) : (
-                    i + 1
-                  )}
+                  {/* Step 1: Name/Email */}
+                  <div
+                    style={{
+                      minWidth: '100%',
+                      padding: currentStep === 0 ? '40px' : '0 40px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '20px',
+                      height: currentStep === 0 ? 'auto' : 0,
+                      overflow: 'hidden',
+                      opacity: currentStep === 0 ? 1 : 0,
+                      visibility: currentStep === 0 ? 'visible' : 'hidden',
+                    }}
+                  >
+                    <div>
+                      <label
+                        style={{
+                          display: 'block',
+                          fontSize: 'var(--text-sm)',
+                          fontWeight: 500,
+                          color: 'var(--text-secondary)',
+                          marginBottom: '8px',
+                        }}
+                      >
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="John Doe"
+                        value={formData.name}
+                        onChange={(e) => updateField('name', e.target.value)}
+                        style={inputStyle}
+                        onFocus={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--text-primary)';
+                          e.currentTarget.style.boxShadow =
+                            '0 0 0 3px var(--border-subtle)';
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--border-color)';
+                          e.currentTarget.style.boxShadow = 'none';
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label
+                        style={{
+                          display: 'block',
+                          fontSize: 'var(--text-sm)',
+                          fontWeight: 500,
+                          color: 'var(--text-secondary)',
+                          marginBottom: '8px',
+                        }}
+                      >
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="john@example.com"
+                        value={formData.email}
+                        onChange={(e) => updateField('email', e.target.value)}
+                        style={inputStyle}
+                        onFocus={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--text-primary)';
+                          e.currentTarget.style.boxShadow =
+                            '0 0 0 3px var(--border-subtle)';
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--border-color)';
+                          e.currentTarget.style.boxShadow = 'none';
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Step 2: Service/Budget */}
+                  <div
+                    style={{
+                      minWidth: '100%',
+                      padding: currentStep === 1 ? '40px' : '0 40px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '20px',
+                      height: currentStep === 1 ? 'auto' : 0,
+                      overflow: 'hidden',
+                      opacity: currentStep === 1 ? 1 : 0,
+                      visibility: currentStep === 1 ? 'visible' : 'hidden',
+                    }}
+                  >
+                    <div>
+                      <label
+                        style={{
+                          display: 'block',
+                          fontSize: 'var(--text-sm)',
+                          fontWeight: 500,
+                          color: 'var(--text-secondary)',
+                          marginBottom: '12px',
+                        }}
+                      >
+                        What do you need?
+                      </label>
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(2, 1fr)',
+                          gap: '8px',
+                        }}
+                        className="service-options-grid"
+                      >
+                        {serviceOptions.map((option) => (
+                          <RippleElement
+                            key={option}
+                            type="button"
+                            onClick={() => updateField('service', option)}
+                            style={{
+                              padding: '12px 16px',
+                              borderRadius: 'var(--radius-md)',
+                              border: '1px solid',
+                              borderColor:
+                                formData.service === option
+                                  ? 'var(--text-primary)'
+                                  : 'var(--border-color)',
+                              background:
+                                formData.service === option
+                                  ? 'var(--text-primary)'
+                                  : 'transparent',
+                              color:
+                                formData.service === option
+                                  ? 'var(--bg-primary)'
+                                  : 'var(--text-secondary)',
+                              fontSize: 'var(--text-sm)',
+                              fontWeight: 500,
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease',
+                              fontFamily: 'inherit',
+                            }}
+                          >
+                            {option}
+                          </RippleElement>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label
+                        style={{
+                          display: 'block',
+                          fontSize: 'var(--text-sm)',
+                          fontWeight: 500,
+                          color: 'var(--text-secondary)',
+                          marginBottom: '12px',
+                        }}
+                      >
+                        Budget range
+                      </label>
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(2, 1fr)',
+                          gap: '8px',
+                        }}
+                      >
+                        {budgetOptions.map((option) => (
+                          <RippleElement
+                            key={option}
+                            type="button"
+                            onClick={() => updateField('budget', option)}
+                            style={{
+                              padding: '12px 16px',
+                              borderRadius: 'var(--radius-md)',
+                              border: '1px solid',
+                              borderColor:
+                                formData.budget === option
+                                  ? 'var(--text-primary)'
+                                  : 'var(--border-color)',
+                              background:
+                                formData.budget === option
+                                  ? 'var(--text-primary)'
+                                  : 'transparent',
+                              color:
+                                formData.budget === option
+                                  ? 'var(--bg-primary)'
+                                  : 'var(--text-secondary)',
+                              fontSize: 'var(--text-sm)',
+                              fontWeight: 500,
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease',
+                              fontFamily: 'inherit',
+                            }}
+                          >
+                            {option}
+                          </RippleElement>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 3: Message */}
+                  <div
+                    style={{
+                      minWidth: '100%',
+                      padding: currentStep === 2 ? '40px' : '0 40px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '20px',
+                      height: currentStep === 2 ? 'auto' : 0,
+                      overflow: 'hidden',
+                      opacity: currentStep === 2 ? 1 : 0,
+                      visibility: currentStep === 2 ? 'visible' : 'hidden',
+                    }}
+                  >
+                    <div>
+                      <label
+                        style={{
+                          display: 'block',
+                          fontSize: 'var(--text-sm)',
+                          fontWeight: 500,
+                          color: 'var(--text-secondary)',
+                          marginBottom: '8px',
+                        }}
+                      >
+                        Project Details
+                      </label>
+                      <textarea
+                        placeholder="Tell us about your project, goals, and timeline..."
+                        value={formData.message}
+                        onChange={(e) =>
+                          updateField('message', e.target.value)
+                        }
+                        rows={6}
+                        style={{
+                          ...inputStyle,
+                          resize: 'vertical',
+                          minHeight: '160px',
+                        }}
+                        onFocus={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--text-primary)';
+                          e.currentTarget.style.boxShadow =
+                            '0 0 0 3px var(--border-subtle)';
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--border-color)';
+                          e.currentTarget.style.boxShadow = 'none';
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
-                <span
+              </div>
+
+              {/* Navigation OR Success Message */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '20px 40px 32px',
+                }}
+              >
+                <RippleElement
+                  type="button"
+                  onClick={prevStep}
                   style={{
+                    padding: '12px 24px',
+                    borderRadius: 'var(--radius-full)',
+                    border: '1px solid var(--border-color)',
+                    background: 'transparent',
+                    color: 'var(--text-secondary)',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 500,
-                    color:
-                      i <= currentStep
-                        ? 'var(--text-primary)'
-                        : 'var(--text-tertiary)',
-                    whiteSpace: 'nowrap',
-                    transition: 'color 0.3s ease',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    visibility: currentStep > 0 ? 'visible' : 'hidden',
+                    fontFamily: 'inherit',
                   }}
                 >
-                  {step.title}
-                </span>
-                {i < steps.length - 1 && (
-                  <div
-                    style={{
-                      flex: 1,
-                      height: '1px',
-                      background: 'var(--border-color)',
-                      marginLeft: '8px',
-                    }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
+                  Back
+                </RippleElement>
 
-          {/* Form content */}
-          <div
-            style={{
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                transition:
-                  'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-                transform: `translateX(-${currentStep * 100}%)`,
-              }}
-            >
-              {/* Step 1: Name/Email */}
-              <div
-                style={{
-                  minWidth: '100%',
-                  padding: currentStep === 0 ? '40px' : '0 40px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '20px',
-                  height: currentStep === 0 ? 'auto' : 0,
-                  overflow: 'hidden',
-                  opacity: currentStep === 0 ? 1 : 0,
-                  visibility: currentStep === 0 ? 'visible' : 'hidden',
-                }}
-              >
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: 'var(--text-sm)',
-                      fontWeight: 500,
-                      color: 'var(--text-secondary)',
-                      marginBottom: '8px',
-                    }}
-                  >
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="John Doe"
-                    value={formData.name}
-                    onChange={(e) => updateField('name', e.target.value)}
-                    style={inputStyle}
-                    onFocus={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--text-primary)';
-                      e.currentTarget.style.boxShadow =
-                        '0 0 0 3px var(--border-subtle)';
-                    }}
-                    onBlur={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--border-color)';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
-                  />
+                {/* Step dots */}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {steps.map((_, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        width: i === currentStep ? '24px' : '8px',
+                        height: '8px',
+                        borderRadius: '4px',
+                        background:
+                          i === currentStep
+                            ? 'var(--text-primary)'
+                            : 'var(--border-color)',
+                        transition: 'all 0.4s ease',
+                      }}
+                    />
+                  ))}
                 </div>
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: 'var(--text-sm)',
-                      fontWeight: 500,
-                      color: 'var(--text-secondary)',
-                      marginBottom: '8px',
-                    }}
-                  >
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="john@example.com"
-                    value={formData.email}
-                    onChange={(e) => updateField('email', e.target.value)}
-                    style={inputStyle}
-                    onFocus={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--text-primary)';
-                      e.currentTarget.style.boxShadow =
-                        '0 0 0 3px var(--border-subtle)';
-                    }}
-                    onBlur={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--border-color)';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
-                  />
-                </div>
+
+                <RippleElement
+                  type="button"
+                  onClick={
+                    currentStep === steps.length - 1 ? handleSubmit : nextStep
+                  }
+                  className="btn-primary"
+                  style={{
+                    padding: '12px 28px',
+                    fontSize: 'var(--text-sm)',
+                  }}
+                >
+                  {currentStep === steps.length - 1
+                    ? isSubmitting ? 'Sending...' : 'Send Message'
+                    : 'Continue'}
+                </RippleElement>
               </div>
-
-              {/* Step 2: Service/Budget */}
-              <div
-                style={{
-                  minWidth: '100%',
-                  padding: currentStep === 1 ? '40px' : '0 40px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '20px',
-                  height: currentStep === 1 ? 'auto' : 0,
-                  overflow: 'hidden',
-                  opacity: currentStep === 1 ? 1 : 0,
-                  visibility: currentStep === 1 ? 'visible' : 'hidden',
-                }}
-              >
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: 'var(--text-sm)',
-                      fontWeight: 500,
-                      color: 'var(--text-secondary)',
-                      marginBottom: '12px',
-                    }}
-                  >
-                    What do you need?
-                  </label>
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(2, 1fr)',
-                      gap: '8px',
-                    }}
-                    className="service-options-grid"
-                  >
-                    {serviceOptions.map((option) => (
-                      <RippleElement
-                        key={option}
-                        type="button"
-                        onClick={() => updateField('service', option)}
-                        style={{
-                          padding: '12px 16px',
-                          borderRadius: 'var(--radius-md)',
-                          border: '1px solid',
-                          borderColor:
-                            formData.service === option
-                              ? 'var(--text-primary)'
-                              : 'var(--border-color)',
-                          background:
-                            formData.service === option
-                              ? 'var(--text-primary)'
-                              : 'transparent',
-                          color:
-                            formData.service === option
-                              ? 'var(--bg-primary)'
-                              : 'var(--text-secondary)',
-                          fontSize: 'var(--text-sm)',
-                          fontWeight: 500,
-                          cursor: 'pointer',
-                          transition: 'all 0.3s ease',
-                          fontFamily: 'inherit',
-                        }}
-                      >
-                        {option}
-                      </RippleElement>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: 'var(--text-sm)',
-                      fontWeight: 500,
-                      color: 'var(--text-secondary)',
-                      marginBottom: '12px',
-                    }}
-                  >
-                    Budget range
-                  </label>
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(2, 1fr)',
-                      gap: '8px',
-                    }}
-                  >
-                    {budgetOptions.map((option) => (
-                      <RippleElement
-                        key={option}
-                        type="button"
-                        onClick={() => updateField('budget', option)}
-                        style={{
-                          padding: '12px 16px',
-                          borderRadius: 'var(--radius-md)',
-                          border: '1px solid',
-                          borderColor:
-                            formData.budget === option
-                              ? 'var(--text-primary)'
-                              : 'var(--border-color)',
-                          background:
-                            formData.budget === option
-                              ? 'var(--text-primary)'
-                              : 'transparent',
-                          color:
-                            formData.budget === option
-                              ? 'var(--bg-primary)'
-                              : 'var(--text-secondary)',
-                          fontSize: 'var(--text-sm)',
-                          fontWeight: 500,
-                          cursor: 'pointer',
-                          transition: 'all 0.3s ease',
-                          fontFamily: 'inherit',
-                        }}
-                      >
-                        {option}
-                      </RippleElement>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 3: Message */}
-              <div
-                style={{
-                  minWidth: '100%',
-                  padding: currentStep === 2 ? '40px' : '0 40px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '20px',
-                  height: currentStep === 2 ? 'auto' : 0,
-                  overflow: 'hidden',
-                  opacity: currentStep === 2 ? 1 : 0,
-                  visibility: currentStep === 2 ? 'visible' : 'hidden',
-                }}
-              >
-                <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      fontSize: 'var(--text-sm)',
-                      fontWeight: 500,
-                      color: 'var(--text-secondary)',
-                      marginBottom: '8px',
-                    }}
-                  >
-                    Project Details
-                  </label>
-                  <textarea
-                    placeholder="Tell us about your project, goals, and timeline..."
-                    value={formData.message}
-                    onChange={(e) =>
-                      updateField('message', e.target.value)
-                    }
-                    rows={6}
-                    style={{
-                      ...inputStyle,
-                      resize: 'vertical',
-                      minHeight: '160px',
-                    }}
-                    onFocus={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--text-primary)';
-                      e.currentTarget.style.boxShadow =
-                        '0 0 0 3px var(--border-subtle)';
-                    }}
-                    onBlur={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--border-color)';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation OR Success Message */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '20px 40px 32px',
-              }}
-            >
-              <RippleElement
-                type="button"
-                onClick={prevStep}
-                style={{
-                  padding: '12px 24px',
-                  borderRadius: 'var(--radius-full)',
-                  border: '1px solid var(--border-color)',
-                  background: 'transparent',
-                  color: 'var(--text-secondary)',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  visibility: currentStep > 0 ? 'visible' : 'hidden',
-                  fontFamily: 'inherit',
-                }}
-              >
-                Back
-              </RippleElement>
-
-              {/* Step dots */}
-              <div style={{ display: 'flex', gap: '8px' }}>
-                {steps.map((_, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      width: i === currentStep ? '24px' : '8px',
-                      height: '8px',
-                      borderRadius: '4px',
-                      background:
-                        i === currentStep
-                          ? 'var(--text-primary)'
-                          : 'var(--border-color)',
-                      transition: 'all 0.4s ease',
-                    }}
-                  />
-                ))}
-              </div>
-
-              <RippleElement
-                type="button"
-                onClick={
-                  currentStep === steps.length - 1 ? handleSubmit : nextStep
-                }
-                className="btn-primary"
-                style={{
-                  padding: '12px 28px',
-                  fontSize: 'var(--text-sm)',
-                }}
-              >
-                {currentStep === steps.length - 1
-                  ? isSubmitting ? 'Sending...' : 'Send Message'
-                  : 'Continue'}
-              </RippleElement>
-            </div>
             </>
           ) : (
             <m.div
+              ref={successRef}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              onAnimationComplete={() => {
+                if (successRef.current) {
+                  successRef.current.style.willChange = 'auto';
+                }
+              }}
               style={{
                 padding: '64px 40px',
                 textAlign: 'center',
@@ -579,6 +602,7 @@ export default function ContactSection() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
+                willChange: 'transform, opacity',
                 minHeight: '400px',
               }}
             >

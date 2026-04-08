@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState, type ReactNode } from 'react';
 import { m, useInView } from 'framer-motion';
+import SectionReveal from '@/components/ui/SectionReveal';
 import { useTheme } from '@/app/components/ThemeProvider';
 import dynamic from 'next/dynamic';
 
@@ -38,11 +39,13 @@ interface BentoCardProps {
   gridArea: string;
   children: ReactNode;
   index: number;
+  externalInView?: boolean;
 }
 
-function BentoCard({ gridArea, children, index }: BentoCardProps) {
+function BentoCard({ gridArea, children, index, externalInView }: BentoCardProps & { externalInView?: boolean }) {
   const ref   = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-80px' });
+  const localInView = useInView(ref, { once: true, margin: '-80px' });
+  const inView = externalInView ?? localInView;
   const [hover, setHover] = useState(false);
 
   return (
@@ -133,9 +136,9 @@ function CardDesc({ children }: { children: ReactNode }) {
 /* ═══════════════════════════════════════════════════════════════
    CARD 1 — UNIQUE DESIGN  (hero, 2 columns wide)
    ═══════════════════════════════════════════════════════════════ */
-function CardDesign() {
+function CardDesign({ externalInView }: { externalInView?: boolean }) {
   return (
-    <BentoCard gridArea="c-design" index={0}>
+    <BentoCard gridArea="c-design" index={0} externalInView={externalInView}>
       {/* Hexagonal tiling background */}
       <div
         aria-hidden
@@ -232,7 +235,7 @@ function CardDesign() {
 /* ═══════════════════════════════════════════════════════════════
    CARD 2 — FUTURE-READY TECHNOLOGY  (1 column)
    ═══════════════════════════════════════════════════════════════ */
-function CardTech() {
+function CardTech({ externalInView }: { externalInView?: boolean }) {
   const icons = [
     /* Row 1 */
     {
@@ -326,7 +329,7 @@ function CardTech() {
   ];
 
   return (
-    <BentoCard gridArea="c-tech" index={1}>
+    <BentoCard gridArea="c-tech" index={1} externalInView={externalInView}>
       <CardLabel text="Our Stack" />
 
       {/* 2 × 4 icon grid */}
@@ -386,9 +389,10 @@ function CardTech() {
 /* ═══════════════════════════════════════════════════════════════
    CARD 3 — PERFORMANCE-FIRST  (1 column)
    ═══════════════════════════════════════════════════════════════ */
-function CardPerf() {
+function CardPerf({ externalInView }: { externalInView?: boolean }) {
   const wrapRef  = useRef<HTMLDivElement>(null);
-  const isInView = useInView(wrapRef, { once: true, margin: '-40px' });
+  const localWrapInView = useInView(wrapRef, { once: true, margin: '-40px' });
+  const isInView = externalInView ?? localWrapInView;
 
   const R   = 44;
   const CIR = 2 * Math.PI * R;
@@ -396,7 +400,7 @@ function CardPerf() {
   const METRICS = ['Performance', 'Accessibility', 'Best Practices', 'SEO'];
 
   return (
-    <BentoCard gridArea="c-perf" index={2}>
+    <BentoCard gridArea="c-perf" index={2} externalInView={externalInView}>
       <CardLabel text="Performance-First" />
 
       <div
@@ -513,11 +517,11 @@ function CardPerf() {
    CARD 4 — INTERNATIONAL FROM DAY ONE  (tall, spans 2 rows)
    Globe kept EXACTLY as original.
    ═══════════════════════════════════════════════════════════════ */
-function CardGlobe() {
+function CardGlobe({ externalInView }: { externalInView?: boolean }) {
   const { theme } = useTheme();
 
   return (
-    <BentoCard gridArea="c-globe" index={3}>
+    <BentoCard gridArea="c-globe" index={3} externalInView={externalInView}>
       <CardLabel text="Global Reach" />
 
       {/* Globe — unchanged from original */}
@@ -567,9 +571,9 @@ function CardGlobe() {
 /* ═══════════════════════════════════════════════════════════════
    CARD 5 — ONE CONTACT. FULL DELIVERY.  (2 columns wide)
    ═══════════════════════════════════════════════════════════════ */
-function CardContact() {
+function CardContact({ externalInView }: { externalInView?: boolean }) {
   return (
-    <BentoCard gridArea="c-contact" index={4}>
+    <BentoCard gridArea="c-contact" index={4} externalInView={externalInView}>
       <CardLabel text="Communication" />
 
       {/* 3-Node flow diagram */}
@@ -726,9 +730,10 @@ function CardContact() {
 /* ═══════════════════════════════════════════════════════════════
    CARD 6 — WE BUILD FOR THE LONG RUN  (1 column)
    ═══════════════════════════════════════════════════════════════ */
-function CardLongRun() {
+function CardLongRun({ externalInView }: { externalInView?: boolean }) {
   const chartRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(chartRef, { once: true, margin: '-40px' });
+  const localChartInView = useInView(chartRef, { once: true, margin: '-40px' });
+  const isInView = externalInView ?? localChartInView;
 
   const points = [
     { x: 40,  y: 118 },
@@ -743,7 +748,7 @@ function CardLongRun() {
   const LENGTH = 400;
 
   return (
-    <BentoCard gridArea="c-longrun" index={5}>
+    <BentoCard gridArea="c-longrun" index={5} externalInView={externalInView}>
       <CardLabel text="Long-Term Value" />
 
       {/* Growth chart */}
@@ -911,69 +916,72 @@ export default function WhyChooseUsSection() {
         }
       `}</style>
 
-      <div className="section-container" style={{ maxWidth: 1200 }}>
+      <SectionReveal rootMargin="-80px">
+        {(sectionInView) => (
+          <div className="section-container" style={{ maxWidth: 1200 }}>
 
-        {/* ── Section heading ── */}
-        <m.div
-          initial={{ opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.72, ease: EO }}
-          style={{ maxWidth: 580, marginBottom: sp(10) }}
-        >
-          <p style={{
-            margin:        `0 0 ${sp(3)}`,
-            fontSize:      TX.xs,
-            fontWeight:    600,
-            color:         'var(--text-tertiary)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            fontFamily:    FONT_H,
-          }}>
-            Why choose us
-          </p>
+            {/* ── Section heading ── */}
+            <m.div
+              initial={{ opacity: 0, y: 28 }}
+              animate={sectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+              transition={{ duration: 0.72, ease: EO }}
+              style={{ maxWidth: 580, marginBottom: sp(10) }}
+            >
+              <p style={{
+                margin:        `0 0 ${sp(3)}`,
+                fontSize:      TX.xs,
+                fontWeight:    600,
+                color:         'var(--text-tertiary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                fontFamily:    FONT_H,
+              }}>
+                Why choose us
+              </p>
 
-          <h2 style={{
-            margin:        0,
-            fontSize:      TX['2xl'],
-            fontWeight:    700,
-            color:         'var(--text-primary)',
-            letterSpacing: '-0.03em',
-            lineHeight:    1.07,
-            fontFamily:    FONT_H,
-          }}>
-            Built different.{' '}
-            <br />
-            <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
-              Delivered right.
-            </span>
-          </h2>
-        </m.div>
+              <h2 style={{
+                margin:        0,
+                fontSize:      TX['2xl'],
+                fontWeight:    700,
+                color:         'var(--text-primary)',
+                letterSpacing: '-0.03em',
+                lineHeight:    1.07,
+                fontFamily:    FONT_H,
+              }}>
+                Built different.{' '}
+                <br />
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
+                  Delivered right.
+                </span>
+              </h2>
+            </m.div>
 
-        {/* ── Bento grid ── */}
-        <div
-          className="wcu-bento"
-          style={{
-            display:             'grid',
-            gridTemplateAreas:   `
-              "c-design  c-design  c-globe"
-              "c-tech    c-perf    c-globe"
-              "c-contact c-contact c-longrun"
-            `,
-            gridTemplateColumns: '1fr 1fr 1fr',
-            gridTemplateRows:    'minmax(264px,auto) minmax(264px,auto) minmax(216px,auto)',
-            gap:                 sp(3),
-            isolation:           'isolate',
-          }}
-        >
-          <CardDesign  />
-          <CardTech    />
-          <CardPerf    />
-          <CardGlobe   />
-          <CardContact />
-          <CardLongRun />
-        </div>
-      </div>
+            {/* ── Bento grid ── */}
+            <div
+              className="wcu-bento"
+              style={{
+                display:             'grid',
+                gridTemplateAreas:   `
+                  "c-design  c-design  c-globe"
+                  "c-tech    c-perf    c-globe"
+                  "c-contact c-contact c-longrun"
+                `,
+                gridTemplateColumns: '1fr 1fr 1fr',
+                gridTemplateRows:    'minmax(264px,auto) minmax(264px,auto) minmax(216px,auto)',
+                gap:                 sp(3),
+                isolation:           'isolate',
+              }}
+            >
+              <CardDesign  externalInView={sectionInView} />
+              <CardTech    externalInView={sectionInView} />
+              <CardPerf    externalInView={sectionInView} />
+              <CardGlobe   externalInView={sectionInView} />
+              <CardContact externalInView={sectionInView} />
+              <CardLongRun externalInView={sectionInView} />
+            </div>
+          </div>
+        )}
+      </SectionReveal>
     </section>
   );
 }

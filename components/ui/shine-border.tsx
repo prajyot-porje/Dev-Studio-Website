@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRef, useEffect, useState } from "react"
 
 import { cn } from "@/lib/utils"
 
@@ -26,6 +27,7 @@ interface ShineBorderProps extends React.HTMLAttributes<HTMLDivElement> {
  * Shine Border
  *
  * An animated background border effect component with configurable properties.
+ * PERF: Pauses animation when out of viewport to reduce GPU compositor pressure.
  */
 export function ShineBorder({
   borderWidth = 1,
@@ -35,8 +37,27 @@ export function ShineBorder({
   style,
   ...props
 }: ShineBorderProps) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting)
+      },
+      { threshold: 0.01 }
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div
+      ref={ref}
       style={
         {
           "--border-width": `${borderWidth}px`,
@@ -54,7 +75,10 @@ export function ShineBorder({
         } as React.CSSProperties
       }
       className={cn(
-        "motion-safe:animate-shine pointer-events-none absolute inset-0 size-full rounded-[inherit] will-change-[background-position]",
+        "pointer-events-none absolute inset-0 size-full rounded-[inherit]",
+        /* PERF: removed will-change-[background-position] — redundant with CSS animation.
+         * Animation only runs when visible to free GPU memory when offscreen. */
+        isVisible ? "motion-safe:animate-shine" : "",
         className
       )}
       {...props}
