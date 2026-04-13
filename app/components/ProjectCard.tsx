@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { m } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import { memo } from 'react';
+import { RippleElement } from '@/components/ui/ripple-element';
 import styles from './ProjectCard.module.css';
 
 export type ProjectMetric = {
@@ -177,18 +178,16 @@ export default memo(function ProjectCard({
             ))}
           </div>
 
-          <m.a
+          <RippleElement
+            as="a"
             href={ctaHref}
             target={isExternalLink ? '_blank' : undefined}
             rel={isExternalLink ? 'noreferrer noopener' : undefined}
-            whileHover={{ x: 3, y: -1 }}
-            whileTap={{ scale: 0.97 }}
-            transition={hoverTransition}
             className={styles.cta}
           >
             <span>View Case Study</span>
             <ArrowUpRight className={styles.ctaIcon} strokeWidth={2.4} />
-          </m.a>
+          </RippleElement>
         </div>
 
       </div>

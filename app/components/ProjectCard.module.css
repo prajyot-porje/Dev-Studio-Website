@@ -20,20 +20,7 @@
   isolation: isolate;
 }
 
-/* Noise / grain texture overlay */
-.root::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  /* // PERF: replaced feTurbulence with static asset — eliminates per-frame GPU noise calc */
-  background-image: url("/noise.png");
-  background-repeat: repeat;
-  background-size: 200px 200px;
-  opacity: 0.035;
-  pointer-events: none;
-  z-index: 0;
-}
+
 
 /* ─── Inner grid ──────────────────────────────────────────────────────────── */
 .inner {
@@ -211,20 +198,7 @@
   pointer-events: none;
 }
 
-/* Noise texture overlay on dark panel */
-.darkPanel::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  /* // PERF: replaced feTurbulence with static asset — eliminates per-frame GPU noise calc */
-  background-image: url("/noise.png");
-  background-repeat: repeat;
-  background-size: 200px 200px;
-  opacity: 0.04;
-  pointer-events: none;
-  z-index: 0;
-}
+
 
 /* ─── Content header ─────────────────────────────────────────────────────── */
 .contentHeader {

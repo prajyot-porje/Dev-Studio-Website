@@ -2,6 +2,9 @@
 
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
+/* ═══════════════════════════════════════════════════════════════
+   PROCESS STEPS DATA
+   ═══════════════════════════════════════════════════════════════ */
 const steps = [
   {
     number: '01',
@@ -29,6 +32,9 @@ const steps = [
   },
 ];
 
+/* ═══════════════════════════════════════════════════════════════
+   COMPONENT
+   ═══════════════════════════════════════════════════════════════ */
 export default function ProcessSection() {
   const [ref, isVisible] = useIntersectionObserver<HTMLElement>({ threshold: 0.1 });
 
@@ -36,138 +42,285 @@ export default function ProcessSection() {
     <section
       id="process"
       ref={ref}
-      style={{
-        background: 'var(--bg-primary)',
-        position: 'relative',
-      }}
+      className="process-section"
     >
-      <div className="section-container">
-        {/* Header */}
+      <div className="process-container">
+        {/* ── Header ── */}
         <div
+          className="process-header"
           style={{
-            textAlign: 'center',
-            marginBottom: '48px',
             opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
-            transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+            transform: isVisible ? 'translateY(0)' : 'translateY(36px)',
+            transition: 'all 0.9s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         >
-          <p
-            style={{
-              fontSize: 'var(--text-sm)',
-              fontWeight: 600,
-              color: 'var(--text-tertiary)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              marginBottom: '16px',
-            }}
-          >
-            Our Process
-          </p>
-          <h2 className="section-heading">
-            How we work
+          <p className="process-eyebrow">How It Works</p>
+          <h2 className="process-headline">
+            From idea
+            <br />
+            <span className="process-headline__thin">to launch.</span>
           </h2>
         </div>
 
-        {/* Steps */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '32px',
-            maxWidth: '1100px',
-            margin: '0 auto',
-          }}
-          className="process-grid"
-        >
+        {/* ── Timeline ── */}
+        <div className="process-timeline">
+          {/* Animated connecting line */}
+          <div className="process-line-track">
+            <div
+              className="process-line-fill"
+              style={{
+                transform: isVisible ? 'scaleY(1)' : 'scaleY(0)',
+                transition: 'transform 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s',
+              }}
+            />
+          </div>
+
+          {/* Steps */}
           {steps.map((step, i) => (
             <div
               key={step.number}
+              className="process-step"
               style={{
-                position: 'relative',
                 opacity: isVisible ? 1 : 0,
-                transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
-                transition: `all 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${350 + i * 120}ms`,
+                transform: isVisible ? 'translateY(0)' : 'translateY(32px)',
+                transition: `all 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${350 + i * 150}ms`,
               }}
             >
-              {/* Number badge */}
-              <div
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: 'var(--radius-md)',
-                  background: 'var(--accent-blue-subtle)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '20px',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 700,
-                  color: 'var(--accent-blue)',
-                  fontFamily: 'var(--font-mono)',
-                }}
-              >
-                {step.number}
+              {/* Step number — left side */}
+              <div className="process-step__number-col">
+                <span className="process-step__number">{step.number}</span>
+                {/* Glow dot on timeline */}
+                <div className="process-step__dot">
+                  <div
+                    className="process-step__dot-pulse"
+                    style={{
+                      animationDelay: `${i * 200}ms`,
+                    }}
+                  />
+                </div>
               </div>
 
-              {/* Title */}
-              <h3
+              {/* Content — right side */}
+              <div 
+                className="process-step__content"
                 style={{
-                  fontSize: 'var(--text-lg)',
-                  fontWeight: 600,
-                  color: 'var(--text-primary)',
-                  letterSpacing: '-0.02em',
-                  marginBottom: '12px',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '24px',
+                  padding: '32px',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.04)',
                 }}
               >
-                {step.title}
-              </h3>
-
-              {/* Description */}
-              <p
-                style={{
-                  fontSize: 'var(--text-sm)',
-                  color: 'var(--text-secondary)',
-                  lineHeight: 1.7,
-                }}
-              >
-                {step.description}
-              </p>
-
-              {/* Connector line */}
-              {i < steps.length - 1 && (
-                <div
-                  className="process-connector"
-                  style={{
-                    position: 'absolute',
-                    top: '24px',
-                    left: 'calc(48px + 16px)',
-                    right: '-16px',
-                    height: '1px',
-                    background: 'var(--border-color)',
-                  }}
-                />
-              )}
+                <h3 className="process-step__title">{step.title}</h3>
+                <p className="process-step__description">{step.description}</p>
+              </div>
             </div>
           ))}
         </div>
       </div>
 
+      {/* ═══ Scoped Styles ═══ */}
       <style jsx>{`
+        .process-section {
+          position: relative;
+          background: var(--bg-primary);
+          overflow: hidden;
+        }
+
+        .process-container {
+          max-width: var(--container-max);
+          margin: 0 auto;
+          padding: var(--section-padding) var(--container-padding);
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: clamp(48px, 6vw, 96px);
+          align-items: start;
+        }
+
+        /* ── Header (left column) ── */
+        .process-header {
+          position: sticky;
+          top: 30vh;
+        }
+
+        .process-eyebrow {
+          font-size: 0.625rem;
+          font-weight: 600;
+          color: var(--text-tertiary);
+          text-transform: uppercase;
+          letter-spacing: 0.15em;
+          margin: 0 0 16px;
+        }
+
+        .process-headline {
+          font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+          font-weight: 700;
+          color: var(--text-primary);
+          letter-spacing: -0.04em;
+          line-height: 1.05;
+          margin: 0;
+        }
+
+        .process-headline__thin {
+          font-weight: 500;
+          color: var(--text-secondary);
+        }
+
+        /* ── Timeline (right column) ── */
+        .process-timeline {
+          position: relative;
+          padding-left: 48px;
+        }
+
+        /* Connecting line track */
+        .process-line-track {
+          position: absolute;
+          left: 17px;
+          top: 12px;
+          bottom: 12px;
+          width: 2px;
+          background: var(--border-color);
+          border-radius: 1px;
+          overflow: hidden;
+        }
+
+        .process-line-fill {
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(180deg, var(--accent-blue) 0%, rgba(108, 99, 255, 0.6) 50%, var(--accent-blue) 100%);
+          background-size: 100% 200%;
+          transform-origin: top center;
+          border-radius: 1px;
+          animation: processLineShimmer 4s ease infinite;
+        }
+
+        @keyframes processLineShimmer {
+          0%, 100% { background-position: 0% 0%; }
+          50% { background-position: 0% 100%; }
+        }
+
+        /* ── Individual step ── */
+        .process-step {
+          display: flex;
+          align-items: flex-start;
+          gap: 32px;
+          padding-bottom: clamp(48px, 6vh, 72px);
+          position: relative;
+        }
+
+        .process-step:last-child {
+          padding-bottom: 0;
+        }
+
+        /* Number column */
+        .process-step__number-col {
+          position: relative;
+          flex-shrink: 0;
+          width: 0;
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+        }
+
+        .process-step__number {
+          position: absolute;
+          right: calc(100% + 32px);
+          top: -4px;
+          font-size: clamp(2.5rem, 4vw, 3.5rem);
+          font-weight: 800;
+          letter-spacing: -0.05em;
+          line-height: 1;
+          font-variant-numeric: tabular-nums;
+          background: linear-gradient(135deg, var(--accent-blue) 0%, #6C63FF 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          opacity: 0.18;
+          user-select: none;
+        }
+
+        /* Dot on timeline */
+        .process-step__dot {
+          position: absolute;
+          left: -31px;
+          top: 8px;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: var(--accent-blue);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 0 0 4px var(--bg-primary), 0 0 12px var(--accent-blue-glow);
+          z-index: 2;
+        }
+
+        .process-step__dot-pulse {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: var(--accent-blue);
+          animation: dotPulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes dotPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.5); }
+        }
+
+        /* Content */
+        .process-step__content {
+          flex: 1;
+          padding-top: 2px;
+        }
+
+        .process-step__title {
+          font-size: clamp(1.15rem, 1.8vw, 1.4rem);
+          font-weight: 600;
+          color: var(--text-primary);
+          letter-spacing: -0.025em;
+          margin: 0 0 10px;
+          line-height: 1.2;
+        }
+
+        .process-step__description {
+          font-size: clamp(0.85rem, 1vw, 0.95rem);
+          font-weight: 400;
+          color: var(--text-secondary);
+          line-height: 1.75;
+          margin: 0;
+          max-width: 380px;
+        }
+
+        /* ── Responsive ── */
         @media (max-width: 900px) {
-          .process-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
+          .process-container {
+            grid-template-columns: 1fr;
+            gap: 40px;
           }
-          .process-connector {
-            display: none !important;
+
+          .process-header {
+            position: relative;
+            top: auto;
           }
-          .spline-wrapper {
-            height: 400px !important;
+
+          .process-headline {
+            font-size: clamp(2rem, 8vw, 3rem);
           }
         }
+
         @media (max-width: 540px) {
-          .process-grid {
-            grid-template-columns: 1fr !important;
+          .process-step__number {
+            font-size: 2rem;
+            right: calc(100% + 24px);
+          }
+
+          .process-timeline {
+            padding-left: 40px;
+          }
+
+          .process-step {
+            gap: 20px;
           }
         }
       `}</style>

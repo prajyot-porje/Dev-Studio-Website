@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import { RippleElement } from '@/components/ui/ripple-element';
 
@@ -13,11 +14,11 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-
   const [expanded, setExpanded] = useState(false);
   const [linksVisible, setLinksVisible] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     // Trigger expansion after mount
@@ -55,6 +56,17 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close menu on resize if switching to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <nav
       style={{
@@ -74,10 +86,10 @@ export default function Navbar() {
         maxWidth: expanded ? '1400px' : '140px',
         width: '80vw',
         padding: expanded ? '0 12px 0 24px' : '0 20px',
-        overflow: 'hidden',
+        overflow: isMenuOpen ? 'visible' : 'hidden', // Conditional overflow
       }}
       className={`glass-navbar backdrop-blur-2xl bg-white/60 dark:bg-black/60 border border-white/10 dark:border-white/5 ${
-        scrolled
+        scrolled || isMenuOpen
           ? 'shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.6)]'
           : ''
       }`}
@@ -101,7 +113,7 @@ export default function Navbar() {
         </a>
       </div>
 
-      {/* Center Column: Nav Links perfectly centered */}
+      {/* Center Column: Nav Links perfectly centered (Desktop) */}
       <div
         className="hidden md:flex"
         style={{
@@ -144,8 +156,8 @@ export default function Navbar() {
         ))}
       </div>
 
-      {/* Right Column: Toggle + CTA Button */}
-      <div style={{ flex: '1 1 0%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '16px' }}>
+      {/* Right Column: Toggle + CTA Button + Hamburger */}
+      <div style={{ flex: '1 1 0%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '8px' }}>
         {/* Theme Toggle */}
         <AnimatedThemeToggler
           className="transition-all duration-300 hover:scale-105 hover:-translate-y-0.5 cursor-pointer"
@@ -172,11 +184,11 @@ export default function Navbar() {
           }}
         />
 
-        {/* CTA Button */}
+        {/* CTA Button (Desktop only) */}
         <RippleElement
           as="a"
           href="#contact"
-          className="transition-all duration-300 hover:scale-105 hover:-translate-y-0.5"
+          className="hidden md:flex transition-all duration-300 hover:scale-105 hover:-translate-y-0.5"
           style={{
             background: 'var(--cta-bg)',
             color: 'var(--cta-text)',
@@ -188,6 +200,7 @@ export default function Navbar() {
             whiteSpace: 'nowrap',
             flexShrink: 0,
             opacity: ctaVisible ? 1 : 0,
+            alignItems: 'center',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = 'var(--cta-hover)';
@@ -198,14 +211,140 @@ export default function Navbar() {
         >
           Get in Touch
         </RippleElement>
+
+        {/* Hamburger Menu Toggle (Mobile only) */}
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="md:hidden flex items-center justify-center transition-all duration-300 active:scale-95"
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            border: 'none',
+            background: isMenuOpen ? 'var(--border-color)' : 'transparent',
+            color: isMenuOpen ? 'var(--text-primary)' : 'var(--text-secondary)',
+            cursor: 'pointer',
+            zIndex: 1001,
+          }}
+        >
+          <motion.div
+            initial={false}
+            animate={isMenuOpen ? "open" : "closed"}
+            className="flex flex-col gap-1.5 items-center justify-center h-full w-full"
+          >
+            <motion.span
+              variants={{
+                closed: { rotate: 0, y: 0 },
+                open: { rotate: 45, y: 3.5 }, // Centered cross
+              }}
+              style={{ width: '20px', height: '2px', background: 'currentColor', borderRadius: '1px' }}
+            />
+            <motion.span
+              variants={{
+                closed: { opacity: 1 },
+                open: { opacity: 0 },
+              }}
+              style={{ width: '20px', height: '2px', background: 'currentColor', borderRadius: '1px' }}
+            />
+            <motion.span
+              variants={{
+                closed: { rotate: 0, y: 0 },
+                open: { rotate: -45, y: -3.5 }, // Centered cross
+              }}
+              style={{ width: '20px', height: '2px', background: 'currentColor', borderRadius: '1px' }}
+            />
+          </motion.div>
+        </button>
       </div>
-      <style>{`
+
+      {/* Mobile Menu Pop-over Capsule */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+            style={{
+              position: 'absolute',
+              top: '68px',
+              left: '0',
+              right: '0',
+              padding: '16px',
+              borderRadius: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              zIndex: 999,
+              boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+              border: '1px solid var(--border-color)',
+            }}
+            className="glass-navbar backdrop-blur-2xl bg-white/80 dark:bg-black/80"
+          >
+            {navLinks.map((link, i) => (
+              <motion.a
+                key={link.label}
+                href={link.href}
+                onClick={() => setIsMenuOpen(false)}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+                style={{
+                  fontSize: 'var(--text-lg)',
+                  fontWeight: 500,
+                  color: 'var(--text-primary)',
+                  textDecoration: 'none',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  transition: 'background 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--border-color)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                {link.label}
+                <span style={{ opacity: 0.5 }}>→</span>
+              </motion.a>
+            ))}
+            
+            <div style={{ marginTop: '8px', borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
+              <RippleElement
+                as="a"
+                href="#contact"
+                onClick={() => setIsMenuOpen(false)}
+                style={{
+                  background: 'var(--cta-bg)',
+                  color: 'var(--cta-text)',
+                  padding: '14px 20px', // Corrected padding
+                  borderRadius: '12px',
+                  fontSize: 'var(--text-base)',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                }}
+              >
+                Get in Touch
+              </RippleElement>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <style jsx>{`
         @media (max-width: 768px) {
           .glass-navbar {
-            /* // PERF: removes backdrop-filter on mobile fixed navbar — biggest mobile scroll win */
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-            background: rgba(13,13,13,0.92) !important;
+            /* // PERF: Keep backdrop-blur for mobile capsule but respect the original morphism */
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
           }
         }
       `}</style>

@@ -36,10 +36,34 @@ interface BentoCardProps {
 
 function BentoCard({ area, children, index, style, externalInView, premiumStatic }: BentoCardProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const localInView = useInView(ref, { once: true, margin: '-60px' });
-  const inView = externalInView ?? localInView;
+  const inView = useInView(ref, { once: true, margin: '-60px' });
   const [hover, setHover] = useState(false);
   const { theme } = useTheme();
+
+  /* ── Card Styling Constants (Sync with ServicesSection) ── */
+  const SHELL_RADIUS = 36;
+  const INNER_RADIUS = 28;
+
+  // Shell Styles
+  const shellBg = theme === 'dark' ? '#121316' : '#ECEDEF';
+  const shellBorder = theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(0, 0, 0, 0.07)';
+  const shellShadow = theme === 'dark'
+    ? 'inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 32px rgba(0, 0, 0, 0.4), 0 24px 64px rgba(0, 0, 0, 0.3)'
+    : 'inset 0 1px 0 rgba(255, 255, 255, 0.90), 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.04), 0 16px 32px rgba(0, 0, 0, 0.07), 0 40px 72px rgba(0, 0, 0, 0.09), 0 80px 120px rgba(0, 0, 0, 0.06)';
+
+  // Inner Styles
+  const innerBg = theme === 'dark'
+    ? 'linear-gradient(165deg, #1a1c20 0%, #141518 20%, #101114 45%, #0c0d10 65%, #090a0c 85%, #060708 100%)'
+    : 'linear-gradient(165deg, #ffffff 0%, #F7F8FA 60%, #F2F4F7 100%)';
+  const innerBorder = theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.07)' : '1px solid rgba(0, 0, 0, 0.055)';
+
+  const innerShadowNormal = theme === 'dark'
+    ? 'inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.30), 0 4px 8px rgba(0, 0, 0, 0.12), 0 12px 28px rgba(0, 0, 0, 0.18), 0 28px 56px rgba(0, 0, 0, 0.16), 0 48px 80px rgba(0, 0, 0, 0.10)'
+    : 'inset 0 1px 0 rgba(255, 255, 255, 1), inset 0 -1px 0 rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04)';
+
+  const innerShadowHover = theme === 'dark'
+    ? 'inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.30), 0 8px 16px rgba(0, 0, 0, 0.20), 0 16px 36px rgba(0, 0, 0, 0.24), 0 36px 72px rgba(0, 0, 0, 0.20), 0 64px 120px rgba(0, 0, 0, 0.15)'
+    : 'inset 0 1px 0 rgba(255, 255, 255, 1), inset 0 -1px 0 rgba(0, 0, 0, 0.04), 0 8px 16px rgba(0, 0, 0, 0.06), 0 16px 32px rgba(0, 0, 0, 0.06), 0 32px 56px rgba(0, 0, 0, 0.06)';
 
   return (
     <m.div
@@ -54,83 +78,58 @@ function BentoCard({ area, children, index, style, externalInView, premiumStatic
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        borderRadius: 24,
+        borderRadius: SHELL_RADIUS,
+        padding: 8,
+        background: shellBg,
+        border: shellBorder,
+        boxShadow: shellShadow,
         overflow: 'visible',
-        /* // PERF: promotes backdrop-filter elements to GPU layer — reduces repaint cost */
         willChange: 'transform, opacity',
         transform: 'translateZ(0)',
+        transition: 'transform 800ms var(--ease-spring), box-shadow 400ms var(--ease-out)',
         ...style,
       }}
     >
-      {/* Layer 1: Shadow — Work Section Premium System */}
       <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          inset: 0,
-          borderRadius: 24,
-          boxShadow: theme === 'dark'
-            ? (hover
-              ? 'inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.30), 0 8px 16px rgba(0, 0, 0, 0.20), 0 16px 36px rgba(0, 0, 0, 0.24), 0 36px 72px rgba(0, 0, 0, 0.20), 0 64px 120px rgba(0, 0, 0, 0.15)'
-              : 'inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.30), 0 4px 8px rgba(0, 0, 0, 0.12), 0 12px 28px rgba(0, 0, 0, 0.18), 0 28px 56px rgba(0, 0, 0, 0.16), 0 48px 80px rgba(0, 0, 0, 0.10)')
-            : (hover
-              ? 'inset 0 1px 0 rgba(255, 255, 255, 1), inset 0 -1px 0 rgba(0, 0, 0, 0.04), 0 8px 16px rgba(0, 0, 0, 0.06), 0 16px 32px rgba(0, 0, 0, 0.06), 0 32px 56px rgba(0, 0, 0, 0.06)'
-              : 'inset 0 1px 0 rgba(255, 255, 255, 1), inset 0 -1px 0 rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04)'),
-          transition: `box-shadow 350ms ${EASE_CSS}`,
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-      />
-
-      {/* Layer 2: Background + Border */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          inset: 0,
-          borderRadius: 24,
-          background: theme === 'dark'
-            ? 'linear-gradient(165deg, #1a1c20 0%, #141518 20%, #101114 45%, #0c0d10 65%, #090a0c 85%, #060708 100%)'
-            : 'linear-gradient(165deg, #ffffff 0%, #F7F8FA 60%, #F2F4F7 100%)',
-          border: theme === 'dark'
-            ? '1px solid rgba(255, 255, 255, 0.07)'
-            : '1px solid rgba(0, 0, 0, 0.055)',
-          transition: `background 400ms ${EASE_CSS}, border-color 400ms ${EASE_CSS}`,
-          zIndex: 1,
-        }}
-      />
-
-      {/* Layer 3: Top specular highlight */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 1,
-          background: theme === 'dark'
-            ? 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.12) 30%, rgba(255, 255, 255, 0.12) 70%, transparent 100%)'
-            : 'transparent',
-          zIndex: 2,
-          pointerEvents: 'none',
-        }}
-      />
-
-      {/* Layer 4: Content */}
-      <div
+        className="bento-card-inner"
         style={{
           position: 'relative',
-          zIndex: 3,
+          width: '100%',
+          height: '100%',
+          borderRadius: INNER_RADIUS,
           padding: '1.75rem',
           display: 'flex',
           flexDirection: 'column',
           flex: 1,
           overflow: 'hidden',
-          borderRadius: 24,
+          background: innerBg,
+          border: innerBorder,
+          boxShadow: hover ? innerShadowHover : innerShadowNormal,
+          transition: `box-shadow 350ms ${EASE_CSS}, background 400ms ${EASE_CSS}, border-color 400ms ${EASE_CSS}`,
+          zIndex: 1,
         }}
       >
-        {children}
+        {/* Top highlight line (Sync with ServicesSection) */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 28,
+            right: 28,
+            height: 1,
+            background: theme === 'dark'
+              ? 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.12) 30%, rgba(255, 255, 255, 0.12) 70%, transparent 100%)'
+              : 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 30%, rgba(255, 255, 255, 0.4) 70%, transparent 100%)',
+            borderRadius: '0 0 4px 4px',
+            pointerEvents: 'none',
+            zIndex: 10,
+          }}
+        />
+
+        <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+          {children}
+        </div>
       </div>
     </m.div>
   );
@@ -179,38 +178,48 @@ function CardDesc({ children }: { children: ReactNode }) {
    Layout: Visual → Text (unchanged per specification)
    ═══════════════════════════════════════════════════════════════ */
 function CardUniqueDesign({ externalInView }: { externalInView?: boolean }) {
+  const { theme } = useTheme();
   return (
     <BentoCard area="hero" index={0} externalInView={externalInView}>
-      {/* Hex grid background */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 0,
-          pointerEvents: 'none',
-        }}
-        aria-hidden
-      >
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.75 }}>
-          <HexagonBackground hexagonSize={72} hexagonMargin={3} className="!bg-transparent dark:!bg-transparent" />
-        </div>
-
-        {/* Fade overlays */}
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '55%', height: '40%', background: 'radial-gradient(ellipse at top left, var(--card-bg) 35%, transparent 75%)' }} />
-          <div style={{ position: 'absolute', bottom: -5, left: 0, right: 0, height: '42%', background: 'linear-gradient(to bottom, transparent, var(--card-bg) 60%, var(--card-bg) 100%)' }} />
-        </div>
+      {/* Dynamic UI mockup instead of hexagons */}
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 0 }}>
+        <div style={{ position: 'absolute', top: -40, right: -40, width: 240, height: 240, background: 'radial-gradient(circle, rgba(100,50,255,0.15) 0%, transparent 70%)', filter: 'blur(20px)' }} />
+      </div>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 1, padding: '20px 0' }}>
+        <m.div
+          initial={{ y: 20, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true, margin: '-40px' }}
+          style={{
+            width: '85%', height: '140px', background: 'var(--bg-primary)', borderRadius: '16px',
+            border: '1px solid var(--border-color)', boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+            padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px'
+          }}
+        >
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--accent-blue), #6C63FF)' }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ width: '40%', height: '8px', background: 'var(--text-tertiary)', borderRadius: '4px', opacity: 0.5, marginBottom: '6px' }} />
+              <div style={{ width: '25%', height: '6px', background: 'var(--text-tertiary)', borderRadius: '3px', opacity: 0.3 }} />
+            </div>
+          </div>
+          {/* Body */}
+          <div style={{ display: 'flex', gap: '12px', flex: 1, marginTop: '4px' }}>
+            <div style={{ width: '60%', height: '100%', background: 'var(--text-tertiary)', borderRadius: '8px', opacity: 0.1 }} />
+            <div style={{ width: '40%', height: '100%', background: 'var(--text-tertiary)', borderRadius: '8px', opacity: 0.1 }} />
+          </div>
+        </m.div>
       </div>
 
-
-
-      {/* <div style={{ position: 'relative', zIndex: 2 }}>
+      <div style={{ position: 'relative', zIndex: 2 }}>
         <CardTitle>Unique Design</CardTitle>
         <CardDesc>
           Transform your vision into reality with a bespoke design tailored
           specifically for your product.
         </CardDesc>
-      </div> */}
+      </div>
     </BentoCard>
   );
 }
@@ -237,8 +246,8 @@ function CardFutureTech({ externalInView }: { externalInView?: boolean }) {
   ];
 
   const logoShadow = theme === 'dark'
-    ? 'drop-shadow(0 12px 32px rgba(0,0,0,1)) drop-shadow(0 4px 12px rgba(0,0,0,0.8))'
-    : 'drop-shadow(0 10px 24px rgba(0,0,0,0.22)) drop-shadow(0 4px 8px rgba(0,0,0,0.12))';
+    ? 'drop-shadow(0 20px 40px rgba(0,0,0,1)) drop-shadow(0 10px 16px rgba(0,0,0,0.8))'
+    : 'drop-shadow(0 20px 40px rgba(0,0,0,0.35)) drop-shadow(0 10px 16px rgba(0,0,0,0.22))';
 
   return (
     <BentoCard area="tech" index={1} externalInView={externalInView}>
@@ -526,7 +535,7 @@ function CardOneContact({ externalInView }: { externalInView?: boolean }) {
                 borderRadius: 17,
                 /* Same in both modes: light bg / dark bg mirrored to light */
                 background: 'linear-gradient(180deg, #1c1c1c, #080808)',
-                border: '2px solid rgba(255,120,60,0.9)', // Solid Orange Border
+                border: '1px solid var(--border-color)', // Border updated
                 boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
                 display: 'flex',
                 alignItems: 'center',
@@ -536,8 +545,14 @@ function CardOneContact({ externalInView }: { externalInView?: boolean }) {
               }}
             >
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <path d="M12 11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" fill="white" fillOpacity={0.9} />
-                <path d="M18 21c0-3.31-2.69-6-6-6s-6 2.69-6 6" stroke="white" strokeOpacity={0.9} strokeWidth="2" strokeLinecap="round" />
+                <defs>
+                  <linearGradient id="person-grad-1" x1="0" y1="1" x2="0" y2="0">
+                    <stop stopColor="#888" offset="0%" />
+                    <stop stopColor="#fff" offset="100%" />
+                  </linearGradient>
+                </defs>
+                <path d="M12 11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" fill="url(#person-grad-1)" />
+                <path d="M18 21c0-3.31-2.69-6-6-6s-6 2.69-6 6" stroke="url(#person-grad-1)" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </div>
             <div style={{
@@ -586,23 +601,24 @@ function CardOneContact({ externalInView }: { externalInView?: boolean }) {
                 {/* Fill */}
                 <path d="M 92.64 37.07 Q 98.00 50.00 92.64 62.93 L 89.30 71.01 Q 83.94 83.94 71.01 89.30 L 62.93 92.64 Q 50.00 98.00 37.07 92.64 L 28.99 89.30 Q 16.06 83.94 10.70 71.01 L 7.36 62.93 Q 2.00 50.00 7.36 37.07 L 10.70 28.99 Q 16.06 16.06 28.99 10.70 L 37.07 7.36 Q 50.00 2.00 62.93 7.36 L 71.01 10.70 Q 83.94 16.06 89.30 28.99 Z" fill="url(#ds-fill-v2)" />
                 {/* Static gradient border */}
-                <path d="M 92.64 37.07 Q 98.00 50.00 92.64 62.93 L 89.30 71.01 Q 83.94 83.94 71.01 89.30 L 62.93 92.64 Q 50.00 98.00 37.07 92.64 L 28.99 89.30 Q 16.06 83.94 10.70 71.01 L 7.36 62.93 Q 2.00 50.00 7.36 37.07 L 10.70 28.99 Q 16.06 16.06 28.99 10.70 L 37.07 7.36 Q 50.00 2.00 62.93 7.36 L 71.01 10.70 Q 83.94 16.06 89.30 28.99 Z" fill="none" stroke="url(#ds-border-grad)" strokeWidth="2.5" />
                 <defs>
                   <linearGradient id="ds-fill-v2" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
                     <stop stopColor="#1c1c1c" />
                     <stop offset="1" stopColor="#080808" />
-                  </linearGradient>
-                  <linearGradient id="ds-border-grad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="rgba(255,120,60,0.9)" />
-                    <stop offset="1" stopColor="rgba(30,100,255,0.85)" />
                   </linearGradient>
                 </defs>
               </svg>
 
               {/* Person icon */}
               <svg width="34" height="34" viewBox="0 0 24 24" fill="none" style={{ position: 'absolute', zIndex: 1, opacity: 0.9 }}>
-                <path d="M12 11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.5" />
-                <path d="M18 21c0-3.31-2.69-6-6-6s-6 2.69-6 6" stroke="rgba(255,255,255,0.85)" strokeWidth="1.5" strokeLinecap="round" />
+                <defs>
+                  <linearGradient id="person-grad-2" x1="0" y1="1" x2="0" y2="0">
+                    <stop stopColor="#999" offset="0%" />
+                    <stop stopColor="#fff" offset="100%" />
+                  </linearGradient>
+                </defs>
+                <path d="M12 11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" fill="none" stroke="url(#person-grad-2)" strokeWidth="1.5" />
+                <path d="M18 21c0-3.31-2.69-6-6-6s-6 2.69-6 6" stroke="url(#person-grad-2)" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
               {/* Blue underglow */}
               <div style={{ position: 'absolute', inset: -12, background: 'radial-gradient(circle, rgba(40,80,255,0.18) 0%, transparent 65%)', filter: 'blur(12px)', zIndex: -1 }} />
@@ -651,8 +667,6 @@ function CardOneContact({ externalInView }: { externalInView?: boolean }) {
             <div style={{ width: 64, height: 64, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', filter: 'drop-shadow(0 8px 32px rgba(0,0,0,0.5))' }}>
               <svg viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible' }}>
                 <path d="M 92.64 37.07 Q 98.00 50.00 92.64 62.93 L 89.30 71.01 Q 83.94 83.94 71.01 89.30 L 62.93 92.64 Q 50.00 98.00 37.07 92.64 L 28.99 89.30 Q 16.06 83.94 10.70 71.01 L 7.36 62.93 Q 2.00 50.00 7.36 37.07 L 10.70 28.99 Q 16.06 16.06 28.99 10.70 L 37.07 7.36 Q 50.00 2.00 62.93 7.36 L 71.01 10.70 Q 83.94 16.06 89.30 28.99 Z" fill="url(#prod-fill-v2)" />
-                {/* Solid blue border */}
-                <path d="M 92.64 37.07 Q 98.00 50.00 92.64 62.93 L 89.30 71.01 Q 83.94 83.94 71.01 89.30 L 62.93 92.64 Q 50.00 98.00 37.07 92.64 L 28.99 89.30 Q 16.06 83.94 10.70 71.01 L 7.36 62.93 Q 2.00 50.00 7.36 37.07 L 10.70 28.99 Q 16.06 16.06 28.99 10.70 L 37.07 7.36 Q 50.00 2.00 62.93 7.36 L 71.01 10.70 Q 83.94 16.06 89.30 28.99 Z" fill="none" stroke="#0064ff" strokeWidth="2.5" />
                 <defs>
                   <linearGradient id="prod-fill-v2" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
                     <stop stopColor="#141828" />
@@ -954,12 +968,12 @@ export default function WhyChooseUsSection() {
                 isolation: 'isolate',
               }}
             >
-              <CardUniqueDesign externalInView={sectionInView} />
-              <CardFutureTech externalInView={sectionInView} />
-              <CardInternational externalInView={sectionInView} />
-              <CardPerformance externalInView={sectionInView} />
-              <CardOneContact externalInView={sectionInView} />
-              <CardLongRun externalInView={sectionInView} />
+              <CardUniqueDesign />
+              <CardFutureTech />
+              <CardInternational />
+              <CardPerformance />
+              <CardOneContact />
+              <CardLongRun />
             </div>
           </div>
         )}

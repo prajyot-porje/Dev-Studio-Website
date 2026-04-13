@@ -15,6 +15,8 @@ interface RippleElementProps extends React.HTMLAttributes<HTMLElement> {
   href?: string;
   color?: string;
   type?: string;
+  target?: string;
+  rel?: string;
 }
 
 export const RippleElement = React.forwardRef<HTMLElement, RippleElementProps>(

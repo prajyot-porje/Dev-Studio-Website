@@ -1,10 +1,9 @@
 'use client';
 
-import { useRef, useState, type CSSProperties } from 'react';
-import { m } from 'framer-motion';
+import { useRef, type CSSProperties } from 'react';
+import { m, useInView } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import Image from 'next/image';
-import SectionReveal from '@/components/ui/SectionReveal';
 
 /* ═══════════════════════════════════════════════════════════════
    DESIGN SYSTEM — Matching WhyChooseUs / WorkSection
@@ -71,13 +70,21 @@ const SPREAD: CardPosition[] = [
    COMPONENT
    ═══════════════════════════════════════════════════════════════ */
 export default function ServicesSection() {
-  const cardsRef = useRef<HTMLDivElement>(null);
-  const [hasSpread, setHasSpread] = useState(false);
+  /* Use useInView WITHOUT once: true so it re-triggers on scroll out/in */
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(sectionRef, {
+    margin: '-80px',
+    amount: 0.4,
+  });
+
+  /* Cards spread when in view, re-stack when out of view */
+  const hasSpread = inView;
 
   return (
     <section
       id="services"
       className="services-section"
+      ref={sectionRef}
     >
       {/* ── Inline styles (scoped via JSX) ── */}
       <style jsx>{`
@@ -316,151 +323,147 @@ export default function ServicesSection() {
         }
       `}</style>
 
-      <SectionReveal rootMargin="-80px" threshold={0.85} onChange={(inView) => { if (inView) setHasSpread(true); }}>
-        {(sectionInView) => (
-          <div className="services-inner">
-            {/* ═══ Heading Block ═══ */}
-            <m.div
-              initial={{ opacity: 0, y: 28 }}
-              animate={sectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
-              transition={{ duration: 0.72, ease: EASE }}
-              style={{
-                textAlign: 'center',
-                maxWidth: 560,
-              }}
-            >
-              <p
+      <div className="services-inner">
+        {/* ═══ Heading Block ═══ */}
+        <m.div
+          initial={{ opacity: 0, y: 28 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+          transition={{ duration: 0.72, ease: EASE }}
+          style={{
+            textAlign: 'center',
+            maxWidth: 560,
+          }}
+        >
+          <p
+            style={{
+              margin: '0 0 8px',
+              fontSize: '0.625rem',
+              fontWeight: 600,
+              color: 'var(--text-tertiary)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontFamily: FONT,
+            }}
+          >
+            What We Do
+          </p>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: 'clamp(2rem, 5vw, 3.25rem)',
+              fontWeight: 700,
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.03em',
+              lineHeight: 1.1,
+              fontFamily: FONT,
+            }}
+          >
+            Our Expertise.
+            <br />
+            <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
+              Built for your business growth.
+            </span>
+          </h2>
+        </m.div>
+
+        {/* ═══ Cards Arena ═══ */}
+        <div className="services-cards-arena">
+          {services.map((service, i) => {
+            const pos = hasSpread ? SPREAD[i] : STACKED[i];
+
+            // Build transform string for desktop
+            const desktopTransform = `translateX(${pos.x}) translateY(${pos.y}) rotate(${pos.rotate})`;
+
+            return (
+              <div
+                key={service.titleTop}
+                className={`service-card-shell${hasSpread ? ' mobile-visible' : ''}`}
                 style={{
-                  margin: '0 0 8px',
-                  fontSize: '0.625rem',
-                  fontWeight: 600,
-                  color: 'var(--text-tertiary)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  fontFamily: FONT,
-                }}
+                  zIndex: pos.zIndex,
+                  transform: desktopTransform,
+                } as CSSProperties}
               >
-                What We Do
-              </p>
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: 'clamp(2rem, 5vw, 3.25rem)',
-                  fontWeight: 700,
-                  color: 'var(--text-primary)',
-                  letterSpacing: '-0.03em',
-                  lineHeight: 1.1,
-                  fontFamily: FONT,
-                }}
-              >
-                Our Expertise.
-                <br />
-                <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
-                  Built for your business growth.
-                </span>
-              </h2>
-            </m.div>
-
-            {/* ═══ Cards Arena ═══ */}
-            <div ref={cardsRef} className="services-cards-arena">
-              {services.map((service, i) => {
-                const pos = hasSpread ? SPREAD[i] : STACKED[i];
-
-                // Build transform string for desktop
-                const desktopTransform = `translateX(${pos.x}) translateY(${pos.y}) rotate(${pos.rotate})`;
-
-                return (
+                <div className="service-card-inner">
+                  {/* Top highlight line */}
                   <div
-                    key={service.titleTop}
-                    className={`service-card-shell${hasSpread ? ' mobile-visible' : ''}`}
+                    aria-hidden
                     style={{
-                      zIndex: pos.zIndex,
-                      transform: desktopTransform,
-                    } as CSSProperties}
-                  >
-                    <div className="service-card-inner">
-                      {/* Top highlight line */}
-                      <div
-                        aria-hidden
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 28,
-                          right: 28,
-                          height: 1,
-                          background:
-                            'linear-gradient(90deg, transparent 0%, var(--glass-highlight) 30%, var(--glass-highlight) 70%, transparent 100%)',
-                          borderRadius: '0 0 4px 4px',
-                          pointerEvents: 'none',
-                        }}
-                      />
+                      position: 'absolute',
+                      top: 0,
+                      left: 28,
+                      right: 28,
+                      height: 1,
+                      background:
+                        'linear-gradient(90deg, transparent 0%, var(--glass-highlight) 30%, var(--glass-highlight) 70%, transparent 100%)',
+                      borderRadius: '0 0 4px 4px',
+                      pointerEvents: 'none',
+                    }}
+                  />
 
-                      {/* Text Content Layer */}
-                      <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  {/* Text Content Layer */}
+                  <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', height: '100%' }}>
 
-                        {/* Two-part Heading */}
-                        <h3
-                          style={{
-                            margin: '0 0 16px',
-                            fontSize: 'clamp(1.5rem, 2.8vw, 2rem)',
-                            fontWeight: 700,
-                            letterSpacing: '-0.04em',
-                            lineHeight: 1.05,
-                            fontFamily: FONT,
-                          }}
-                        >
-                          <span style={{ color: 'var(--text-primary)', display: 'block' }}>{service.titleTop}</span>
-                          <span style={{ color: 'var(--text-tertiary)', display: 'block' }}>{service.titleBottom}</span>
-                        </h3>
+                    {/* Two-part Heading */}
+                    <h3
+                      style={{
+                        margin: '0 0 16px',
+                        fontSize: 'clamp(1.5rem, 2.8vw, 2rem)',
+                        fontWeight: 700,
+                        letterSpacing: '-0.04em',
+                        lineHeight: 1.05,
+                        fontFamily: FONT,
+                      }}
+                    >
+                      <span style={{ color: 'var(--text-primary)', display: 'block' }}>{service.titleTop}</span>
+                      <span style={{ color: 'var(--text-tertiary)', display: 'block' }}>{service.titleBottom}</span>
+                    </h3>
 
-                        {/* Description */}
-                        <p
-                          style={{
-                            margin: '0 0 32px',
-                            fontSize: '0.9rem',
-                            fontWeight: 400,
-                            color: 'var(--text-secondary)',
-                            lineHeight: 1.6,
-                            fontFamily: FONT,
-                            maxWidth: '90%',
-                          }}
-                        >
-                          {service.description}
-                        </p>
+                    {/* Description */}
+                    <p
+                      style={{
+                        margin: '0 0 32px',
+                        fontSize: '0.9rem',
+                        fontWeight: 400,
+                        color: 'var(--text-secondary)',
+                        lineHeight: 1.6,
+                        fontFamily: FONT,
+                        maxWidth: '90%',
+                      }}
+                    >
+                      {service.description}
+                    </p>
 
-                        {/* Learn More Button */}
-                        <a href={service.link} className="learn-more-btn" style={{ textDecoration: 'none' }}>
-                          <div className="learn-more-icon">
-                            <ArrowUpRight size={18} strokeWidth={2.5} />
-                          </div>
-                          <span className="learn-more-text">
-                            Learn More
-                          </span>
-                        </a>
+                    {/* Learn More Button */}
+                    <a href={service.link} className="learn-more-btn" style={{ textDecoration: 'none' }}>
+                      <div className="learn-more-icon">
+                        <ArrowUpRight size={18} strokeWidth={2.5} />
                       </div>
-
-                      {/* Large Icon Image Layer */}
-                      <div className="service-image-wrapper" style={{
-                        ...(service.imagePos || {}),
-                        transform: `scale(${service.imageScale || 1})`
-                      }}>
-                        <Image
-                          src={service.image}
-                          alt={service.titleTop}
-                          fill
-                          className="service-image"
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                          style={{ objectFit: 'contain', objectPosition: 'center' }}
-                        />
-                      </div>
-                    </div>
+                      <span className="learn-more-text">
+                        Learn More
+                      </span>
+                    </a>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </SectionReveal>
+
+                  {/* Large Icon Image Layer */}
+                  <div className="service-image-wrapper" style={{
+                    ...(service.imagePos || {}),
+                    transform: `scale(${service.imageScale || 1})`
+                  }}>
+                    <Image
+                      src={service.image}
+                      alt={service.titleTop}
+                      fill
+                      className="service-image"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      style={{ objectFit: 'contain', objectPosition: 'center' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </section>
   );
 }

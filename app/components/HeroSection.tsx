@@ -2,6 +2,7 @@
 
 import { m } from 'framer-motion';
 import { SplineScene } from '@/components/ui/SplineScene';
+import { RippleElement } from '@/components/ui/ripple-element';
 
 /* ── Animation variants ── */
 const fadeUp = (delay: number) => ({
@@ -16,8 +17,7 @@ const fadeUp = (delay: number) => ({
 export default function HeroSection() {
   return (
     <section id="hero" className="hero-section">
-      {/* ── Grain texture overlay ── */}
-      <div className="hero-grain" />
+
 
       {/* ── Radial atmospheric glow ── */}
       <div className="hero-glow" />
@@ -90,12 +90,12 @@ export default function HeroSection() {
           animate="visible"
           variants={fadeUp(0.7)}
         >
-          <a href="#contact" className="hero-cta hero-cta--filled">
+          <RippleElement as="a" href="#contact" className="hero-cta hero-cta--filled">
             Contact us
-          </a>
-          <a href="#work" className="hero-cta hero-cta--outlined">
+          </RippleElement>
+          <RippleElement as="a" href="#work" className="hero-cta hero-cta--outlined">
             View our Work
-          </a>
+          </RippleElement>
         </m.div>
       </div>
 
@@ -116,19 +116,7 @@ export default function HeroSection() {
           transition: background-color var(--duration-normal) var(--ease-out);
         }
 
-        /* ── Grain ── */
-        .hero-grain {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          z-index: 1;
-          /* // PERF: replaced feTurbulence with static asset — eliminates per-frame GPU noise calc */
-          background-image: url("/noise.png");
-          background-repeat: repeat;
-          background-size: 128px 128px;
-          opacity: 0.035;
-          mix-blend-mode: overlay;
-        }
+
 
         /* ── Glow — adapts per theme ── */
         .hero-glow {
@@ -353,14 +341,26 @@ export default function HeroSection() {
         }
 
         .hero-cta--outlined {
-          background: transparent;
+          background: rgba(13, 13, 13, 0.07);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
           color: var(--hero-heading);
-          border: 1.5px solid var(--hero-cta-outline-border);
-          box-shadow: none;
+          border: 2px solid rgba(13, 13, 13, 0.25);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        [data-theme="dark"] .hero-cta--outlined {
+          background: rgba(247, 247, 245, 0.08);
+          border: 2px solid rgba(247, 247, 245, 0.25);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
         .hero-cta--outlined:hover {
           transform: scale(1.03);
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
+          background: rgba(13, 13, 13, 0.12);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
+        [data-theme="dark"] .hero-cta--outlined:hover {
+          background: rgba(247, 247, 245, 0.14);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         /* ============================

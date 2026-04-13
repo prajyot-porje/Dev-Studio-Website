@@ -69,7 +69,7 @@ export function PageLoader({ onComplete, splineReady }: PageLoaderProps) {
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        backgroundColor: '#0D0D0D',
+        backgroundColor: 'var(--bg-primary)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -81,7 +81,7 @@ export function PageLoader({ onComplete, splineReady }: PageLoaderProps) {
       <div
         style={{
           fontFamily: 'var(--font-poppins), Poppins, sans-serif',
-          color: '#F7F7F5',
+          color: 'var(--text-tertiary)',
           fontSize: '13px',
           fontWeight: 400,
           letterSpacing: '0.15em',
@@ -95,7 +95,7 @@ export function PageLoader({ onComplete, splineReady }: PageLoaderProps) {
         style={{
           width: '120px',
           height: '1px',
-          backgroundColor: 'rgba(247, 247, 245, 0.15)',
+          backgroundColor: 'var(--border-color)',
           overflow: 'hidden',
         }}
       >

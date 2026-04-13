@@ -16,9 +16,9 @@ const footerLinks = {
     { label: 'Contact', href: '#contact' },
   ],
   Connect: [
-    { label: 'LinkedIn', href: '#' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/company/dev-studio-17/ ' },
     { label: 'Email Us', href: 'mailto:hello@devstudio.com' },
-    { label: 'Instagram', href: '#' },
+    { label: 'Instagram', href: 'https://www.instagram.com/the_dev.studio/' },
   ],
 };
 
@@ -76,10 +76,10 @@ export default function Footer() {
           </p>
           {/* Social icons */}
           <div className="flex items-center gap-6" style={{ color: 'var(--text-primary)' }}>
-            <a href="#" aria-label="LinkedIn">
+            <a href="https://www.linkedin.com/company/dev-studio-17/ " aria-label="LinkedIn">
               <Linkedin className="h-5 w-5 hover:scale-110 transition-transform cursor-pointer" />
             </a>
-            <a href="#" aria-label="Instagram">
+            <a href="https://www.instagram.com/the_dev.studio/" aria-label="Instagram">
               <Instagram className="h-5 w-5 hover:scale-110 transition-transform cursor-pointer" />
             </a>
             <a href="#" aria-label="Twitter">
