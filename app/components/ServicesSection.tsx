@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, type CSSProperties } from 'react';
+import { useRef, useState, useEffect, type CSSProperties } from 'react';
 import { m, useInView } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import Image from 'next/image';
@@ -70,11 +70,20 @@ const SPREAD: CardPosition[] = [
    COMPONENT
    ═══════════════════════════════════════════════════════════════ */
 export default function ServicesSection() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
   /* Use useInView WITHOUT once: true so it re-triggers on scroll out/in */
   const sectionRef = useRef<HTMLDivElement>(null);
   const inView = useInView(sectionRef, {
-    margin: '-80px',
-    amount: 0.4,
+    margin: '-40px',
+    amount: isMobile ? 0.1 : 0.4,
   });
 
   /* Cards spread when in view, re-stack when out of view */
@@ -106,7 +115,7 @@ export default function ServicesSection() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: clamp(2.5rem, 5vh, 4rem);
+          gap: clamp(5rem, 8vh, 7rem);
         }
 
         /* ── Card arena ── */
@@ -287,6 +296,10 @@ export default function ServicesSection() {
             padding: var(--section-padding) 0;
           }
 
+          .services-inner {
+            gap: clamp(2rem, 4vh, 3rem);
+          }
+
           .services-cards-arena {
             position: relative;
             height: auto;
@@ -299,19 +312,15 @@ export default function ServicesSection() {
           .service-card-shell {
             position: relative !important;
             width: 100% !important;
-            max-width: 360px;
+            max-width: 100%;
             height: auto !important;
-            min-height: 240px;
+            min-height: 280px;
             transform: none !important;
-            opacity: 0;
-            transition:
-              opacity 700ms var(--ease-out),
-              transform 700ms var(--ease-out) !important;
+            opacity: 1;
           }
 
-          .service-card-shell.mobile-visible {
-            opacity: 1;
-            transform: translateY(0) !important;
+          .service-card-inner {
+            padding: 24px 20px !important;
           }
         }
 
@@ -350,7 +359,7 @@ export default function ServicesSection() {
           <h2
             style={{
               margin: 0,
-              fontSize: 'clamp(2rem, 5vw, 3.25rem)',
+              fontSize: 'clamp(2rem, 5vw, 3.35rem)',
               fontWeight: 700,
               color: 'var(--text-primary)',
               letterSpacing: '-0.03em',
@@ -358,10 +367,12 @@ export default function ServicesSection() {
               fontFamily: FONT,
             }}
           >
-            Our Expertise.
+            Services That Deliver
             <br />
             <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
-              Built for your business growth.
+              Business Capabilities
+              <br />
+
             </span>
           </h2>
         </m.div>
@@ -371,15 +382,17 @@ export default function ServicesSection() {
           {services.map((service, i) => {
             const pos = hasSpread ? SPREAD[i] : STACKED[i];
 
-            // Build transform string for desktop
-            const desktopTransform = `translateX(${pos.x}) translateY(${pos.y}) rotate(${pos.rotate})`;
+            // On mobile, don't apply absolute transforms — CSS handles stacking
+            const desktopTransform = isMobile
+              ? 'none'
+              : `translateX(${pos.x}) translateY(${pos.y}) rotate(${pos.rotate})`;
 
             return (
               <div
                 key={service.titleTop}
                 className={`service-card-shell${hasSpread ? ' mobile-visible' : ''}`}
                 style={{
-                  zIndex: pos.zIndex,
+                  zIndex: isMobile ? 'auto' : pos.zIndex,
                   transform: desktopTransform,
                 } as CSSProperties}
               >

@@ -1,9 +1,7 @@
 'use client';
 
-import { type CSSProperties, useLayoutEffect, useRef, useState } from 'react';
-import { m } from 'framer-motion';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { type CSSProperties, useRef, useState, useEffect } from 'react';
+import { m, AnimatePresence } from 'framer-motion';
 import ProjectCard, { type ProjectCardProps } from './ProjectCard';
 
 const projects: ProjectCardProps[] = [
@@ -71,195 +69,174 @@ const projects: ProjectCardProps[] = [
   },
 ];
 
+const SWIPE_THRESHOLD = 50;
+
+const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? '100%' : '-100%',
+    y: 0,
+    opacity: 0,
+  }),
+  center: {
+    zIndex: 1,
+    x: 0,
+    y: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    zIndex: 0,
+    x: direction < 0 ? '100%' : '-100%',
+    y: 0,
+    opacity: 0,
+  }),
+};
+
 export default function WorkSection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const trackStyle = {
-    '--work-card-count': projects.length,
-  } as CSSProperties;
+  const [[page, direction], setPage] = useState([0, 0]);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  useLayoutEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-    /* // PERF: limitCallbacks reduces scroll event frequency, normalizeScroll smooths mobile */
-    ScrollTrigger.config({ limitCallbacks: true });
-    ScrollTrigger.normalizeScroll(true);
+  const activeIndex = ((page % projects.length) + projects.length) % projects.length;
 
-    const section = sectionRef.current;
-    const container = containerRef.current;
-    const track = trackRef.current;
-
-    if (!section || !container || !track) {
-      return;
-    }
-
-    const mm = gsap.matchMedia();
-
-    const ctx = gsap.context(() => {
-      mm.add('(min-width: 900px)', () => {
-        const getDistance = () =>
-          Math.max(0, track.scrollWidth - window.innerWidth);
-
-        // Calculate scroll distance for horizontal scrolling
-        const updateSpacerHeight = () => {
-          const dist = getDistance();
-          /* // PERF: direct DOM mutation replaces React state re-render on every refresh */
-          if (containerRef.current) containerRef.current.style.height = `${dist}px`;
-        };
-
-        let resizeFrame = 0;
-        const scheduleUpdateSpacer = () => {
-          if (resizeFrame) return;
-          resizeFrame = requestAnimationFrame(() => {
-            updateSpacerHeight();
-            resizeFrame = 0;
-          });
-        };
-
-        updateSpacerHeight();
-
-        const resizeObserver = new ResizeObserver(scheduleUpdateSpacer);
-        resizeObserver.observe(track);
-        resizeObserver.observe(container);
-
-        gsap.set(track, { x: 0 });
-
-        const animation = gsap.to(track, {
-          x: () => -getDistance(),
-          ease: 'none',
-          force3D: true,
-          overwrite: 'auto',
-          scrollTrigger: {
-            trigger: container,
-            // Start scrolling exactly when the spacer starts entering from bottom
-            // or when the sticky section is fully in place.
-            // Since section is 100vh and sticky at top:0, we start when container (spacer) reaches top:100vh? 
-            // Better: start: 'top 100%' means when spacer enters viewport.
-            // But we want it to stick first.
-            start: 'top 100%',
-            end: 'bottom 100%',
-            scrub: 0.55,
-            anticipatePin: 1,
-            fastScrollEnd: true,
-            invalidateOnRefresh: true,
-            onRefresh: () => updateSpacerHeight(),
-            onEnter: () => gsap.set(track, { willChange: 'transform' }),
-            onLeave: () => gsap.set(track, { willChange: 'auto' }),
-            onEnterBack: () => gsap.set(track, { willChange: 'transform' }),
-            onLeaveBack: () => gsap.set(track, { willChange: 'auto' }),
-            snap:
-              projects.length > 1
-                ? {
-                  snapTo: 1 / (projects.length - 1),
-                  delay: 0,
-                  duration: { min: 0.16, max: 0.34 },
-                  ease: 'power3.out',
-                }
-                : undefined,
-          },
-        });
-
-        return () => {
-          resizeObserver.disconnect();
-          if (resizeFrame) cancelAnimationFrame(resizeFrame);
-          animation.scrollTrigger?.kill();
-          animation.kill();
-        };
-      });
-
-      mm.add('(max-width: 899px)', () => {
-        gsap.set(track, { clearProps: 'transform,width' });
-        if (containerRef.current) containerRef.current.style.height = '0px';
-        ScrollTrigger.refresh();
-      });
-    }, section);
-
-    return () => {
-      mm.revert();
-      ctx.revert();
-    };
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 899);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
   }, []);
 
-  return (
-    <>
-      <section
-        id="work"
-        ref={sectionRef}
-        className="work-section"
-      >
-        <div className="work-visible-wrapper">
-          <div className="work-shell-container">
-            <div className="work-header">
-              <m.div
-                className="work-header-content"
-                initial={{ opacity: 0, y: 28 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <p style={{
-                  margin: '0 0 8px',
-                  fontSize: '0.625rem',
-                  fontWeight: 600,
-                  color: 'var(--text-tertiary)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  fontFamily: "'Poppins', system-ui, -apple-system, sans-serif",
-                }}>
-                  Proven Impact
-                </p>
-                <h2 style={{
-                  margin: 0,
-                  fontSize: 'clamp(2rem, 5vw, 3rem)',
-                  fontWeight: 700,
-                  color: 'var(--text-primary)',
-                  letterSpacing: '-0.03em',
-                  lineHeight: 1.08,
-                  fontFamily: "'Poppins', system-ui, -apple-system, sans-serif",
-                }}>
-                  Engineered for growth.
-                  <br />
-                  <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
-                    Designed to convert.
-                  </span>
-                </h2>
-              </m.div>
-            </div>
-          </div>
+  const paginate = (newDirection: number) => {
+    setPage([page + newDirection, newDirection]);
+  };
 
-          <div className="work-stage">
-            <div className="work-viewport">
-              <div ref={trackRef} className="work-track" style={trackStyle}>
-                {projects.map((project) => (
-                  <div
-                    key={`${project.clientName}-${project.projectTitle}`}
-                    className="work-page"
-                    data-work-card
-                  >
-                    <div className="work-card-shell">
-                      <ProjectCard {...project} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+  // Auto-play
+  useEffect(() => {
+    if (isHovered) return;
+    const timer = setInterval(() => {
+      paginate(1);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [page, isHovered]);
+
+  // Swipe handling
+  const dragStartX = useRef(0);
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    dragStartX.current = clientX;
+  };
+  const handleDragEnd = (e: React.MouseEvent | React.TouchEvent) => {
+    const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
+    const diff = dragStartX.current - clientX;
+    if (Math.abs(diff) > SWIPE_THRESHOLD) {
+      paginate(diff > 0 ? 1 : -1);
+    }
+  };
+
+  return (
+    <section
+      id="work"
+      className="work-section"
+    >
+      <div className="work-visible-wrapper">
+        <div className="work-shell-container">
+          <div className="work-header">
+            <m.div
+              className="work-header-content"
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <p style={{
+                margin: '0 0 8px',
+                fontSize: '0.625rem',
+                fontWeight: 600,
+                color: 'var(--text-tertiary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                fontFamily: "'Poppins', system-ui, -apple-system, sans-serif",
+              }}>
+                Proven Impact
+              </p>
+              <h2 style={{
+                margin: 0,
+                fontSize: 'clamp(2rem, 5vw, 3rem)',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                letterSpacing: '-0.03em',
+                lineHeight: 1.08,
+                fontFamily: "'Poppins', system-ui, -apple-system, sans-serif",
+              }}>
+                Engineered for growth.
+                <br />
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
+                  Designed to convert.
+                </span>
+              </h2>
+            </m.div>
           </div>
         </div>
 
-        <style jsx>{`
+        <div
+          className="work-stage"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onMouseDown={handleDragStart}
+          onMouseUp={handleDragEnd}
+          onTouchStart={handleDragStart}
+          onTouchEnd={handleDragEnd}
+        >
+          <div className="work-carousel">
+            <AnimatePresence initial={false} custom={direction} mode="popLayout">
+              <m.div
+                key={page}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: 'tween', ease: [0.32, 0.72, 0, 1], duration: 0.55 },
+                  opacity: { duration: 0.35 },
+                }}
+                className="work-slide"
+              >
+                <div className="work-card-shell">
+                  <ProjectCard {...projects[activeIndex]} />
+                </div>
+              </m.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Indicators */}
+          <div className="work-indicators">
+            {projects.map((_, i) => (
+              <button
+                key={`ind-${i}`}
+                onClick={() => setPage([i, i > activeIndex ? 1 : -1])}
+                className={`work-indicator ${activeIndex === i ? 'active' : ''}`}
+                aria-label={`Go to slide ${i + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
         .work-section {
           position: sticky;
           top: 0;
           z-index: 1;
           background: var(--bg-primary);
+          height: 150vh;
         }
 
         .work-visible-wrapper {
-          min-height: 100vh;
+          height: 100vh;
           display: flex;
           flex-direction: column;
           padding-top: clamp(3.75rem, 6vh, 5.5rem);
-          padding-bottom: clamp(2rem, 5vh, 4rem);
+          padding-bottom: clamp(1.5rem, 3vh, 2.5rem);
           box-sizing: border-box;
           overflow: visible;
         }
@@ -269,134 +246,113 @@ export default function WorkSection() {
           max-width: var(--container-max);
           margin: 0 auto;
           padding: 0 var(--container-padding);
+          flex-shrink: 0;
         }
 
         .work-header {
           position: relative;
           z-index: 2;
-          margin-bottom: clamp(1.5rem, 4vh, 3rem);
+          margin-bottom: clamp(1rem, 2vh, 2rem);
         }
 
         .work-header-content {
           max-width: 800px;
         }
 
-        .work-label {
-          font-size: var(--text-sm);
-          font-weight: 600;
-          color: var(--text-tertiary);
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          margin-bottom: 0.75rem;
-        }
-
-        .work-title {
-          margin: 0;
-          line-height: 1.1;
-        }
-
         .work-stage {
           flex: 1;
           display: flex;
-          align-items: stretch;
-          padding-top: 0.5rem;
+          flex-direction: column;
+          align-items: center;
+          position: relative;
+          min-height: 0;
+          cursor: grab;
+          user-select: none;
+          -webkit-user-select: none;
         }
 
-        .work-viewport {
+        .work-stage:active {
+          cursor: grabbing;
+        }
+
+        .work-carousel {
+          flex: 1;
+          padding: 20px;
           width: 100%;
-          overflow: clip;
+          position: relative;
+          overflow-x: clip;
           overflow-y: visible;
-          padding: 3rem 0;
-          margin: -3rem 0;
-          display: flex;
-          align-items: stretch;
+          min-height: 0;
         }
 
-        .work-track {
-          display: flex;
-          align-items: stretch;
-          width: calc(var(--work-card-count) * 100vw);
-          transform: translate3d(0, 0, 0);
-        }
-
-        .work-page {
+        .work-slide {
+          position: absolute;
+          inset: 0;
           display: flex;
           align-items: center;
           justify-content: center;
-          flex: 0 0 100vw;
-          width: 100vw;
           padding: 0 var(--container-padding);
-          box-sizing: border-box;
         }
 
         .work-card-shell {
-          width: min(
-            calc(100vw - (2 * var(--container-padding))),
-            1060px
-          );
+          width: 100%;
+          max-width: 1060px;
           margin: 0 auto;
+          pointer-events: auto;
+        }
+
+        .work-indicators {
+          display: flex;
+          gap: 12px;
+          padding: clamp(0.75rem, 2vh, 1.5rem) 0;
+          justify-content: center;
+          z-index: 10;
+          flex-shrink: 0;
+        }
+
+        .work-indicator {
+          width: 32px;
+          height: 4px;
+          border-radius: 2px;
+          background: var(--text-tertiary);
+          border: none;
+          cursor: pointer;
+          opacity: 0.3;
+          transition: opacity 0.3s ease, background 0.3s ease;
+        }
+
+        .work-indicator.active {
+          opacity: 1;
+          background: var(--text-primary);
         }
 
         @media (max-width: 899px) {
           .work-section {
-            position: relative;
-            top: 0;
-            height: auto !important;
-            margin-bottom: 0 !important;
+            height: 150vh;
           }
 
           .work-visible-wrapper {
-            height: auto;
-            padding: var(--section-padding) 0;
-            gap: 2rem;
+            height: 100vh;
+            padding-top: clamp(4rem, 8vh, 6rem);
+            padding-bottom: 2rem;
           }
 
           .work-header {
-            margin-bottom: 0;
+            margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
           }
 
-          .work-stage {
-            min-height: auto;
+          .work-indicators {
+            gap: 8px;
+            padding-top: 1.5rem;
+            padding-bottom: 0;
           }
 
-          .work-viewport {
-            overflow-x: auto;
-            overflow-y: hidden;
-            scroll-snap-type: x mandatory;
-            scrollbar-width: none;
-            -webkit-overflow-scrolling: touch;
-            padding: 0;
-            margin: 0;
-          }
-
-          .work-viewport::-webkit-scrollbar {
-            display: none;
-          }
-
-          .work-track {
-            width: max-content !important;
-          }
-
-          .work-page {
-            scroll-snap-align: start;
-            width: calc(100vw - var(--container-padding));
-            min-width: calc(100vw - var(--container-padding));
-            padding-right: 0;
-          }
-
-          .work-card-shell {
-            width: 100%;
+          .work-indicator {
+            width: 24px;
+            height: 3px;
           }
         }
       `}</style>
-      </section>
-      <div
-        aria-hidden="true"
-        ref={containerRef}
-        className="work-scroll-spacer"
-        style={{ width: '100%', pointerEvents: 'none' }}
-      />
-    </>
+    </section>
   );
 }
-

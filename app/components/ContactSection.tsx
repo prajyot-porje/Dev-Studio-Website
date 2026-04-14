@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { m } from 'framer-motion';
 import { RippleElement } from '@/components/ui/ripple-element';
 
@@ -47,6 +47,14 @@ export default function ContactSection() {
   const formRef = useRef<HTMLDivElement | null>(null);
   const successRef = useRef<HTMLDivElement | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -170,9 +178,9 @@ export default function ContactSection() {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  padding: '24px 40px',
+                  padding: '20px clamp(16px, 4vw, 40px)',
                   borderBottom: '1px solid var(--border-color)',
-                  gap: '12px',
+                  gap: '8px',
                 }}
               >
                 {steps.map((step, i) => (
@@ -228,20 +236,22 @@ export default function ContactSection() {
                         i + 1
                       )}
                     </div>
-                    <span
-                      style={{
-                        fontSize: 'var(--text-sm)',
-                        fontWeight: 500,
-                        color:
-                          i <= currentStep
-                            ? 'var(--text-primary)'
-                            : 'var(--text-tertiary)',
-                        whiteSpace: 'nowrap',
-                        transition: 'color 0.3s ease',
-                      }}
-                    >
-                      {step.title}
-                    </span>
+                    {(!isMobile || i === currentStep) && (
+                      <span
+                        style={{
+                          fontSize: 'var(--text-sm)',
+                          fontWeight: 500,
+                          color:
+                            i <= currentStep
+                              ? 'var(--text-primary)'
+                              : 'var(--text-tertiary)',
+                          whiteSpace: 'nowrap',
+                          transition: 'color 0.3s ease',
+                        }}
+                      >
+                        {step.title}
+                      </span>
+                    )}
                     {i < steps.length - 1 && (
                       <div
                         style={{
@@ -275,7 +285,7 @@ export default function ContactSection() {
                   <div
                     style={{
                       minWidth: '100%',
-                      padding: currentStep === 0 ? '40px' : '0 40px',
+                      padding: currentStep === 0 ? 'clamp(20px, 4vw, 40px)' : '0 clamp(20px, 4vw, 40px)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '20px',
@@ -349,7 +359,7 @@ export default function ContactSection() {
                   <div
                     style={{
                       minWidth: '100%',
-                      padding: currentStep === 1 ? '40px' : '0 40px',
+                      padding: currentStep === 1 ? 'clamp(20px, 4vw, 40px)' : '0 clamp(20px, 4vw, 40px)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '20px',
@@ -470,7 +480,7 @@ export default function ContactSection() {
                   <div
                     style={{
                       minWidth: '100%',
-                      padding: currentStep === 2 ? '40px' : '0 40px',
+                      padding: currentStep === 2 ? 'clamp(20px, 4vw, 40px)' : '0 clamp(20px, 4vw, 40px)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '20px',
@@ -525,7 +535,7 @@ export default function ContactSection() {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  padding: '20px 40px 32px',
+                  padding: '20px clamp(16px, 4vw, 40px) 28px',
                 }}
               >
                 <RippleElement

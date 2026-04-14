@@ -98,7 +98,9 @@
 .mockupWrap {
   position: relative;
   width: 100%;
-  max-width: 18rem;
+  max-width: 29rem;
+  transform: scale(1.25);
+  transform-origin: center 85%;
 }
 
 /* Contact shadow */
@@ -427,6 +429,34 @@
 }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+  .previewText {
+    display: none;
+  }
+  .previewFooter {
+    display: none;
+  }
+  .stackList {
+    display: none;
+  }
+  .lightPanel, .darkPanel {
+    min-height: 11rem;
+    padding: 0.75rem;
+  }
+  .root {
+    border-radius: 1.5rem;
+  }
+  .metricGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .description {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
 @media (min-width: 640px) {
   .root {
     padding: 0.5rem;
@@ -452,7 +482,7 @@
 
   .lightPanel,
   .darkPanel {
-    min-height: 20rem;
+    min-height: 22rem;
     padding: 1.4rem;
   }
 

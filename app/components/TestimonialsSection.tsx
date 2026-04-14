@@ -162,8 +162,8 @@ export default function TestimonialsSection() {
                   {/* Progress animation for current testimonial */}
                   {i === activeIndex && (
                     <m.div
-                      initial={{ width: '0%' }}
-                      animate={{ width: '100%' }}
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
                       transition={{
                         duration: i === testimonials.length - 1 ? LOOP_WAIT : CARD_DURATION,
                         ease: 'linear'
@@ -173,7 +173,10 @@ export default function TestimonialsSection() {
                         top: 0,
                         left: 0,
                         height: '100%',
+                        width: '100%',
                         background: 'var(--text-primary)',
+                        transformOrigin: 'left',
+                        willChange: 'transform'
                       }}
                     />
                   )}

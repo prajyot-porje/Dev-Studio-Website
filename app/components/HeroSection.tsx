@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { m } from 'framer-motion';
 import { SplineScene } from '@/components/ui/SplineScene';
 import { RippleElement } from '@/components/ui/ripple-element';
@@ -15,89 +16,180 @@ const fadeUp = (delay: number) => ({
 });
 
 export default function HeroSection() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
     <section id="hero" className="hero-section">
-
 
       {/* ── Radial atmospheric glow ── */}
       <div className="hero-glow" />
 
-      {/* ── Spline Robot — full screen ── */}
+      {/* ── Spline Robot — full screen (Desktop) OR premium gradient (Mobile) ── */}
       <div className="hero-robot-wrap">
-        <SplineScene
-          scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-          className="hero-spline"
-        />
+        {!isMobile ? (
+          <SplineScene
+            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+            className="hero-spline"
+          />
+        ) : (
+          <div className="hero-mobile-bg">
+            {/* Subtle animated gradient mesh */}
+            <div className="hero-mobile-mesh" />
+            {/* Decorative accent lines */}
+            <div className="hero-accent-line hero-accent-1" />
+            <div className="hero-accent-line hero-accent-2" />
+          </div>
+        )}
         <div className="hero-robot-overlay" />
       </div>
 
-      {/* ── Text Content Layer ── */}
-      <div className="hero-content">
-        {/* Top row — split columns */}
-        <div className="hero-top-row">
-          {/* Left column */}
+      {/* ── Desktop Text Content Layer ── */}
+      {!isMobile && (
+        <div className="hero-content">
+          {/* Top row — split columns */}
+          <div className="hero-top-row">
+            <m.div
+              className="hero-col hero-col--left"
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp(0.1)}
+            >
+              <h1 className="hero-heading hero-heading--left">
+                <span className="hero-heading__bold"><span className="silver-text">Dev Studio</span></span>
+                <span className="hero-heading__light">Built for your <br />Business<br /> Growth. ab</span>
+              </h1>
+            </m.div>
+
+            <m.div
+              className="hero-col hero-col--right"
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp(0.25)}
+            >
+              <h2 className="hero-heading hero-heading--right">
+                <span className="hero-heading__bold"><span className="silver-text">Digital Agency</span></span>
+                <span className="hero-heading__light">Engineered <br /> to rank. <br /> Built to win.</span>
+              </h2>
+            </m.div>
+          </div>
+
+          {/* Bottom row — subtexts */}
+          <div className="hero-bottom-row">
+            <m.p
+              className="hero-subtext hero-subtext--left"
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp(0.4)}
+            >
+              <span className="silver-text">Web development, SEO &amp; AI that turns your website into a revenue engine.</span>
+            </m.p>
+
+            <m.p
+              className="hero-subtext hero-subtext--right"
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp(0.55)}
+            >
+              <span className="silver-text">Direct communication, zero handoffs, and a founder personally invested in your results.</span>
+            </m.p>
+          </div>
+
+          {/* CTA buttons */}
           <m.div
-            className="hero-col hero-col--left"
+            className="hero-ctas"
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp(0.7)}
+          >
+            <RippleElement as="a" href="#contact" className="hero-cta hero-cta--filled">
+              Contact us
+            </RippleElement>
+            <RippleElement as="a" href="#work" className="hero-cta hero-cta--outlined">
+              View our Work
+            </RippleElement>
+          </m.div>
+        </div>
+      )}
+
+      {/* ── Mobile Text Content Layer ── */}
+      {isMobile && (
+        <div className="hero-mobile-content">
+          <m.div
             initial="hidden"
             animate="visible"
             variants={fadeUp(0.1)}
+            className="hero-mobile-badge"
           >
-            <h1 className="hero-heading hero-heading--left">
-              <span className="hero-heading__bold"><span className="silver-text">Dev Studio</span></span>
-              <span className="hero-heading__light">Built for business<br /> growth.</span>
-            </h1>
+            <span className="silver-text">Dev Studio</span>
           </m.div>
 
-          {/* Right column */}
+          <m.h1
+            className="hero-mobile-heading"
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp(0.2)}
+          >
+            We build websites
+            <br />
+            <span className="hero-mobile-heading-accent">that grow businesses.</span>
+          </m.h1>
+
+          <m.p
+            className="hero-mobile-sub"
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp(0.35)}
+          >
+            Web development, SEO & AI solutions — one founder, zero handoffs, real results.
+          </m.p>
+
           <m.div
-            className="hero-col hero-col--right"
+            className="hero-mobile-ctas"
             initial="hidden"
             animate="visible"
-            variants={fadeUp(0.25)}
+            variants={fadeUp(0.5)}
           >
-            <h2 className="hero-heading hero-heading--right">
-              <span className="hero-heading__bold"><span className="silver-text">Digital Agency</span></span>
-              <span className="hero-heading__light">Your vision.<br />Our obsession.</span>
-            </h2>
+            <RippleElement as="a" href="#contact" className="hero-cta hero-cta--filled">
+              Contact us
+            </RippleElement>
+            <RippleElement as="a" href="#work" className="hero-cta hero-cta--outlined">
+              View our Work
+            </RippleElement>
+          </m.div>
+
+          {/* Trust indicators */}
+          <m.div
+            className="hero-mobile-trust"
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp(0.65)}
+          >
+            <div className="hero-trust-item">
+              <span className="hero-trust-value">100</span>
+              <span className="hero-trust-label">SEO Score</span>
+            </div>
+            <div className="hero-trust-divider" />
+            <div className="hero-trust-item">
+              <span className="hero-trust-value">&lt;0.5s</span>
+              <span className="hero-trust-label">Load Time</span>
+            </div>
+            <div className="hero-trust-divider" />
+            <div className="hero-trust-item">
+              <span className="hero-trust-value">24h</span>
+              <span className="hero-trust-label">Response</span>
+            </div>
           </m.div>
         </div>
-
-        {/* Bottom row — subtexts */}
-        <div className="hero-bottom-row">
-          <m.p
-            className="hero-subtext hero-subtext--left"
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp(0.4)}
-          >
-            <span className="silver-text">Web development, SEO &amp; AI that turns your website into a revenue engine.</span>
-          </m.p>
-
-          <m.p
-            className="hero-subtext hero-subtext--right"
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp(0.55)}
-          >
-            <span className="silver-text">Direct communication, zero handoffs, and a founder personally invested in your results.</span>
-          </m.p>
-        </div>
-
-        {/* CTA buttons — centered at bottom */}
-        <m.div
-          className="hero-ctas"
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp(0.7)}
-        >
-          <RippleElement as="a" href="#contact" className="hero-cta hero-cta--filled">
-            Contact us
-          </RippleElement>
-          <RippleElement as="a" href="#work" className="hero-cta hero-cta--outlined">
-            View our Work
-          </RippleElement>
-        </m.div>
-      </div>
+      )}
 
       {/* ── Bottom edge fade ── */}
       <div className="hero-bottom-fade" />
@@ -115,8 +207,6 @@ export default function HeroSection() {
           background: var(--hero-bg);
           transition: background-color var(--duration-normal) var(--ease-out);
         }
-
-
 
         /* ── Glow — adapts per theme ── */
         .hero-glow {
@@ -137,6 +227,61 @@ export default function HeroSection() {
           z-index: 5;
           width: 100%;
           height: 100%;
+        }
+
+        /* ── Mobile Background ── */
+        .hero-mobile-bg {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          background: var(--hero-bg);
+        }
+
+        .hero-mobile-mesh {
+          position: absolute;
+          inset: 0;
+          background: 
+            radial-gradient(ellipse 80% 50% at 20% 80%, rgba(120, 120, 140, 0.08) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 80% at 80% 20%, rgba(100, 100, 120, 0.06) 0%, transparent 60%);
+          animation: mesh-drift 30s ease-in-out infinite alternate;
+        }
+
+        [data-theme="dark"] .hero-mobile-mesh {
+          background: 
+            radial-gradient(ellipse 80% 50% at 20% 80%, rgba(70, 130, 230, 0.12) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 80% at 80% 20%, rgba(140, 80, 255, 0.08) 0%, transparent 60%);
+        }
+
+        @keyframes mesh-drift {
+          0% { transform: scale(1) translate(0, 0); }
+          100% { transform: scale(1.05) translate(2%, -2%); }
+        }
+
+        .hero-accent-line {
+          position: absolute;
+          height: 1px;
+          opacity: 0.08;
+          background: var(--text-primary);
+        }
+
+        .hero-accent-1 {
+          width: 60%;
+          top: 40%;
+          left: -10%;
+          transform: rotate(-12deg);
+        }
+
+        .hero-accent-2 {
+          width: 45%;
+          top: 65%;
+          right: -5%;
+          transform: rotate(8deg);
+        }
+
+        [data-theme="dark"] .hero-accent-line {
+          opacity: 0.06;
         }
 
         .hero-spline {
@@ -176,7 +321,7 @@ export default function HeroSection() {
         }
 
         /* ============================
-           TEXT CONTENT LAYER
+           DESKTOP TEXT CONTENT LAYER
            ============================ */
         .hero-content {
           position: absolute;
@@ -246,8 +391,8 @@ export default function HeroSection() {
           font-size: 14px;
           text-transform: uppercase;
           letter-spacing: 0.2em;
-          opacity: 1; /* Was 0.5, using silver text handles gradient/opacity naturally */
-          margin-bottom: 12px; /* Strict Gestalt proximity */
+          opacity: 1;
+          margin-bottom: 12px;
         }
 
         .hero-heading__light {
@@ -256,9 +401,6 @@ export default function HeroSection() {
           letter-spacing: -0.04em;
         }
 
-        .hero-heading--right .hero-heading__light br {
-          display: none;
-        }
 
         /* ── Bottom row — subtexts ── */
         .hero-bottom-row {
@@ -364,57 +506,130 @@ export default function HeroSection() {
         }
 
         /* ============================
-           RESPONSIVE — MOBILE
+           MOBILE HERO — PREMIUM REDESIGN
            ============================ */
-        @media (max-width: 768px) {
-          .hero-content {
-            padding: clamp(7rem, 15vh, 9rem) clamp(1.5rem, 5vw, 2.5rem) clamp(2.5rem, 6vh, 4rem);
-          }
+        .hero-mobile-content {
+          position: absolute;
+          inset: 0;
+          z-index: 20;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 100px 28px 48px;
+          pointer-events: none;
+          text-align: center;
+          gap: 0;
+        }
 
-          .hero-top-row {
-            flex-direction: column;
-            align-items: center;
-            gap: 2.5rem;
-          }
+        .hero-mobile-badge {
+          font-size: 0.65rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.18em;
+          margin-bottom: 20px;
+          padding: 6px 16px;
+          border-radius: 999px;
+          border: 1px solid rgba(0,0,0,0.08);
+          background: rgba(255,255,255,0.5);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+        }
 
-          .hero-col {
-            max-width: 100%;
-            text-align: center;
-          }
+        [data-theme="dark"] .hero-mobile-badge {
+          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(255,255,255,0.05);
+        }
 
-          .hero-heading {
-            font-size: clamp(2rem, 8vw, 3rem);
-          }
+        .hero-mobile-heading {
+          font-family: var(--font-sans), 'Poppins', sans-serif;
+          font-size: clamp(2rem, 8vw, 2.75rem);
+          font-weight: 600;
+          line-height: 1.1;
+          letter-spacing: -0.035em;
+          color: var(--text-primary);
+          margin: 0 0 20px;
+          max-width: 340px;
+        }
 
-          .hero-heading--right {
-            text-align: center;
-          }
+        .hero-mobile-heading-accent {
+          color: var(--text-secondary);
+          font-weight: 400;
+        }
 
-          .hero-bottom-row {
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem;
-          }
+        .hero-mobile-sub {
+          font-family: var(--font-sans), 'Poppins', sans-serif;
+          font-size: 0.95rem;
+          line-height: 1.55;
+          color: var(--text-secondary);
+          max-width: 320px;
+          margin: 0 0 32px;
+          font-weight: 400;
+        }
 
-          .hero-subtext {
-            text-align: center;
-            max-width: 360px;
-          }
+        .hero-mobile-ctas {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          pointer-events: auto;
+          width: 100%;
+          max-width: 300px;
+          margin-bottom: 40px;
+        }
 
-          .hero-subtext--right {
-            text-align: center;
-            margin-left: 0;
-          }
+        .hero-mobile-ctas .hero-cta {
+          width: 100%;
+          padding: 16px 28px;
+          font-size: 15px;
+        }
 
-          .hero-ctas {
-            flex-direction: column;
-            gap: 12px;
-          }
+        /* ── Trust Indicators ── */
+        .hero-mobile-trust {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          padding: 14px 28px;
+          border-radius: 20px;
+          border: 1px solid rgba(0,0,0,0.06);
+          background: rgba(255,255,255,0.4);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+        }
 
-          .hero-cta {
-            width: 100%;
-            max-width: 280px;
-          }
+        [data-theme="dark"] .hero-mobile-trust {
+          border: 1px solid rgba(255,255,255,0.06);
+          background: rgba(255,255,255,0.04);
+        }
+
+        .hero-trust-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 2px;
+        }
+
+        .hero-trust-value {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          letter-spacing: -0.02em;
+          font-family: var(--font-sans), 'Poppins', sans-serif;
+        }
+
+        .hero-trust-label {
+          font-size: 0.6rem;
+          font-weight: 500;
+          color: var(--text-tertiary);
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          font-family: var(--font-sans), 'Poppins', sans-serif;
+        }
+
+        .hero-trust-divider {
+          width: 1px;
+          height: 28px;
+          background: var(--border-color);
+          opacity: 0.5;
         }
       `}</style>
     </section>

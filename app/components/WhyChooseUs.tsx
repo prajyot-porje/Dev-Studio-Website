@@ -429,7 +429,25 @@ function CardPerformance({ externalInView }: { externalInView?: boolean }) {
       <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column' }}>
 
         {/* Thunder Image Background/Underlay */}
-        <div style={{ position: 'absolute', right: '-12%', bottom: '-15%', width: '190px', height: '190px', zIndex: 0 }}>
+        <style>{`
+          .perf-thunder-wrap {
+            position: absolute;
+            right: -12%;
+            bottom: -15%;
+            width: 190px;
+            height: 190px;
+            z-index: 0;
+          }
+          @media (max-width: 899px) {
+            .perf-thunder-wrap {
+              right: -15%;
+              bottom: -80%;
+              width: 160px;
+              height: 160px;
+            }
+          }
+        `}</style>
+        <div className="perf-thunder-wrap">
           <Image
             src="/thunder.png"
             alt="Performance Thunder illustration"
@@ -448,7 +466,7 @@ function CardPerformance({ externalInView }: { externalInView?: boolean }) {
         {/* Text overlaid above */}
         <div style={{ position: 'relative', zIndex: 1, marginBottom: 'auto' }}>
           <CardTitle>Performance-First</CardTitle>
-          <CardDesc>Every decision optimized for speed, SEO, and real-world performance.</CardDesc>
+          <CardDesc>Every decision optimized for speed, <br />SEO, and real-world performance.</CardDesc>
         </div>
       </div>
     </BentoCard>
@@ -486,16 +504,23 @@ function CardOneContact({ externalInView }: { externalInView?: boolean }) {
       </div>
 
       {/* Node connectivity diagram */}
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          zIndex: 2,
-        }}
-      >
+      <style>{`
+        .wcu-contact-diagram {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          z-index: 2;
+        }
+        @media (max-width: 899px) {
+          .wcu-contact-diagram {
+            padding-bottom: 20px; /* Prevent label clipping on mobile */
+            margin-top: -15px;    /* Rebalance vertical alignment */
+          }
+        }
+      `}</style>
+      <div className="wcu-contact-diagram">
         <style>{`
           @keyframes wcu-beam-orange {
             0%   { transform: translateX(-110%); opacity: 0; }
