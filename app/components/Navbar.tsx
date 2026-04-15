@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@/app/components/ThemeProvider';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import { RippleElement } from '@/components/ui/ripple-element';
@@ -245,33 +245,33 @@ export default function Navbar() {
                 transition: 'all 0.3s ease',
               }}
             >
-              <motion.div
+              <m.div
                 initial={false}
                 animate={isMenuOpen ? 'open' : 'closed'}
                 style={{ position: 'relative', width: '20px', height: '14px' }}
               >
-                <motion.span
+                <m.span
                   variants={{
                     closed: { top: '0px', rotate: 0 },
                     open: { top: '6px', rotate: 45 },
                   }}
                   style={{ position: 'absolute', left: 0, right: 0, height: '2px', background: 'currentColor', borderRadius: '1px' }}
                 />
-                <motion.span
+                <m.span
                   variants={{
                     closed: { opacity: 1, top: '6px' },
                     open: { opacity: 0, top: '6px' },
                   }}
                   style={{ position: 'absolute', left: 0, right: 0, height: '2px', background: 'currentColor', borderRadius: '1px' }}
                 />
-                <motion.span
+                <m.span
                   variants={{
                     closed: { top: '12px', rotate: 0 },
                     open: { top: '6px', rotate: -45 },
                   }}
                   style={{ position: 'absolute', left: 0, right: 0, height: '2px', background: 'currentColor', borderRadius: '1px' }}
                 />
-              </motion.div>
+              </m.div>
             </button>
           )}
         </div>
@@ -289,7 +289,7 @@ export default function Navbar() {
       {/* Full-screen mobile menu overlay */}
       <AnimatePresence>
         {isMenuOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -308,7 +308,7 @@ export default function Navbar() {
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '400px', margin: '0 auto' }}>
               {navLinks.map((link, i) => (
-                <motion.a
+                <m.a
                   key={link.label}
                   href={link.href}
                   onClick={() => setIsMenuOpen(false)}
@@ -337,10 +337,10 @@ export default function Navbar() {
                 >
                   {link.label}
                   <span style={{ opacity: 0.3, fontSize: '1.25rem' }}>→</span>
-                </motion.a>
+                </m.a>
               ))}
               
-              <motion.div 
+              <m.div 
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 + navLinks.length * 0.06, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
@@ -367,9 +367,9 @@ export default function Navbar() {
                 >
                   Get in Touch
                 </RippleElement>
-              </motion.div>
+              </m.div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </>

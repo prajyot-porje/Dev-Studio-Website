@@ -1,11 +1,13 @@
+import dynamic from 'next/dynamic';
 import HeroSection from './components/HeroSection';
 import ServicesSection from './components/ServicesSection';
-import WhyChooseUsSection from './components/WhyChooseUs';
-import ProcessSection from './components/ProcessSection';
-import WorkSection from './components/WorkSection';
-import TestimonialsSection from './components/TestimonialsSection';
-import AboutSection from './components/AboutSection';
-import ContactSection from './components/ContactSection';
+
+const WhyChooseUsSection = dynamic(() => import('./components/WhyChooseUs'));
+const ProcessSection = dynamic(() => import('./components/ProcessSection'));
+const WorkSection = dynamic(() => import('./components/WorkSection'));
+const TestimonialsSection = dynamic(() => import('./components/TestimonialsSection'));
+const AboutSection = dynamic(() => import('./components/AboutSection'));
+const ContactSection = dynamic(() => import('./components/ContactSection'));
 
 export default function Home() {
   return (

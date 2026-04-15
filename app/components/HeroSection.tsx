@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { m } from 'framer-motion';
 import { SplineScene } from '@/components/ui/SplineScene';
 import { RippleElement } from '@/components/ui/ripple-element';
+import { useLoading } from '@/components/LoadingContext';
 
 /* ── Animation variants ── */
 const fadeUp = (delay: number) => ({
@@ -17,15 +18,22 @@ const fadeUp = (delay: number) => ({
 
 export default function HeroSection() {
   const [isMobile, setIsMobile] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const { setSplineReady } = useLoading();
 
   useEffect(() => {
+    setIsMounted(true);
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSplineReady(true);
+      }
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  }, [setSplineReady]);
 
   return (
     <section id="hero" className="hero-section">
@@ -35,7 +43,7 @@ export default function HeroSection() {
 
       {/* ── Spline Robot — full screen (Desktop) OR premium gradient (Mobile) ── */}
       <div className="hero-robot-wrap">
-        {!isMobile ? (
+        {isMounted && !isMobile ? (
           <SplineScene
             scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
             className="hero-spline"
@@ -65,7 +73,7 @@ export default function HeroSection() {
             >
               <h1 className="hero-heading hero-heading--left">
                 <span className="hero-heading__bold"><span className="silver-text">Dev Studio</span></span>
-                <span className="hero-heading__light">Built for your <br />Business<br /> Growth. ab</span>
+                <span className="hero-heading__light">Built for your <br />Growth<br /> with Clarity. </span>
               </h1>
             </m.div>
 
@@ -77,7 +85,7 @@ export default function HeroSection() {
             >
               <h2 className="hero-heading hero-heading--right">
                 <span className="hero-heading__bold"><span className="silver-text">Digital Agency</span></span>
-                <span className="hero-heading__light">Engineered <br /> to rank. <br /> Built to win.</span>
+                <span className="hero-heading__light">Engineered <br /> to Rank. <br /> Built to Win.</span>
               </h2>
             </m.div>
           </div>
@@ -414,13 +422,16 @@ export default function HeroSection() {
           position: relative;
           padding-top: 1.5rem;
           font-family: var(--font-sans), 'Poppins', sans-serif;
-          font-size: clamp(1rem, 2vw, 1.15rem);
+          font-size: clamp(0.95rem, 1.5vw, 1.15rem);
           line-height: 1.5;
           letter-spacing: -0.01em;
           color: var(--hero-subtext);
-          max-width: 360px;
+          max-width: 440px;
+          min-width: 280px;
+          width: 45%;
           margin: 0;
           font-weight: 400;
+          text-wrap: balance;
         }
 
         .hero-subtext::before {

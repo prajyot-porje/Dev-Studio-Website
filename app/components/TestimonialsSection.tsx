@@ -5,32 +5,32 @@ import { m } from 'framer-motion';
 
 const testimonials = [
   {
-    company: 'FINOVA',
+    company: 'CRESULTS CONSULTING',
     quote:
-      'Dev Studio transformed our digital banking experience. Their attention to detail and understanding of fintech UX is unmatched. The platform they built increased our user engagement by 340%.',
-    author: 'Sarah Chen',
-    role: 'CPO, Finova Banking',
+      "Our WordPress sites were a mess until Dev Studio came in and cleaned everything up fast. SEO improved noticeably within months, and our LinkedIn presence finally looked professional. They just handle things without needing to be managed.",
+    author: 'Rafi Maslaton',
+    role: 'CEO, Cresults Consulting',
   },
   {
-    company: 'MERIDIAN',
+    company: 'CRESULTS CONSULTING',
     quote:
-      'Working with Dev Studio felt like having an extension of our own team. They delivered a healthcare platform that met every compliance requirement while still feeling incredibly modern and intuitive.',
-    author: 'Dr. James Mitchell',
-    role: 'CTO, Meridian Health',
+      "What I appreciated most was not having to explain things twice. WordPress issues got resolved without back-and-forth, SEO was consistent, and our LinkedIn content actually reflected our brand. Reliable, detail-oriented, and easy to work with.",
+    author: 'Pratik',
+    role: 'Director, Cresults Consulting',
   },
   {
-    company: 'LUMIÈRE',
+    company: 'NAMRL',
     quote:
-      'The brand identity Dev Studio created for us perfectly captures our vision. Every touchpoint, from the logo to the website, exudes the luxury and sophistication we wanted. Absolutely world-class work.',
-    author: 'Isabelle Moreau',
-    role: 'Founder, Lumière Studio',
+      "We needed a website that could represent a serious medical research platform — not a generic template. Dev Studio delivered something clean, professional, and fast. The whole process was smooth and the final product exceeded what we had in mind.",
+    author: 'Abhijeet',
+    role: 'CEO, NAMRL',
   },
   {
-    company: 'NOVATECH',
+    company: 'KIYOMI FACILITIES',
     quote:
-      'Our SaaS platform needed to handle enterprise-scale complexity while remaining simple. Dev Studio nailed it. Our customer satisfaction scores jumped to 96% post-launch.',
-    author: 'Alex Rivera',
-    role: 'CEO, NovaTech',
+      "We wanted a landing page that felt premium without overcomplicating it. Dev Studio understood the brief immediately. The site launched on time, looked sharp, and our clients noticed. Would work with them again without hesitation.",
+    author: 'CEO',
+    role: 'Kiyomi Facilities',
   },
 ];
 

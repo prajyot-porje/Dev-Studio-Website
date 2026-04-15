@@ -114,7 +114,7 @@ export default memo(function ProjectCard({
           <div className={styles.previewStage}>
             {resolvedImage ? (
               <m.div
-                whileHover={{ y: -10, rotate: -1.2, scale: 1.02 }}
+                whileHover={{ y: -10, rotate: -1.2, scale: 1.06 }}
                 transition={mockupTransition}
                 className={styles.mockupWrap}
                 style={{ transformOrigin: '50% 85%' }}

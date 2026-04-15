@@ -27,7 +27,7 @@ const services = [
   {
     titleTop: 'Premium web',
     titleBottom: 'development',
-    description: 'Fast, modern websites built with Next.js and TypeScript. Clean, production-ready code.',
+    description: 'Fast, modern websites built with Next.js. Clean, production ready code.',
     image: '/macbook.png',
     imagePos: { bottom: '-5%', right: '-7%', width: '68%', height: '60%' },
     imageScale: 1.0,

@@ -32,6 +32,8 @@ const Earth: React.FC<EarthProps> = ({
   const phiRef = useRef(0);
   const animationRef = useRef<number>(0);
   const globeRef = useRef<ReturnType<typeof createGlobe> | null>(null);
+  const pointerInteracting = useRef<number | null>(null);
+  const pointerInteractionMovement = useRef(0);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -45,7 +47,13 @@ const Earth: React.FC<EarthProps> = ({
         return;
       }
 
-      phiRef.current += 0.005;
+      if (pointerInteracting.current !== null) {
+        // User is interacting: do not auto-rotate.
+        // Rotation is handled by onPointerMove updating phiRef.
+      } else {
+        // Auto-rotation when not interacting
+        phiRef.current += 0.005;
+      }
       globeRef.current.update({ phi: phiRef.current });
       animationRef.current = requestAnimationFrame(animate);
     };
@@ -163,10 +171,31 @@ const Earth: React.FC<EarthProps> = ({
     >
       <canvas
         ref={canvasRef}
+        onPointerDown={(e) => {
+          pointerInteracting.current = e.clientX;
+          if (canvasRef.current) canvasRef.current.style.cursor = 'grabbing';
+        }}
+        onPointerUp={() => {
+          pointerInteracting.current = null;
+          if (canvasRef.current) canvasRef.current.style.cursor = 'grab';
+        }}
+        onPointerOut={() => {
+          pointerInteracting.current = null;
+          if (canvasRef.current) canvasRef.current.style.cursor = 'grab';
+        }}
+        onPointerMove={(e) => {
+          if (pointerInteracting.current !== null) {
+            const delta = e.clientX - pointerInteracting.current;
+            pointerInteracting.current = e.clientX;
+            phiRef.current += delta * 0.01;
+            // The animation loop will pick up the updated phiRef and render it
+          }
+        }}
         style={{
           width: '100%',
           height: '100%',
           cursor: 'grab',
+          contain: 'layout paint size',
         }}
       />
     </div>

@@ -196,8 +196,8 @@ export default function WorkSection() {
                 animate="center"
                 exit="exit"
                 transition={{
-                  x: { type: 'tween', ease: [0.32, 0.72, 0, 1], duration: 0.55 },
-                  opacity: { duration: 0.35 },
+                  x: { type: 'tween', ease: [0.32, 0.72, 0, 1], duration: 1.2 },
+                  opacity: { duration: 0.8 },
                 }}
                 className="work-slide"
               >
@@ -311,6 +311,7 @@ export default function WorkSection() {
         }
 
         .work-indicator {
+          position: relative;
           width: 32px;
           height: 4px;
           border-radius: 2px;
@@ -319,6 +320,15 @@ export default function WorkSection() {
           cursor: pointer;
           opacity: 0.3;
           transition: opacity 0.3s ease, background 0.3s ease;
+        }
+
+        .work-indicator::before {
+          content: '';
+          position: absolute;
+          top: -12px;
+          bottom: -12px;
+          left: -8px;
+          right: -8px;
         }
 
         .work-indicator.active {
