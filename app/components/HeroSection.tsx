@@ -131,50 +131,73 @@ export default function HeroSection() {
       {/* ── Mobile Text Content Layer ── */}
       {isMobile && (
         <div className="hero-mobile-content">
+          {/* Atmospheric glow orbs */}
+          <div className="hero-mobile-orb hero-mobile-orb--1" />
+          <div className="hero-mobile-orb hero-mobile-orb--2" />
+
+          {/* Overline label */}
           <m.div
             initial="hidden"
             animate="visible"
             variants={fadeUp(0.1)}
-            className="hero-mobile-badge"
+            className="hero-mobile-overline"
           >
-            <span className="silver-text">Dev Studio</span>
+            <span className="hero-mobile-overline-dot" />
+            Digital Agency
           </m.div>
 
+          {/* Large editorial heading */}
           <m.h1
             className="hero-mobile-heading"
             initial="hidden"
             animate="visible"
             variants={fadeUp(0.2)}
           >
-            We build websites
+            Built for
             <br />
-            <span className="hero-mobile-heading-accent">that grow businesses.</span>
+            your <span className="hero-mobile-heading-em">Growth</span>
           </m.h1>
 
+          {/* Sub-heading — value prop */}
           <m.p
             className="hero-mobile-sub"
             initial="hidden"
             animate="visible"
             variants={fadeUp(0.35)}
           >
-            Web development, SEO & AI solutions — one founder, zero handoffs, real results.
+            One founder. Zero handoffs.
+            <br />
+            Websites engineered to rank & convert.
           </m.p>
 
+          {/* Service keyword chips */}
+          <m.div
+            className="hero-mobile-chips"
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp(0.45)}
+          >
+            <span className="hero-chip">Web Development</span>
+            <span className="hero-chip">SEO</span>
+            <span className="hero-chip">AI Solutions</span>
+          </m.div>
+
+          {/* CTA row — compact, inline */}
           <m.div
             className="hero-mobile-ctas"
             initial="hidden"
             animate="visible"
-            variants={fadeUp(0.5)}
+            variants={fadeUp(0.55)}
           >
             <RippleElement as="a" href="#contact" className="hero-cta hero-cta--filled">
-              Contact us
+              Get Started
             </RippleElement>
             <RippleElement as="a" href="#work" className="hero-cta hero-cta--outlined">
-              View our Work
+              Our Work
             </RippleElement>
           </m.div>
 
-          {/* Trust indicators */}
+          {/* Trust stats — minimal bottom strip */}
           <m.div
             className="hero-mobile-trust"
             initial="hidden"
@@ -195,6 +218,16 @@ export default function HeroSection() {
               <span className="hero-trust-value">24h</span>
               <span className="hero-trust-label">Response</span>
             </div>
+          </m.div>
+
+          {/* Scroll indicator */}
+          <m.div
+            className="hero-mobile-scroll"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
+          >
+            <div className="hero-scroll-line" />
           </m.div>
         </div>
       )}
@@ -517,7 +550,7 @@ export default function HeroSection() {
         }
 
         /* ============================
-           MOBILE HERO — PREMIUM REDESIGN
+           MOBILE HERO — PREMIUM EDITORIAL
            ============================ */
         .hero-mobile-content {
           position: absolute;
@@ -527,120 +560,227 @@ export default function HeroSection() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 100px 28px 48px;
+          padding: 80px 32px 40px;
           pointer-events: none;
           text-align: center;
           gap: 0;
         }
 
-        .hero-mobile-badge {
-          font-size: 0.65rem;
-          font-weight: 600;
+        /* ── Atmospheric glow orbs ── */
+        .hero-mobile-orb {
+          position: absolute;
+          border-radius: 50%;
+          pointer-events: none;
+          filter: blur(80px);
+          opacity: 0.35;
+          z-index: -1;
+        }
+        .hero-mobile-orb--1 {
+          width: 260px;
+          height: 260px;
+          top: 12%;
+          right: -15%;
+          background: rgba(140, 140, 160, 0.2);
+          animation: orb-float-1 20s ease-in-out infinite alternate;
+        }
+        .hero-mobile-orb--2 {
+          width: 200px;
+          height: 200px;
+          bottom: 18%;
+          left: -10%;
+          background: rgba(120, 120, 150, 0.15);
+          animation: orb-float-2 24s ease-in-out infinite alternate;
+        }
+        [data-theme="dark"] .hero-mobile-orb--1 {
+          background: rgba(80, 120, 220, 0.2);
+        }
+        [data-theme="dark"] .hero-mobile-orb--2 {
+          background: rgba(130, 80, 230, 0.15);
+        }
+        @keyframes orb-float-1 {
+          0% { transform: translate(0, 0) scale(1); }
+          100% { transform: translate(-20px, 30px) scale(1.15); }
+        }
+        @keyframes orb-float-2 {
+          0% { transform: translate(0, 0) scale(1); }
+          100% { transform: translate(15px, -20px) scale(1.1); }
+        }
+
+        /* ── Overline ── */
+        .hero-mobile-overline {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.7rem;
+          font-weight: 500;
           text-transform: uppercase;
-          letter-spacing: 0.18em;
-          margin-bottom: 20px;
-          padding: 6px 16px;
-          border-radius: 999px;
-          border: 1px solid rgba(0,0,0,0.08);
-          background: rgba(255,255,255,0.5);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
+          letter-spacing: 0.2em;
+          color: var(--text-tertiary);
+          margin-bottom: 24px;
+          font-family: var(--font-sans), 'Poppins', sans-serif;
+        }
+        .hero-mobile-overline-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--text-tertiary);
+          opacity: 0.6;
+          animation: dot-pulse 2.5s ease-in-out infinite;
+        }
+        @keyframes dot-pulse {
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.3); }
         }
 
-        [data-theme="dark"] .hero-mobile-badge {
-          border: 1px solid rgba(255,255,255,0.08);
-          background: rgba(255,255,255,0.05);
-        }
-
+        /* ── Heading — large editorial ── */
         .hero-mobile-heading {
           font-family: var(--font-sans), 'Poppins', sans-serif;
-          font-size: clamp(2rem, 8vw, 2.75rem);
-          font-weight: 600;
-          line-height: 1.1;
-          letter-spacing: -0.035em;
+          font-size: clamp(2.8rem, 11vw, 3.8rem);
+          font-weight: 700;
+          line-height: 1.0;
+          letter-spacing: -0.045em;
           color: var(--text-primary);
           margin: 0 0 20px;
-          max-width: 340px;
         }
-
-        .hero-mobile-heading-accent {
+        .hero-mobile-heading-em {
+          font-style: normal;
+          font-weight: 300;
           color: var(--text-secondary);
-          font-weight: 400;
         }
 
+        /* ── Subtext ── */
         .hero-mobile-sub {
           font-family: var(--font-sans), 'Poppins', sans-serif;
-          font-size: 0.95rem;
-          line-height: 1.55;
+          font-size: 0.9rem;
+          line-height: 1.6;
           color: var(--text-secondary);
-          max-width: 320px;
-          margin: 0 0 32px;
+          max-width: 280px;
+          margin: 0 0 28px;
           font-weight: 400;
+          letter-spacing: -0.005em;
         }
 
+        /* ── Service chips ── */
+        .hero-mobile-chips {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 8px;
+          margin-bottom: 32px;
+        }
+        .hero-chip {
+          display: inline-flex;
+          align-items: center;
+          padding: 6px 14px;
+          font-size: 0.7rem;
+          font-weight: 500;
+          letter-spacing: 0.02em;
+          color: var(--text-secondary);
+          border-radius: 999px;
+          border: 1px solid rgba(0,0,0,0.07);
+          background: rgba(255,255,255,0.45);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          font-family: var(--font-sans), 'Poppins', sans-serif;
+          transition: border-color 0.3s ease, background 0.3s ease;
+        }
+        [data-theme="dark"] .hero-chip {
+          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(255,255,255,0.04);
+        }
+
+        /* ── CTAs — compact, inline ── */
         .hero-mobile-ctas {
           display: flex;
-          flex-direction: column;
-          gap: 12px;
+          flex-direction: row;
+          gap: 10px;
           pointer-events: auto;
-          width: 100%;
-          max-width: 300px;
-          margin-bottom: 40px;
+          margin-bottom: 36px;
         }
-
         .hero-mobile-ctas .hero-cta {
-          width: 100%;
-          padding: 16px 28px;
-          font-size: 15px;
+          padding: 12px 24px;
+          font-size: 0.82rem;
         }
 
-        /* ── Trust Indicators ── */
+        /* ── Trust Indicators — minimal bottom bar ── */
         .hero-mobile-trust {
           display: flex;
           align-items: center;
           gap: 20px;
-          padding: 14px 28px;
-          border-radius: 20px;
-          border: 1px solid rgba(0,0,0,0.06);
-          background: rgba(255,255,255,0.4);
+          padding: 12px 24px;
+          border-radius: 16px;
+          border: 1px solid rgba(0,0,0,0.05);
+          background: rgba(255,255,255,0.3);
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
         }
-
         [data-theme="dark"] .hero-mobile-trust {
           border: 1px solid rgba(255,255,255,0.06);
-          background: rgba(255,255,255,0.04);
+          background: rgba(255,255,255,0.03);
         }
-
         .hero-trust-item {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 2px;
+          gap: 1px;
         }
-
         .hero-trust-value {
-          font-size: 1.1rem;
+          font-size: 1rem;
           font-weight: 700;
           color: var(--text-primary);
           letter-spacing: -0.02em;
           font-family: var(--font-sans), 'Poppins', sans-serif;
         }
-
         .hero-trust-label {
-          font-size: 0.6rem;
+          font-size: 0.55rem;
           font-weight: 500;
           color: var(--text-tertiary);
           text-transform: uppercase;
           letter-spacing: 0.06em;
           font-family: var(--font-sans), 'Poppins', sans-serif;
         }
-
         .hero-trust-divider {
           width: 1px;
-          height: 28px;
+          height: 24px;
           background: var(--border-color);
-          opacity: 0.5;
+          opacity: 0.4;
+        }
+
+        /* ── Scroll indicator ── */
+        .hero-mobile-scroll {
+          position: absolute;
+          bottom: 28px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          z-index: 21;
+        }
+        .hero-scroll-line {
+          width: 1px;
+          height: 32px;
+          position: relative;
+          overflow: hidden;
+          background: rgba(0,0,0,0.06);
+        }
+        [data-theme="dark"] .hero-scroll-line {
+          background: rgba(255,255,255,0.06);
+        }
+        .hero-scroll-line::after {
+          content: '';
+          position: absolute;
+          top: -100%;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: var(--text-tertiary);
+          animation: scroll-line-move 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        @keyframes scroll-line-move {
+          0% { top: -100%; }
+          50% { top: 0%; }
+          100% { top: 100%; }
         }
       `}</style>
     </section>

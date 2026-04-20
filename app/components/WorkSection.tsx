@@ -196,8 +196,10 @@ export default function WorkSection() {
                 animate="center"
                 exit="exit"
                 transition={{
-                  x: { type: 'tween', ease: [0.32, 0.72, 0, 1], duration: 1.2 },
-                  opacity: { duration: 0.8 },
+                  x: isMobile 
+                    ? { type: 'spring', stiffness: 300, damping: 30 }
+                    : { type: 'tween', ease: [0.32, 0.72, 0, 1], duration: 1.2 },
+                  opacity: { duration: isMobile ? 0.3 : 0.8 },
                 }}
                 className="work-slide"
               >
@@ -338,7 +340,8 @@ export default function WorkSection() {
 
         @media (max-width: 899px) {
           .work-section {
-            height: 150vh;
+            position: relative !important;
+            height: 100vh !important;
           }
 
           .work-visible-wrapper {

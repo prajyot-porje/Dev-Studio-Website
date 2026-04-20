@@ -40,6 +40,14 @@ export default function TestimonialsSection() {
 
   const CARD_DURATION = 8; // seconds
   const LOOP_WAIT = 15; // seconds
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 900);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -68,10 +76,11 @@ export default function TestimonialsSection() {
         onViewportEnter={() => setActiveIndex(0)}
         style={{
           background: 'var(--bg-secondary)', // Reverted to original dark background in dark mode, matches About Us in light mode
-          position: 'sticky',
+          position: isMobile ? 'relative' : 'sticky',
           top: 0,
           zIndex: 2,
-          height: '100vh',
+          height: isMobile ? 'auto' : '100vh',
+          padding: isMobile ? 'var(--section-padding) 0' : 0,
           display: 'flex',
           alignItems: 'center',
         }}
@@ -241,7 +250,7 @@ export default function TestimonialsSection() {
                     border: isAhead
                       ? '1px solid var(--card-border)'
                       : 'none',
-                    padding: '48px 40px',
+                    padding: isMobile ? '32px 24px' : '48px 40px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
@@ -268,20 +277,20 @@ export default function TestimonialsSection() {
                     </span>
                     <p
                       style={{
-                        fontSize: 'var(--text-lg)',
+                        fontSize: isMobile ? 'var(--text-base)' : 'var(--text-lg)',
                         fontStyle: 'italic',
                         lineHeight: 1.7,
                         color: isActive || isBehind
                           ? 'var(--bg-primary)'
                           : 'var(--text-primary)',
-                        marginTop: '32px',
+                        marginTop: isMobile ? '20px' : '32px',
                         opacity: isActive ? 1 : 0.6,
                       }}
                     >
                       &ldquo;{testimonial.quote}&rdquo;
                     </p>
                   </div>
-                  <div style={{ marginTop: '32px' }}>
+                  <div style={{ marginTop: isMobile ? '24px' : '32px' }}>
                     <p
                       style={{
                         fontSize: 'var(--text-base)',
@@ -315,9 +324,11 @@ export default function TestimonialsSection() {
         <style jsx>{`
           @media (max-width: 900px) {
             .testimonials-section {
-              position: relative !important;
-              padding: var(--section-padding) 0;
-              min-height: auto !important;
+              /* Inline styles now handle position and height to prevent override conflicts */
+            }
+
+            .testimonials-scroll-spacer {
+              display: none !important;
             }
 
             .section-container {
@@ -325,16 +336,18 @@ export default function TestimonialsSection() {
               gap: 48px !important;
             }
             .testimonials-right {
-              height: 380px !important;
+              height: 480px !important;
             }
           }
         `}</style>
       </m.section>
-      <div
-        aria-hidden="true"
-        className="testimonials-scroll-spacer"
-        style={{ height: '60vh', pointerEvents: 'none' }}
-      />
+      {!isMobile && (
+        <div
+          aria-hidden="true"
+          className="testimonials-scroll-spacer"
+          style={{ height: '60vh', pointerEvents: 'none' }}
+        />
+      )}
     </>
   );
 }
