@@ -16,24 +16,43 @@ const fadeUp = (delay: number) => ({
   },
 });
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  forceLowEnd?: boolean;
+}
+
+export default function HeroSection({ forceLowEnd = false }: HeroSectionProps) {
   const [isMobile, setIsMobile] = useState(false);
+  const [isLowEndDevice, setIsLowEndDevice] = useState(forceLowEnd);
   const [isMounted, setIsMounted] = useState(false);
   const { setSplineReady } = useLoading();
 
   useEffect(() => {
     setIsMounted(true);
-    const checkMobile = () => {
+    const checkDevice = () => {
       const mobile = window.innerWidth <= 768;
       setIsMobile(mobile);
-      if (mobile) {
+
+      let lowEnd = forceLowEnd;
+      if (!lowEnd && !mobile && typeof navigator !== 'undefined') {
+        const cores = navigator.hardwareConcurrency || 4;
+        const connection = (navigator as any).connection;
+        const slowNetwork = connection && (connection.saveData || connection.effectiveType === '3g' || connection.effectiveType === '2g');
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        
+        if (cores < 4 || slowNetwork || reducedMotion) {
+          lowEnd = true;
+        }
+      }
+      setIsLowEndDevice(lowEnd);
+
+      if (mobile || lowEnd) {
         setSplineReady(true);
       }
     };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, [setSplineReady]);
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
+    return () => window.removeEventListener('resize', checkDevice);
+  }, [setSplineReady, forceLowEnd]);
 
   return (
     <section id="hero" className="hero-section">
@@ -43,12 +62,12 @@ export default function HeroSection() {
 
       {/* ── Spline Robot — full screen (Desktop) OR premium gradient (Mobile) ── */}
       <div className="hero-robot-wrap">
-        {isMounted && !isMobile ? (
+        {isMounted && !isMobile && !isLowEndDevice ? (
           <SplineScene
             scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
             className="hero-spline"
           />
-        ) : (
+        ) : isMobile ? (
           <div className="hero-mobile-bg">
             {/* Subtle animated gradient mesh */}
             <div className="hero-mobile-mesh" />
@@ -56,12 +75,12 @@ export default function HeroSection() {
             <div className="hero-accent-line hero-accent-1" />
             <div className="hero-accent-line hero-accent-2" />
           </div>
-        )}
+        ) : null}
         <div className="hero-robot-overlay" />
       </div>
 
-      {/* ── Desktop Text Content Layer ── */}
-      {!isMobile && (
+      {/* ── Desktop Text Content Layer (High End) ── */}
+      {!isMobile && !isLowEndDevice && (
         <div className="hero-content">
           {/* Top row — split columns */}
           <div className="hero-top-row">
@@ -124,6 +143,52 @@ export default function HeroSection() {
             <RippleElement as="a" href="#work" className="hero-cta hero-cta--outlined">
               View our Work
             </RippleElement>
+          </m.div>
+        </div>
+      )}
+
+      {/* ── Desktop Text Content Layer (Low End Fallback) ── */}
+      {!isMobile && isLowEndDevice && (
+        <div className="hero-content hero-fallback-content">
+          <div className="hero-fallback-bg">
+            {/* Monochromatic structural grid lines */}
+            <div className="hero-fallback-line hero-fallback-line--v1" />
+            <div className="hero-fallback-line hero-fallback-line--v2" />
+            <div className="hero-fallback-line hero-fallback-line--h1" />
+          </div>
+
+          <m.div
+            className="hero-fallback-inner"
+            initial="hidden"
+            animate="visible"
+            variants={{
+               hidden: { opacity: 0 },
+               visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+            }}
+          >
+            <m.div variants={fadeUp(0)} className="hero-fallback-overline">
+              <span className="hero-fallback-overline-dot" />
+              Dev Studio — Digital Agency
+            </m.div>
+
+            <m.h1 className="hero-fallback-heading" variants={fadeUp(0.15)}>
+              <span className="silver-text">Built for your Growth</span><br/>
+              Engineered to Rank.<br/>
+              Built to Win.
+            </m.h1>
+
+            <m.div className="hero-fallback-sub" variants={fadeUp(0.3)}>
+              <p className="silver-text">Web development, SEO & AI that turns your website into a revenue engine. Direct communication, zero handoffs, and a founder personally invested in your results.</p>
+            </m.div>
+
+            <m.div className="hero-fallback-ctas" variants={fadeUp(0.45)}>
+              <RippleElement as="a" href="#contact" className="hero-cta hero-cta--filled">
+                Contact us
+              </RippleElement>
+              <RippleElement as="a" href="#work" className="hero-cta hero-cta--outlined">
+                View our Work
+              </RippleElement>
+            </m.div>
           </m.div>
         </div>
       )}
@@ -781,6 +846,148 @@ export default function HeroSection() {
           0% { top: -100%; }
           50% { top: 0%; }
           100% { top: 100%; }
+        }
+
+        /* ============================
+           DESKTOP FALLBACK (LOW END)
+           ============================ */
+        .hero-fallback-content {
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          padding-top: clamp(6rem, 12vh, 10rem);
+        }
+
+        .hero-fallback-bg {
+          position: absolute;
+          inset: 0;
+          z-index: -1;
+          overflow: hidden;
+          background: var(--hero-bg);
+        }
+
+        /* Subtle radial glow to anchor the text */
+        .hero-fallback-bg::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 60vw;
+          height: 60vw;
+          background: radial-gradient(circle, rgba(13, 13, 13, 0.03) 0%, transparent 60%);
+          pointer-events: none;
+        }
+        [data-theme="dark"] .hero-fallback-bg::after {
+          background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 60%);
+        }
+
+        .hero-fallback-line {
+          position: absolute;
+          background: var(--text-primary);
+          opacity: 0.03;
+        }
+        [data-theme="dark"] .hero-fallback-line {
+          opacity: 0.05;
+        }
+        .hero-fallback-line--v1 {
+          width: 1px;
+          height: 100%;
+          left: 20%;
+        }
+        .hero-fallback-line--v2 {
+          width: 1px;
+          height: 100%;
+          right: 20%;
+        }
+        .hero-fallback-line--h1 {
+          height: 1px;
+          width: 100%;
+          top: 50%;
+        }
+
+        .hero-fallback-inner {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          max-width: 1200px;
+          width: 100%;
+          padding: 0 4rem;
+          position: relative;
+          z-index: 2;
+        }
+
+        .hero-fallback-overline {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-family: var(--font-sans), 'Poppins', sans-serif;
+          font-size: 0.75rem;
+          font-weight: 600;
+          letter-spacing: 0.25em;
+          text-transform: uppercase;
+          color: var(--text-primary);
+          margin-bottom: 1.25rem;
+          padding: 8px 20px;
+          border-radius: 999px;
+          background: rgba(13, 13, 13, 0.03);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(13, 13, 13, 0.08);
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+        }
+        [data-theme="dark"] .hero-fallback-overline {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-fallback-overline-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--text-primary);
+          opacity: 0.5;
+          box-shadow: 0 0 8px var(--text-primary);
+        }
+
+        .hero-fallback-heading {
+          font-family: var(--font-sans), 'Poppins', sans-serif;
+          font-size: clamp(3.5rem, 7vw, 6.5rem);
+          line-height: 1.0;
+          letter-spacing: -0.04em;
+          color: var(--hero-heading);
+          margin: 0 0 2rem;
+          font-weight: 700;
+          text-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
+        }
+        [data-theme="dark"] .hero-fallback-heading {
+          text-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-fallback-sub {
+          max-width: 640px;
+          margin-bottom: 3.5rem;
+        }
+
+        .hero-fallback-sub p {
+          font-family: var(--font-sans), 'Poppins', sans-serif;
+          font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+          line-height: 1.65;
+          margin: 0;
+          color: var(--hero-subtext);
+          text-wrap: balance;
+        }
+
+        .hero-fallback-ctas {
+          display: flex;
+          gap: 1.5rem;
+          pointer-events: auto;
+          margin-top: 1rem;
+        }
+        .hero-fallback-ctas .hero-cta {
+          padding: 16px 40px;
+          font-size: 1.05rem;
         }
       `}</style>
     </section>
