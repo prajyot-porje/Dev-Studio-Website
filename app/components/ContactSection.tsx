@@ -26,15 +26,23 @@ const serviceOptions = [
   'Other',
 ];
 
-const budgetOptions = [
+const inrBudgetOptions = [
+  '<10k',
+  '10-15k',
+  '15-25k',
+  '>25k',
+];
+
+const usdBudgetOptions = [
+  '<$300',
   '$300 – $999',
   '$1k – $5k',
   '$5k+',
-  'Ongoing / Retainer',
 ];
 
 export default function ContactSection() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [isIndian, setIsIndian] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -53,8 +61,20 @@ export default function ContactSection() {
     const checkMobile = () => setIsMobile(window.innerWidth <= 640);
     checkMobile();
     window.addEventListener('resize', checkMobile);
+    
+    try {
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (timeZone === 'Asia/Calcutta' || timeZone === 'Asia/Kolkata') {
+        setIsIndian(true);
+      }
+    } catch (e) {
+      console.error("Error determining timezone", e);
+    }
+    
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  const activeBudgetOptions = isIndian ? inrBudgetOptions : usdBudgetOptions;
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -70,10 +90,24 @@ export default function ContactSection() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    // In a real app, send data to API here
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
-    setIsSubmitted(true);
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to submit form');
+      }
+    } catch (error) {
+      console.error('Error submitting form', error);
+    } finally {
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+    }
   };
 
   const inputStyle: React.CSSProperties = {
@@ -441,7 +475,7 @@ export default function ContactSection() {
                           gap: '8px',
                         }}
                       >
-                        {budgetOptions.map((option) => (
+                        {activeBudgetOptions.map((option) => (
                           <RippleElement
                             key={option}
                             type="button"
