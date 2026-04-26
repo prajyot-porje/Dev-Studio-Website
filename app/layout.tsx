@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     description: "Fast websites, AI integrations, and digital presence management for growing businesses.",
     type: "website",
   },
+  verification: {
+    google: "AZFesV-GGIPjkLX88TjkmcHifsZlcLDSfJQ9vPsE3O0",
+  },
 };
 
 import { LoadingProvider } from "@/components/LoadingContext";
