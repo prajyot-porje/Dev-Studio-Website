@@ -131,102 +131,99 @@ export default function HeroSection() {
       {/* ── Mobile Text Content Layer ── */}
       {isMobile && (
         <div className="hero-mobile-content">
-          {/* Atmospheric glow orbs */}
-          <div className="hero-mobile-orb hero-mobile-orb--1" />
-          <div className="hero-mobile-orb hero-mobile-orb--2" />
+          {/* Decorative grid lines */}
+          <div className="hero-m-grid" aria-hidden>
+            <div className="hero-m-grid-v hero-m-grid-v1" />
+            <div className="hero-m-grid-v hero-m-grid-v2" />
+            <div className="hero-m-grid-h hero-m-grid-h1" />
+            <div className="hero-m-grid-h hero-m-grid-h2" />
+          </div>
 
-          {/* Overline label */}
+          {/* Atmospheric glow orb */}
+          <div className="hero-mobile-orb hero-mobile-orb--1" />
+
+          {/* Brand mark overline */}
           <m.div
             initial="hidden"
             animate="visible"
             variants={fadeUp(0.1)}
-            className="hero-mobile-overline"
+            className="hero-m-brand"
           >
-            <span className="hero-mobile-overline-dot" />
-            Digital Agency
+            <span className="hero-m-brand-line" />
+            <span className="hero-m-brand-text">Dev Studio</span>
           </m.div>
 
           {/* Large editorial heading */}
           <m.h1
-            className="hero-mobile-heading"
+            className="hero-m-title"
             initial="hidden"
             animate="visible"
             variants={fadeUp(0.2)}
           >
-            Built for
+            We build
             <br />
-            your <span className="hero-mobile-heading-em">Growth</span>
+            websites that
+            <br />
+            <span className="hero-m-title-accent">win clients.</span>
           </m.h1>
 
-          {/* Sub-heading — value prop */}
+          {/* Value proposition */}
           <m.p
-            className="hero-mobile-sub"
+            className="hero-m-desc"
             initial="hidden"
             animate="visible"
             variants={fadeUp(0.35)}
           >
-            One founder. Zero handoffs.
-            <br />
-            Websites engineered to rank & convert.
+            Web development, SEO & AI — engineered by one founder, delivered with zero handoffs.
           </m.p>
 
-          {/* Service keyword chips */}
+          {/* Glassmorphic service strip */}
           <m.div
-            className="hero-mobile-chips"
+            className="hero-m-services"
             initial="hidden"
             animate="visible"
             variants={fadeUp(0.45)}
           >
-            <span className="hero-chip">Web Development</span>
-            <span className="hero-chip">SEO</span>
-            <span className="hero-chip">AI Solutions</span>
+            <div className="hero-m-service-item">
+              <span className="hero-m-service-dot hero-m-service-dot--blue" />
+              <span>Web Dev</span>
+            </div>
+            <div className="hero-m-service-sep" />
+            <div className="hero-m-service-item">
+              <span className="hero-m-service-dot hero-m-service-dot--green" />
+              <span>SEO & AEO</span>
+            </div>
+            <div className="hero-m-service-sep" />
+            <div className="hero-m-service-item">
+              <span className="hero-m-service-dot hero-m-service-dot--purple" />
+              <span>AI Solutions</span>
+            </div>
           </m.div>
 
-          {/* CTA row — compact, inline */}
+          {/* CTA row */}
           <m.div
-            className="hero-mobile-ctas"
+            className="hero-m-ctas"
             initial="hidden"
             animate="visible"
             variants={fadeUp(0.55)}
           >
-            <RippleElement as="a" href="#contact" className="hero-cta hero-cta--filled">
-              Get Started
+            <RippleElement as="a" href="#contact" className="hero-cta hero-cta--filled hero-m-cta-main">
+              Start a Project
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </RippleElement>
-            <RippleElement as="a" href="#work" className="hero-cta hero-cta--outlined">
+            <RippleElement as="a" href="#work" className="hero-cta hero-cta--outlined hero-m-cta-sec">
               Our Work
             </RippleElement>
           </m.div>
 
-          {/* Trust stats — minimal bottom strip */}
+          {/* Bottom tagline */}
           <m.div
-            className="hero-mobile-trust"
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp(0.65)}
-          >
-            <div className="hero-trust-item">
-              <span className="hero-trust-value">100</span>
-              <span className="hero-trust-label">SEO Score</span>
-            </div>
-            <div className="hero-trust-divider" />
-            <div className="hero-trust-item">
-              <span className="hero-trust-value">&lt;0.5s</span>
-              <span className="hero-trust-label">Load Time</span>
-            </div>
-            <div className="hero-trust-divider" />
-            <div className="hero-trust-item">
-              <span className="hero-trust-value">24h</span>
-              <span className="hero-trust-label">Response</span>
-            </div>
-          </m.div>
-
-          {/* Scroll indicator */}
-          <m.div
-            className="hero-mobile-scroll"
+            className="hero-m-bottom"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 0.8 }}
+            transition={{ delay: 0.9, duration: 0.8 }}
           >
+            <span className="hero-m-bottom-text">Based in India · Working globally</span>
             <div className="hero-scroll-line" />
           </m.div>
         </div>
@@ -550,7 +547,7 @@ export default function HeroSection() {
         }
 
         /* ============================
-           MOBILE HERO — PREMIUM EDITORIAL
+           MOBILE HERO — PREMIUM EDITORIAL v2
            ============================ */
         .hero-mobile-content {
           position: absolute;
@@ -558,208 +555,225 @@ export default function HeroSection() {
           z-index: 20;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 80px 32px 40px;
+          align-items: flex-start;
+          justify-content: flex-end;
+          padding: 0 28px 48px;
           pointer-events: none;
-          text-align: center;
+          text-align: left;
           gap: 0;
         }
 
-        /* ── Atmospheric glow orbs ── */
+        /* ── Decorative grid lines ── */
+        .hero-m-grid {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          z-index: 0;
+        }
+        .hero-m-grid-v,
+        .hero-m-grid-h {
+          position: absolute;
+          background: var(--border-color);
+          opacity: 0.35;
+        }
+        .hero-m-grid-v {
+          width: 1px;
+          top: 0;
+          bottom: 0;
+        }
+        .hero-m-grid-h {
+          height: 1px;
+          left: 0;
+          right: 0;
+        }
+        .hero-m-grid-v1 { left: 28px; }
+        .hero-m-grid-v2 { right: 28px; }
+        .hero-m-grid-h1 { top: 38%; }
+        .hero-m-grid-h2 { bottom: 200px; }
+
+        /* ── Atmospheric glow orb ── */
         .hero-mobile-orb {
           position: absolute;
           border-radius: 50%;
           pointer-events: none;
           filter: blur(80px);
-          opacity: 0.35;
-          z-index: -1;
+          opacity: 0.3;
+          z-index: 0;
         }
         .hero-mobile-orb--1 {
-          width: 260px;
-          height: 260px;
-          top: 12%;
-          right: -15%;
-          background: rgba(140, 140, 160, 0.2);
+          width: 280px;
+          height: 280px;
+          top: 8%;
+          right: -20%;
+          background: rgba(140, 140, 160, 0.18);
           animation: orb-float-1 20s ease-in-out infinite alternate;
-        }
-        .hero-mobile-orb--2 {
-          width: 200px;
-          height: 200px;
-          bottom: 18%;
-          left: -10%;
-          background: rgba(120, 120, 150, 0.15);
-          animation: orb-float-2 24s ease-in-out infinite alternate;
         }
         [data-theme="dark"] .hero-mobile-orb--1 {
           background: rgba(80, 120, 220, 0.2);
-        }
-        [data-theme="dark"] .hero-mobile-orb--2 {
-          background: rgba(130, 80, 230, 0.15);
         }
         @keyframes orb-float-1 {
           0% { transform: translate(0, 0) scale(1); }
           100% { transform: translate(-20px, 30px) scale(1.15); }
         }
-        @keyframes orb-float-2 {
-          0% { transform: translate(0, 0) scale(1); }
-          100% { transform: translate(15px, -20px) scale(1.1); }
-        }
 
-        /* ── Overline ── */
-        .hero-mobile-overline {
+        /* ── Brand mark ── */
+        .hero-m-brand {
           display: flex;
           align-items: center;
-          gap: 8px;
-          font-size: 0.7rem;
-          font-weight: 500;
+          gap: 12px;
+          margin-bottom: 28px;
+          position: relative;
+          z-index: 1;
+        }
+        .hero-m-brand-line {
+          display: block;
+          width: 24px;
+          height: 2px;
+          background: var(--text-primary);
+          opacity: 0.3;
+          border-radius: 1px;
+        }
+        .hero-m-brand-text {
+          font-family: var(--font-sans), 'Poppins', sans-serif;
+          font-size: 0.65rem;
+          font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.2em;
           color: var(--text-tertiary);
-          margin-bottom: 24px;
-          font-family: var(--font-sans), 'Poppins', sans-serif;
-        }
-        .hero-mobile-overline-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: var(--text-tertiary);
-          opacity: 0.6;
-          animation: dot-pulse 2.5s ease-in-out infinite;
-        }
-        @keyframes dot-pulse {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.3); }
         }
 
         /* ── Heading — large editorial ── */
-        .hero-mobile-heading {
+        .hero-m-title {
           font-family: var(--font-sans), 'Poppins', sans-serif;
-          font-size: clamp(2.8rem, 11vw, 3.8rem);
+          font-size: clamp(2.6rem, 10.5vw, 3.6rem);
           font-weight: 700;
-          line-height: 1.0;
+          line-height: 1.05;
           letter-spacing: -0.045em;
           color: var(--text-primary);
           margin: 0 0 20px;
+          position: relative;
+          z-index: 1;
         }
-        .hero-mobile-heading-em {
-          font-style: normal;
-          font-weight: 300;
-          color: var(--text-secondary);
+        .hero-m-title-accent {
+          font-weight: 700;
+          background: linear-gradient(135deg, #6B6B6B 0%, #3A3A3A 30%, #5A5A5A 60%, #2A2A2A 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+        }
+        [data-theme="dark"] .hero-m-title-accent {
+          background: linear-gradient(135deg, #E8E8E8 0%, #A0A0A0 30%, #C8C8C8 60%, #787878 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
         }
 
-        /* ── Subtext ── */
-        .hero-mobile-sub {
+        /* ── Description ── */
+        .hero-m-desc {
           font-family: var(--font-sans), 'Poppins', sans-serif;
-          font-size: 0.9rem;
-          line-height: 1.6;
+          font-size: 0.88rem;
+          line-height: 1.65;
           color: var(--text-secondary);
-          max-width: 280px;
-          margin: 0 0 28px;
+          max-width: 320px;
+          margin: 0 0 24px;
           font-weight: 400;
           letter-spacing: -0.005em;
+          position: relative;
+          z-index: 1;
         }
 
-        /* ── Service chips ── */
-        .hero-mobile-chips {
+        /* ── Service strip ── */
+        .hero-m-services {
           display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 8px;
-          margin-bottom: 32px;
-        }
-        .hero-chip {
-          display: inline-flex;
           align-items: center;
-          padding: 6px 14px;
-          font-size: 0.7rem;
-          font-weight: 500;
-          letter-spacing: 0.02em;
-          color: var(--text-secondary);
-          border-radius: 999px;
-          border: 1px solid rgba(0,0,0,0.07);
-          background: rgba(255,255,255,0.45);
+          gap: 0;
+          padding: 10px 16px;
+          border-radius: 12px;
+          border: 1px solid rgba(0,0,0,0.06);
+          background: rgba(255,255,255,0.4);
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
-          font-family: var(--font-sans), 'Poppins', sans-serif;
-          transition: border-color 0.3s ease, background 0.3s ease;
+          margin-bottom: 28px;
+          position: relative;
+          z-index: 1;
         }
-        [data-theme="dark"] .hero-chip {
-          border: 1px solid rgba(255,255,255,0.08);
+        [data-theme="dark"] .hero-m-services {
+          border: 1px solid rgba(255,255,255,0.07);
           background: rgba(255,255,255,0.04);
         }
+        .hero-m-service-item {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-family: var(--font-sans), 'Poppins', sans-serif;
+          font-size: 0.68rem;
+          font-weight: 500;
+          color: var(--text-secondary);
+          letter-spacing: 0.01em;
+          white-space: nowrap;
+        }
+        .hero-m-service-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+        .hero-m-service-dot--blue { background: #3B7BFF; }
+        .hero-m-service-dot--green { background: #34C759; }
+        .hero-m-service-dot--purple { background: #AF52DE; }
+        .hero-m-service-sep {
+          width: 1px;
+          height: 14px;
+          background: var(--border-color);
+          margin: 0 12px;
+          opacity: 0.6;
+        }
 
-        /* ── CTAs — compact, inline ── */
-        .hero-mobile-ctas {
+        /* ── CTAs ── */
+        .hero-m-ctas {
           display: flex;
           flex-direction: row;
           gap: 10px;
           pointer-events: auto;
-          margin-bottom: 36px;
+          margin-bottom: 32px;
+          width: 100%;
+          position: relative;
+          z-index: 1;
         }
-        .hero-mobile-ctas .hero-cta {
-          padding: 12px 24px;
-          font-size: 0.82rem;
+        .hero-m-cta-main {
+          flex: 1;
+          padding: 14px 20px !important;
+          font-size: 0.84rem !important;
+          gap: 8px;
+        }
+        .hero-m-cta-sec {
+          padding: 14px 20px !important;
+          font-size: 0.84rem !important;
         }
 
-        /* ── Trust Indicators — minimal bottom bar ── */
-        .hero-mobile-trust {
+        /* ── Bottom tagline + scroll ── */
+        .hero-m-bottom {
           display: flex;
           align-items: center;
-          gap: 20px;
-          padding: 12px 24px;
-          border-radius: 16px;
-          border: 1px solid rgba(0,0,0,0.05);
-          background: rgba(255,255,255,0.3);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
+          justify-content: space-between;
+          width: 100%;
+          position: relative;
+          z-index: 1;
         }
-        [data-theme="dark"] .hero-mobile-trust {
-          border: 1px solid rgba(255,255,255,0.06);
-          background: rgba(255,255,255,0.03);
-        }
-        .hero-trust-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 1px;
-        }
-        .hero-trust-value {
-          font-size: 1rem;
-          font-weight: 700;
-          color: var(--text-primary);
-          letter-spacing: -0.02em;
+        .hero-m-bottom-text {
           font-family: var(--font-sans), 'Poppins', sans-serif;
-        }
-        .hero-trust-label {
-          font-size: 0.55rem;
+          font-size: 0.6rem;
           font-weight: 500;
           color: var(--text-tertiary);
           text-transform: uppercase;
-          letter-spacing: 0.06em;
-          font-family: var(--font-sans), 'Poppins', sans-serif;
-        }
-        .hero-trust-divider {
-          width: 1px;
-          height: 24px;
-          background: var(--border-color);
-          opacity: 0.4;
+          letter-spacing: 0.1em;
+          opacity: 0.7;
         }
 
         /* ── Scroll indicator ── */
-        .hero-mobile-scroll {
-          position: absolute;
-          bottom: 28px;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          z-index: 21;
-        }
         .hero-scroll-line {
           width: 1px;
-          height: 32px;
+          height: 28px;
           position: relative;
           overflow: hidden;
           background: rgba(0,0,0,0.06);

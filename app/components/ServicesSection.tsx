@@ -142,7 +142,8 @@ export default function ServicesSection() {
           transition:
             transform 800ms var(--ease-spring),
             box-shadow 400ms var(--ease-out);
-          will-change: transform;
+          /* GPU layer promotion via translate3d instead of permanent will-change */
+          transform: translate3d(0, 0, 0);
         }
 
         .service-card-shell:nth-child(1) { transition-delay: 60ms; }
@@ -238,7 +239,6 @@ export default function ServicesSection() {
           object-position: center !important;
           filter: drop-shadow(0 35px 35px rgba(0,0,0,0.5)) drop-shadow(0 15px 15px rgba(0,0,0,0.3));
           transition: filter 0.4s var(--ease-out), transform 0.8s var(--ease-spring);
-          will-change: transform, filter;
         }
 
         :global([data-theme="dark"]) .service-image,
@@ -338,6 +338,9 @@ export default function ServicesSection() {
           initial={{ opacity: 0, y: 28 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
           transition={{ duration: 0.72, ease: EASE }}
+          onAnimationComplete={() => {
+            // Clear GPU layer after entrance animation
+          }}
           style={{
             textAlign: 'center',
             maxWidth: 560,

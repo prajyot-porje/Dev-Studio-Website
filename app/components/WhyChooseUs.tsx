@@ -73,6 +73,12 @@ function BentoCard({ area, children, index, style, externalInView, premiumStatic
       transition={{ duration: 0.72, ease: EASE, delay: index * 0.07 }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      onAnimationComplete={() => {
+        // Clear GPU layer reservation after entrance animation
+        if (ref.current) {
+          ref.current.style.willChange = 'auto';
+        }
+      }}
       style={{
         gridArea: area,
         position: 'relative',
@@ -84,8 +90,8 @@ function BentoCard({ area, children, index, style, externalInView, premiumStatic
         border: shellBorder,
         boxShadow: shellShadow,
         overflow: 'visible',
-        willChange: 'transform, opacity',
-        transform: 'translateZ(0)',
+        /* GPU layer via translate3d instead of permanent will-change */
+        transform: 'translate3d(0, 0, 0)',
         transition: 'transform 800ms var(--ease-spring), box-shadow 400ms var(--ease-out)',
         ...style,
       }}

@@ -245,9 +245,11 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior removed — Lenis handles all smooth scrolling.
+     Having both causes scroll destination conflicts and stutter. */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -255,8 +257,8 @@ body {
   color: var(--text-primary);
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   line-height: 1.6;
-  transition: background-color var(--duration-normal) var(--ease-out),
-              color var(--duration-normal) var(--ease-out);
+  /* transition removed — theme changes are instant via CSS variable swap.
+     Body transition causes unnecessary repaints during scroll. */
 }
 
 /* ===== SCROLLBAR ===== */
@@ -501,6 +503,27 @@ body {
 .stagger-4 { transition-delay: 400ms; }
 .stagger-5 { transition-delay: 500ms; }
 .stagger-6 { transition-delay: 600ms; }
+
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-on-scroll,
+  .animate-on-scroll-left,
+  .animate-on-scroll-right,
+  .animate-scale-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
 
 /* ===== BUTTON STYLES ===== */
 .btn-primary {

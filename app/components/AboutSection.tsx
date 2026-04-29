@@ -8,9 +8,9 @@ import { RippleElement } from '@/components/ui/ripple-element';
    DATA
    ═══════════════════════════════════════════════════════════════ */
 const stats = [
-  { value: 3, suffix: '', label: 'Clients' },
-  { value: 2, suffix: '', label: 'Countries' },
-  { value: 6, suffix: ' weeks', label: 'Avg delivery' },
+  { value: 99, suffix: '%', label: 'Client Satisfaction' },
+  { value: 24, suffix: 'h', label: 'Support Response' },
+  { value: 3, suffix: ' weeks', label: 'Avg delivery' },
   { value: 100, suffix: '%', label: 'On-time rate' },
 ];
 

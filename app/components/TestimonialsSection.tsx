@@ -227,7 +227,7 @@ export default function TestimonialsSection() {
                       opacity: isActive ? 1 : isBehind ? 0.4 : 0.7 - (Math.abs(offset) * 0.15),
                       y: isActive ? 0 : isBehind ? offset * 12 : offset * 16,
                       scale: isActive ? 1 : isBehind ? 1 + offset * 0.02 : 1 - offset * 0.03,
-                      transition: { duration: 0.8, ease: "easeOut" }
+                      transition: { duration: 0.5, ease: [0.25, 1, 0.5, 1] }
                     }
                   }}
                   onAnimationComplete={() => {

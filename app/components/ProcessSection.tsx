@@ -1,329 +1,318 @@
 'use client';
 
-import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
+import { useRef, useState, useEffect } from 'react';
+import { m, useInView } from 'framer-motion';
+import { useTheme } from '@/app/components/ThemeProvider';
 
-/* ═══════════════════════════════════════════════════════════════
-   PROCESS STEPS DATA
-   ═══════════════════════════════════════════════════════════════ */
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+const FONT = "'Poppins', system-ui, -apple-system, sans-serif";
+
 const steps = [
-  {
-    number: '01',
-    title: 'Discovery',
-    description:
-      'We learn about your business, your goals, and what you need built. A quick call or a few messages — no lengthy forms.',
-  },
-  {
-    number: '02',
-    title: 'Proposal',
-    description:
-      'You get a clear scope, timeline, and fixed price within 48 hours. No vague estimates, no hidden costs.',
-  },
-  {
-    number: '03',
-    title: 'Build',
-    description:
-      'We get to work. Weekly updates keep you in the loop without interrupting your day.',
-  },
-  {
-    number: '04',
-    title: 'Deliver',
-    description:
-      'Your project is delivered, deployed, and ready. We stay available for questions and offer ongoing support if needed.',
-  },
+  { number: '01', title: 'Discovery', desc: 'We learn your goals in one quick call. No lengthy forms, no intake process needed.' },
+  { number: '02', title: 'Proposal', desc: 'Scope, timeline, and fixed price ready in 48 hours. No guesswork, no hidden costs.' },
+  { number: '03', title: 'Build', desc: 'We get to work. Weekly updates keep you in the loop without interrupting your day.' },
+  { number: '04', title: 'Deliver', desc: 'Your project ships live. Deployed and ready — we stay close for follow-up support.' },
 ];
 
-/* ═══════════════════════════════════════════════════════════════
-   COMPONENT
-   ═══════════════════════════════════════════════════════════════ */
 export default function ProcessSection() {
-  const [ref, isVisible] = useIntersectionObserver<HTMLElement>({ threshold: 0.1 });
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const [isMobile, setIsMobile] = useState(false);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(headerRef, { once: true, margin: '-80px' });
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionVisible = useInView(sectionRef, { margin: '-100px' });
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  /* ── Theme-aware card styles (fixes dark mode) ── */
+  const shellStyle = {
+    height: '100%',
+    borderRadius: isMobile ? 24 : 36,
+    padding: isMobile ? 6 : 8,
+    background: isDark ? '#121316' : '#ECEDEF',
+    border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.07)',
+    boxShadow: isDark
+      ? 'inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.4), 0 24px 64px rgba(0,0,0,0.3)'
+      : 'inset 0 1px 0 rgba(255,255,255,0.90), 0 1px 2px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.04), 0 16px 32px rgba(0,0,0,0.07), 0 40px 72px rgba(0,0,0,0.09), 0 80px 120px rgba(0,0,0,0.06)',
+    transition: 'transform 500ms cubic-bezier(0.16,1,0.3,1), box-shadow 400ms cubic-bezier(0.16,1,0.3,1)',
+    willChange: 'transform' as const,
+  };
+
+  const innerStyle = {
+    position: 'relative' as const,
+    height: '100%',
+    aspectRatio: isMobile ? 'auto' : '1 / 1',
+    width: '100%',
+    borderRadius: isMobile ? 20 : 28,
+    padding: isMobile ? '20px' : 'clamp(24px, 2.5vw, 32px)',
+    background: isDark
+      ? 'linear-gradient(165deg, #1a1c20 0%, #141518 20%, #101114 45%, #0c0d10 65%, #090a0c 85%, #060708 100%)'
+      : 'linear-gradient(165deg, #ffffff 0%, #F7F8FA 60%, #F2F4F7 100%)',
+    border: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(0,0,0,0.055)',
+    boxShadow: isDark
+      ? 'inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.30), 0 4px 8px rgba(0,0,0,0.12), 0 12px 28px rgba(0,0,0,0.18), 0 28px 56px rgba(0,0,0,0.16), 0 48px 80px rgba(0,0,0,0.10)'
+      : 'inset 0 1px 0 rgba(255,255,255,1), inset 0 -1px 0 rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04)',
+    overflow: 'hidden' as const,
+    transition: 'box-shadow 350ms cubic-bezier(0.16,1,0.3,1)',
+  };
+
+  const highlightBg = isDark
+    ? 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 30%, rgba(255,255,255,0.08) 70%, transparent 100%)'
+    : 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 30%, rgba(255,255,255,0.6) 70%, transparent 100%)';
 
   return (
-    <section
-      id="process"
-      ref={ref}
-      className="process-section"
-    >
-      <div className="process-container">
-        {/* ── Header ── */}
-        <div
-          className="process-header"
-          style={{
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(36px)',
-            transition: 'all 0.9s cubic-bezier(0.16, 1, 0.3, 1)',
-          }}
-        >
-          <p className="process-eyebrow">How It Works</p>
-          <h2 className="process-headline">
-            From idea
-            <br />
-            <span className="process-headline__thin">to launch.</span>
-          </h2>
-        </div>
-
-        {/* ── Timeline ── */}
-        <div className="process-timeline">
-          {/* Animated connecting line */}
-          <div className="process-line-track">
-            <div
-              className="process-line-fill"
-              style={{
-                transform: isVisible ? 'scaleY(1)' : 'scaleY(0)',
-                transition: 'transform 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s',
-              }}
-            />
-          </div>
-
-          {/* Steps */}
-          {steps.map((step, i) => (
-            <div
-              key={step.number}
-              className="process-step"
-              style={{
-                opacity: isVisible ? 1 : 0,
-                transform: isVisible ? 'translateY(0)' : 'translateY(32px)',
-                transition: `all 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${350 + i * 150}ms`,
-              }}
-            >
-              {/* Step number — left side */}
-              <div className="process-step__number-col">
-                <span className="process-step__number">{step.number}</span>
-                {/* Glow dot on timeline */}
-                <div className="process-step__dot">
-                  <div
-                    className="process-step__dot-pulse"
-                    style={{
-                      animationDelay: `${i * 200}ms`,
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Content — right side */}
-              <div 
-                className="process-step__content"
-                style={{
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '24px',
-                  padding: '32px',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.04)',
-                }}
-              >
-                <h3 className="process-step__title">{step.title}</h3>
-                <p className="process-step__description">{step.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ═══ Scoped Styles ═══ */}
+    <section id="process" ref={sectionRef} className="process-section">
       <style jsx>{`
         .process-section {
           position: relative;
           background: var(--bg-primary);
           overflow: hidden;
         }
-
         .process-container {
           max-width: var(--container-max);
           margin: 0 auto;
           padding: var(--section-padding) var(--container-padding);
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: clamp(48px, 6vw, 96px);
-          align-items: start;
-        }
-
-        /* ── Header (left column) ── */
-        .process-header {
-          position: sticky;
-          top: 30vh;
-        }
-
-        .process-eyebrow {
-          font-size: 0.625rem;
-          font-weight: 600;
-          color: var(--text-tertiary);
-          text-transform: uppercase;
-          letter-spacing: 0.15em;
-          margin: 0 0 16px;
-        }
-
-        .process-headline {
-          font-size: clamp(2.5rem, 5.5vw, 4.5rem);
-          font-weight: 700;
-          color: var(--text-primary);
-          letter-spacing: -0.04em;
-          line-height: 1.05;
-          margin: 0;
-        }
-
-        .process-headline__thin {
-          font-weight: 500;
-          color: var(--text-secondary);
-        }
-
-        /* ── Timeline (right column) ── */
-        .process-timeline {
-          position: relative;
-          padding-left: 48px;
-        }
-
-        /* Connecting line track */
-        .process-line-track {
-          position: absolute;
-          left: 17px;
-          top: 12px;
-          bottom: 12px;
-          width: 2px;
-          background: var(--border-color);
-          border-radius: 1px;
-          overflow: hidden;
-        }
-
-        .process-line-fill {
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(180deg, var(--accent-blue) 0%, rgba(108, 99, 255, 0.6) 50%, var(--accent-blue) 100%);
-          background-size: 100% 200%;
-          transform-origin: top center;
-          border-radius: 1px;
-          animation: processLineShimmer 4s ease infinite;
-        }
-
-        @keyframes processLineShimmer {
-          0%, 100% { background-position: 0% 0%; }
-          50% { background-position: 0% 100%; }
-        }
-
-        /* ── Individual step ── */
-        .process-step {
           display: flex;
-          align-items: flex-start;
-          gap: 32px;
-          padding-bottom: clamp(48px, 6vh, 72px);
-          position: relative;
+          flex-direction: column;
+          gap: clamp(2.5rem, 5vh, 4rem);
+        }
+        .process-header { text-align: center; }
+        .process-eyebrow {
+          font-size: 0.625rem; font-weight: 600; color: var(--text-tertiary);
+          text-transform: uppercase; letter-spacing: 0.15em; margin: 0 0 12px;
+          font-family: var(--font-sans), Poppins, system-ui, -apple-system, sans-serif;
+        }
+        .process-headline {
+          font-size: clamp(2rem, 5vw, 3.35rem); font-weight: 700;
+          color: var(--text-primary); letter-spacing: -0.035em;
+          line-height: 1.08; margin: 0; font-family: var(--font-sans), Poppins, system-ui, -apple-system, sans-serif;
+        }
+        .process-headline__thin { font-weight: 400; color: var(--text-secondary); }
+
+        .process-cards {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
         }
 
-        .process-step:last-child {
-          padding-bottom: 0;
+        /* ── Progress bar ── */
+        .process-progress { 
+          position: relative; 
+          height: 48px;
+          margin-top: 24px;
+          margin-left: calc(12.5% - 6px);
+          margin-right: calc(12.5% - 6px);
+        }
+        @media (max-width: 1024px) {
+          .process-progress { margin-left: calc(25% - 4px); margin-right: calc(25% - 4px); }
+        }
+        @media (max-width: 768px) {
+          .process-progress { margin-left: calc(25% - 3px); margin-right: calc(25% - 3px); }
+        }
+        @media (max-width: 480px) {
+          .process-progress { margin-left: 20px; margin-right: 20px; }
         }
 
-        /* Number column */
-        .process-step__number-col {
+        .process-progress-track {
+          position: absolute;
+          top: 4.5px;
+          left: 0; right: 0;
+          height: 3px;
+          background: var(--border-color);
+          border-radius: 1.5px;
+          z-index: 1;
+        }
+        .process-progress-beam {
+          position: absolute;
+          top: 0; left: 0; height: 100%; width: 0%;
+          background: linear-gradient(90deg, rgba(108,99,255,0.4) 0%, var(--accent-blue) 95%, #fff 100%);
+          box-shadow: 0 0 8px var(--accent-blue);
+          border-radius: 1.5px;
+          animation: process-fill 8s ease-in-out infinite;
+        }
+        @keyframes process-fill {
+          0% { width: 0%; opacity: 0; }
+          5% { opacity: 1; }
+          90% { width: 100%; opacity: 1; }
+          100% { width: 100%; opacity: 0; }
+        }
+        .process-progress-dots {
           position: relative;
-          flex-shrink: 0;
+          z-index: 3;
+          display: flex;
+          justify-content: space-between;
+        }
+        .process-dot {
+          position: relative;
           width: 0;
           display: flex;
-          align-items: flex-start;
           justify-content: center;
         }
-
-        .process-step__number {
+        .process-dot::before {
+          content: ''; 
           position: absolute;
-          right: calc(100% + 32px);
-          top: -4px;
-          font-size: clamp(2.5rem, 4vw, 3.5rem);
-          font-weight: 800;
-          letter-spacing: -0.05em;
-          line-height: 1;
-          font-variant-numeric: tabular-nums;
-          background: linear-gradient(135deg, var(--accent-blue) 0%, #6C63FF 100%);
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          opacity: 0.18;
-          user-select: none;
-        }
-
-        /* Dot on timeline */
-        .process-step__dot {
-          position: absolute;
-          left: -31px;
-          top: 8px;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
+          top: 0; left: -6px;
+          width: 12px; height: 12px; border-radius: 50%;
           background: var(--accent-blue);
-          display: flex;
-          align-items: center;
-          justify-content: center;
           box-shadow: 0 0 0 4px var(--bg-primary), 0 0 12px var(--accent-blue-glow);
-          z-index: 2;
         }
-
-        .process-step__dot-pulse {
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          background: var(--accent-blue);
-          animation: dotPulse 2.5s ease-in-out infinite;
-        }
-
-        @keyframes dotPulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(1.5); }
-        }
-
-        /* Content */
-        .process-step__content {
-          flex: 1;
-          padding-top: 2px;
-        }
-
-        .process-step__title {
-          font-size: clamp(1.15rem, 1.8vw, 1.4rem);
-          font-weight: 600;
-          color: var(--text-primary);
-          letter-spacing: -0.025em;
-          margin: 0 0 10px;
-          line-height: 1.2;
-        }
-
-        .process-step__description {
-          font-size: clamp(0.85rem, 1vw, 0.95rem);
-          font-weight: 400;
-          color: var(--text-secondary);
-          line-height: 1.75;
-          margin: 0;
-          max-width: 380px;
+        .process-dot-label {
+          position: absolute;
+          top: 24px;
+          left: 0;
+          transform: translateX(-50%);
+          font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+          letter-spacing: 0.1em; color: var(--text-tertiary);
+          font-family: var(--font-sans), Poppins, system-ui, -apple-system, sans-serif;
+          white-space: nowrap;
         }
 
         /* ── Responsive ── */
-        @media (max-width: 900px) {
-          .process-container {
-            grid-template-columns: 1fr;
-            gap: 40px;
-          }
-
-          .process-header {
-            position: relative;
-            top: auto;
-          }
-
-          .process-headline {
-            font-size: clamp(2rem, 8vw, 3rem);
-          }
+        @media (max-width: 1024px) {
+          .process-cards { grid-template-columns: repeat(2, 1fr); }
         }
-
-        @media (max-width: 540px) {
-          .process-step__number {
-            font-size: 2rem;
-            right: calc(100% + 24px);
-          }
-
-          .process-timeline {
-            padding-left: 40px;
-          }
-
-          .process-step {
-            gap: 20px;
-          }
+        @media (max-width: 768px) {
+          .process-section { min-height: 100vh; display: flex; align-items: center; }
+          .process-container { padding-top: 2rem; padding-bottom: 2rem; gap: 24px; }
+          .process-cards { grid-template-columns: 1fr; gap: 12px; }
+          .process-progress { display: none !important; }
         }
       `}</style>
+
+      <div className="process-container">
+        {/* Header */}
+        <m.div
+          ref={headerRef}
+          className="process-header"
+          initial={{ opacity: 0, y: 28 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+          transition={{ duration: 0.72, ease: EASE }}
+        >
+          <p className="process-eyebrow">How It Works</p>
+          <h2 className="process-headline">
+            From idea{isMobile ? <br /> : ' '}
+            <span className="process-headline__thin">to launch.</span>
+          </h2>
+        </m.div>
+
+        {/* Cards */}
+        <div className="process-cards">
+          {steps.map((step, i) => {
+            return (
+              <m.div
+                key={step.number}
+                style={shellStyle}
+                initial={{ opacity: 0, y: 32, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.72, ease: EASE, delay: 0.1 + i * 0.1 }}
+                whileHover={{ y: -6, scale: 1.02 }}
+              >
+                <div style={innerStyle}>
+                  {/* Top highlight */}
+                  <div
+                    aria-hidden
+                    style={{
+                      position: 'absolute', top: 0, left: 28, right: 28, height: 1,
+                      background: highlightBg, borderRadius: '0 0 4px 4px',
+                      pointerEvents: 'none', zIndex: 10,
+                    }}
+                  />
+
+                  {/* Content wrapper */}
+                  <div style={{ 
+                    position: 'relative', 
+                    zIndex: 2, 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    height: '100%',
+                    paddingRight: isMobile ? '60px' : '0'
+                  }}>
+                    {/* Title */}
+                    <h3
+                      style={{
+                        margin: isMobile ? '0 0 4px' : '0 0 clamp(8px, 1.2vw, 14px)',
+                        fontSize: isMobile ? '1.25rem' : 'clamp(1.4rem, 2.5vw, 1.8rem)',
+                        fontWeight: 700,
+                        color: 'var(--text-primary)',
+                        letterSpacing: '-0.04em',
+                        lineHeight: 1.05,
+                        fontFamily: FONT,
+                      }}
+                    >
+                      {step.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: isMobile ? '0.85rem' : 'clamp(0.85rem, 0.95vw, 0.95rem)',
+                        fontWeight: 400,
+                        color: 'var(--text-secondary)',
+                        lineHeight: 1.5,
+                        fontFamily: FONT,
+                      }}
+                    >
+                      {step.desc}
+                    </p>
+                  </div>
+
+                  {/* Watermark number - Absolute to padding box for perfect bottom-right alignment */}
+                  <div
+                    aria-hidden
+                    style={{
+                      position: 'absolute',
+                      top: isMobile ? '50%' : 'auto',
+                      transform: isMobile ? 'translateY(-50%)' : 'none',
+                      bottom: isMobile ? 'auto' : 'clamp(8px, 1vw, 16px)',
+                      right: isMobile ? '16px' : 'clamp(12px, 1.5vw, 20px)',
+                      fontSize: isMobile ? '3.5rem' : 'clamp(4.5rem, 7vw, 6rem)',
+                      fontWeight: 800,
+                      letterSpacing: '-0.05em',
+                      lineHeight: 0.8,
+                      fontVariantNumeric: 'tabular-nums',
+                      backgroundImage: isDark
+                        ? 'linear-gradient(135deg, rgba(59,123,255,0.5) 0%, rgba(108,99,255,0.4) 100%)'
+                        : 'linear-gradient(135deg, var(--accent-blue) 0%, #6C63FF 100%)',
+                      WebkitBackgroundClip: 'text',
+                      backgroundClip: 'text',
+                      color: 'transparent',
+                      opacity: isDark ? 0.12 : 0.07,
+                      userSelect: 'none',
+                      pointerEvents: 'none',
+                      fontFamily: FONT,
+                      zIndex: 1,
+                    }}
+                  >
+                    {step.number}
+                  </div>
+                </div>
+              </m.div>
+            );
+          })}
+        </div>
+
+        {/* Progress bar — continuous beam */}
+        <div className="process-progress">
+          <div className="process-progress-track">
+            <div className="process-progress-beam" />
+          </div>
+          <div className="process-progress-dots">
+            {steps.map((step) => (
+              <div key={step.number} className="process-dot">
+                <span className="process-dot-label">{step.title}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

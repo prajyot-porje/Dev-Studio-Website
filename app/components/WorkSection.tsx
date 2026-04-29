@@ -1,6 +1,6 @@
 'use client';
 
-import { type CSSProperties, useRef, useState, useEffect } from 'react';
+import { type CSSProperties, useState, useEffect } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import ProjectCard, { type ProjectCardProps } from './ProjectCard';
 
@@ -69,25 +69,27 @@ const projects: ProjectCardProps[] = [
   },
 ];
 
-const SWIPE_THRESHOLD = 50;
 
 const slideVariants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? '100%' : '-100%',
+    x: direction > 0 ? '80%' : '-80%',
     y: 0,
-    opacity: 0,
+    opacity: 0.4,
+    scale: 0.95,
   }),
   center: {
     zIndex: 1,
     x: 0,
     y: 0,
     opacity: 1,
+    scale: 1,
   },
   exit: (direction: number) => ({
     zIndex: 0,
-    x: direction < 0 ? '100%' : '-100%',
+    x: direction < 0 ? '80%' : '-80%',
     y: 0,
-    opacity: 0,
+    opacity: 0.4,
+    scale: 0.95,
   }),
 };
 
@@ -118,19 +120,8 @@ export default function WorkSection() {
     return () => clearInterval(timer);
   }, [page, isHovered]);
 
-  // Swipe handling
-  const dragStartX = useRef(0);
-  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    dragStartX.current = clientX;
-  };
-  const handleDragEnd = (e: React.MouseEvent | React.TouchEvent) => {
-    const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
-    const diff = dragStartX.current - clientX;
-    if (Math.abs(diff) > SWIPE_THRESHOLD) {
-      paginate(diff > 0 ? 1 : -1);
-    }
-  };
+  // Swipe handling via drag
+  const DRAG_THRESHOLD = 60;
 
   return (
     <section
@@ -181,13 +172,9 @@ export default function WorkSection() {
           className="work-stage"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          onMouseDown={handleDragStart}
-          onMouseUp={handleDragEnd}
-          onTouchStart={handleDragStart}
-          onTouchEnd={handleDragEnd}
         >
           <div className="work-carousel">
-            <AnimatePresence initial={false} custom={direction} mode="popLayout">
+            <AnimatePresence initial={false} custom={direction} mode="sync">
               <m.div
                 key={page}
                 custom={direction}
@@ -197,11 +184,27 @@ export default function WorkSection() {
                 exit="exit"
                 transition={{
                   x: isMobile 
-                    ? { type: 'spring', stiffness: 300, damping: 30 }
-                    : { type: 'tween', ease: [0.32, 0.72, 0, 1], duration: 1.2 },
-                  opacity: { duration: isMobile ? 0.3 : 0.8 },
+                    ? { type: 'spring', stiffness: 260, damping: 28 }
+                    : { type: 'tween', ease: [0.25, 1, 0.5, 1], duration: 0.7 },
+                  opacity: { duration: isMobile ? 0.25 : 0.5, ease: 'easeOut' },
+                  scale: { duration: isMobile ? 0.25 : 0.5, ease: [0.25, 1, 0.5, 1] },
+                }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.12}
+                onDragEnd={(_e, { offset, velocity }) => {
+                  const swipe = Math.abs(offset.x) * velocity.x;
+                  if (Math.abs(offset.x) > DRAG_THRESHOLD || Math.abs(swipe) > 8000) {
+                    paginate(offset.x < 0 ? 1 : -1);
+                  }
                 }}
                 className="work-slide"
+                style={{ willChange: 'transform, opacity' }}
+                onAnimationComplete={() => {
+                  // Clear GPU layer after transition settles
+                  const el = document.querySelector('.work-slide[data-active]') as HTMLElement;
+                  if (el) el.style.willChange = 'auto';
+                }}
               >
                 <div className="work-card-shell">
                   <ProjectCard {...projects[activeIndex]} />
