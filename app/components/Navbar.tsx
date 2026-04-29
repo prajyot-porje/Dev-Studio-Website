@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@/app/components/ThemeProvider';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
@@ -23,6 +23,9 @@ export default function Navbar() {
   const [isMobile, setIsMobile] = useState(false);
   const { theme } = useTheme();
 
+  const scrolledRef = useRef(false);
+  const rafRef = useRef<number | null>(null);
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 768);
     checkMobile();
@@ -42,21 +45,23 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    let ticking = false;
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        setScrolled((current) => {
-          const next = scrollY > 20;
-          return current === next ? current : next;
-        });
-        ticking = false;
+      if (rafRef.current) return; // already scheduled
+      rafRef.current = requestAnimationFrame(() => {
+        const isScrolled = window.scrollY > 20;
+        if (isScrolled !== scrolledRef.current) {
+          scrolledRef.current = isScrolled;
+          setScrolled(isScrolled); // only fires when value actually changes
+        }
+        rafRef.current = null;
       });
     };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -170,7 +175,7 @@ export default function Navbar() {
         <div style={{ flex: '1 1 0%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '8px' }}>
           {/* Theme Toggle — always visible */}
           <AnimatedThemeToggler
-            className="transition-all duration-300 hover:scale-105 hover:-translate-y-0.5 cursor-pointer"
+            className="transition-[background-color,color,transform] duration-300 hover:scale-105 hover:-translate-y-0.5 cursor-pointer"
             style={{
               width: isMobile ? '32px' : '36px',
               height: isMobile ? '32px' : '36px',
@@ -199,7 +204,7 @@ export default function Navbar() {
             <RippleElement
               as="a"
               href="#contact"
-              className="transition-all duration-300 hover:scale-105 hover:-translate-y-0.5"
+              className="transition-[background-color,transform] duration-300 hover:scale-105 hover:-translate-y-0.5"
               style={{
                 background: 'var(--cta-bg)',
                 color: 'var(--cta-text)',

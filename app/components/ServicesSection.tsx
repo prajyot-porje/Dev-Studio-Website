@@ -139,9 +139,7 @@ export default function ServicesSection() {
           display: flex;
           flex-direction: column;
           cursor: default;
-          transition:
-            transform 800ms var(--ease-spring),
-            box-shadow 400ms var(--ease-out);
+          transition: transform 800ms var(--ease-spring);
           /* GPU layer promotion via translate3d instead of permanent will-change */
           transform: translate3d(0, 0, 0);
         }
@@ -190,7 +188,7 @@ export default function ServicesSection() {
             inset 0 -1px 0 rgba(0, 0, 0, 0.04),
             0 1px 3px rgba(0, 0, 0, 0.04),
             0 4px 12px rgba(0, 0, 0, 0.04);
-          transition: box-shadow 300ms var(--ease-out);
+          /* transition: box-shadow 300ms var(--ease-out); removed for pseudo-element */
           overflow: hidden;
         }
 
@@ -208,7 +206,14 @@ export default function ServicesSection() {
         }
 
         /* ── Hover ── */
-        .service-card-shell:hover .service-card-inner {
+        .service-card-inner::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 300ms var(--ease-out);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 1),
             inset 0 -1px 0 rgba(0, 0, 0, 0.04),
@@ -217,8 +222,8 @@ export default function ServicesSection() {
             0 32px 56px rgba(0, 0, 0, 0.06);
         }
 
-        :global([data-theme="dark"]) .service-card-shell:hover .service-card-inner,
-        :global(.dark) .service-card-shell:hover .service-card-inner {
+        :global([data-theme="dark"]) .service-card-inner::after,
+        :global(.dark) .service-card-inner::after {
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.08),
             inset 0 -1px 0 rgba(0, 0, 0, 0.30),
@@ -226,6 +231,10 @@ export default function ServicesSection() {
             0 16px 36px rgba(0, 0, 0, 0.24),
             0 36px 72px rgba(0, 0, 0, 0.20),
             0 64px 120px rgba(0, 0, 0, 0.15);
+        }
+
+        .service-card-shell:hover .service-card-inner::after {
+          opacity: 1;
         }
 
         .service-image-wrapper {
@@ -267,17 +276,32 @@ export default function ServicesSection() {
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+          transition: transform 0.3s var(--ease-out);
+          position: relative;
+        }
+
+        .learn-more-icon::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.3s var(--ease-out);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        :global([data-theme="dark"]) .learn-more-icon::after,
+        :global(.dark) .learn-more-icon::after {
+          box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
 
         .service-card-shell:hover .learn-more-icon {
           transform: scale(1.08);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        :global([data-theme="dark"]) .service-card-shell:hover .learn-more-icon,
-        :global(.dark) .service-card-shell:hover .learn-more-icon {
-          box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        .service-card-shell:hover .learn-more-icon::after {
+          opacity: 1;
         }
 
         .learn-more-text {

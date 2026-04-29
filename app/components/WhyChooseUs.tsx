@@ -37,7 +37,6 @@ interface BentoCardProps {
 function BentoCard({ area, children, index, style, externalInView, premiumStatic }: BentoCardProps) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
-  const [hover, setHover] = useState(false);
   const { theme } = useTheme();
 
   /* ── Card Styling Constants (Sync with ServicesSection) ── */
@@ -71,8 +70,7 @@ function BentoCard({ area, children, index, style, externalInView, premiumStatic
       initial={{ opacity: 0, y: 32 }}
       animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
       transition={{ duration: 0.72, ease: EASE, delay: index * 0.07 }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+      className="group"
       onAnimationComplete={() => {
         // Clear GPU layer reservation after entrance animation
         if (ref.current) {
@@ -92,7 +90,7 @@ function BentoCard({ area, children, index, style, externalInView, premiumStatic
         overflow: 'visible',
         /* GPU layer via translate3d instead of permanent will-change */
         transform: 'translate3d(0, 0, 0)',
-        transition: 'transform 800ms var(--ease-spring), box-shadow 400ms var(--ease-out)',
+        transition: 'transform 800ms var(--ease-spring)',
         ...style,
       }}
     >
@@ -110,11 +108,22 @@ function BentoCard({ area, children, index, style, externalInView, premiumStatic
           overflow: 'hidden',
           background: innerBg,
           border: innerBorder,
-          boxShadow: hover ? innerShadowHover : innerShadowNormal,
-          transition: `box-shadow 350ms ${EASE_CSS}, background 400ms ${EASE_CSS}, border-color 400ms ${EASE_CSS}`,
+          boxShadow: innerShadowNormal,
+          transition: `background 400ms ${EASE_CSS}, border-color 400ms ${EASE_CSS}`,
           zIndex: 1,
         }}
       >
+        <div
+          aria-hidden
+          className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: 'inherit',
+            boxShadow: innerShadowHover,
+            zIndex: -1,
+          }}
+        />
         {/* Top highlight line (Sync with ServicesSection) */}
         <div
           aria-hidden
@@ -327,6 +336,11 @@ function CardFutureTech({ externalInView }: { externalInView?: boolean }) {
    ═══════════════════════════════════════════════════════════════ */
 function CardInternational({ externalInView }: { externalInView?: boolean }) {
   const { theme } = useTheme();
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    setIsDesktop(window.innerWidth >= 1024);
+  }, []);
 
   return (
     <BentoCard area="globe" index={2} externalInView={externalInView}>
@@ -380,23 +394,34 @@ function CardInternational({ externalInView }: { externalInView?: boolean }) {
             height: 210,
             borderRadius: '50%',
             position: 'relative',
-            boxShadow: theme === 'dark'
-              ? '0 0 0 1.5px rgba(60,140,255,0.5), 0 0 20px rgba(60,140,255,0.3), 0 0 60px rgba(60,140,255,0.12)'
-              : 'none',
-            transition: 'box-shadow 400ms ease',
           }}
         >
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: 'inherit',
+              boxShadow: '0 0 0 1.5px rgba(60,140,255,0.5), 0 0 20px rgba(60,140,255,0.3), 0 0 60px rgba(60,140,255,0.12)',
+              opacity: theme === 'dark' ? 1 : 0,
+              transition: 'opacity 400ms ease',
+              pointerEvents: 'none',
+              zIndex: -1,
+            }}
+          />
           <div style={{ width: '100%', height: '100%', transform: 'scale(1.15)' }}>
-            <Globe
-              dark={theme === 'dark' ? 1 : 0}
-              scale={1.15}
-              diffuse={theme === 'dark' ? 1.2 : 3}
-              mapSamples={16000}
-              mapBrightness={6}
-              baseColor={theme === 'dark' ? [0.3, 0.3, 0.3] : [0.93, 0.93, 0.93]}
-              markerColor={theme === 'dark' ? [0.1, 0.8, 1] : [0.1, 0.1, 0.1]}
-              glowColor={theme === 'dark' ? [0.05, 0.05, 0.12] : [1, 1, 1]}
-            />
+            {isDesktop && (
+              <Globe
+                dark={theme === 'dark' ? 1 : 0}
+                scale={1.15}
+                diffuse={theme === 'dark' ? 1.2 : 3}
+                mapSamples={16000}
+                mapBrightness={6}
+                baseColor={theme === 'dark' ? [0.3, 0.3, 0.3] : [0.93, 0.93, 0.93]}
+                markerColor={theme === 'dark' ? [0.1, 0.8, 1] : [0.1, 0.1, 0.1]}
+                glowColor={theme === 'dark' ? [0.05, 0.05, 0.12] : [1, 1, 1]}
+              />
+            )}
           </div>
         </div>
 

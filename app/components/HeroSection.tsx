@@ -35,11 +35,19 @@ export default function HeroSection({ forceLowEnd = false }: HeroSectionProps) {
       let lowEnd = forceLowEnd;
       if (!lowEnd && !mobile && typeof navigator !== 'undefined') {
         const cores = navigator.hardwareConcurrency || 4;
+        const memory = (navigator as any).deviceMemory || 4;
         const connection = (navigator as any).connection;
-        const slowNetwork = connection && (connection.saveData || connection.effectiveType === '3g' || connection.effectiveType === '2g');
-        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const isSaveData = connection && connection.saveData;
+        const isSlowNetwork = connection && (connection.effectiveType === '3g' || connection.effectiveType === '2g');
+        const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         
-        if (cores < 4 || slowNetwork || reducedMotion) {
+        // Refined device capability check:
+        // Only classify as "Low End" if hardware is strictly weak (low cores AND low RAM),
+        // or if there are explicit network/user preference constraints.
+        // This ensures Gaming Laptops and MacBooks are treated as High End even if the browser restricts certain data.
+        const hardwareRestricted = cores < 4 && memory < 8;
+        
+        if (hardwareRestricted || isSaveData || isSlowNetwork || isReducedMotion) {
           lowEnd = true;
         }
       }
@@ -67,7 +75,7 @@ export default function HeroSection({ forceLowEnd = false }: HeroSectionProps) {
             scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
             className="hero-spline"
           />
-        ) : isMobile ? (
+        ) : (isMobile || isLowEndDevice) ? (
           <div className="hero-mobile-bg">
             {/* Subtle animated gradient mesh */}
             <div className="hero-mobile-mesh" />
@@ -157,6 +165,9 @@ export default function HeroSection({ forceLowEnd = false }: HeroSectionProps) {
             <div className="hero-fallback-line hero-fallback-line--h1" />
           </div>
 
+          {/* Atmospheric glow orb */}
+          <div className="hero-mobile-orb hero-mobile-orb--1" />
+
           <m.div
             className="hero-fallback-inner"
             initial="hidden"
@@ -167,6 +178,7 @@ export default function HeroSection({ forceLowEnd = false }: HeroSectionProps) {
             }}
           >
             <m.div variants={fadeUp(0)} className="hero-fallback-overline">
+              <div style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', position: 'absolute', inset: 0, zIndex: -1, borderRadius: 'inherit' }} />
               <span className="hero-fallback-overline-dot" />
               Dev Studio — Digital Agency
             </m.div>
@@ -249,6 +261,7 @@ export default function HeroSection({ forceLowEnd = false }: HeroSectionProps) {
             animate="visible"
             variants={fadeUp(0.45)}
           >
+            <div style={{ backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', position: 'absolute', inset: 0, zIndex: -1, borderRadius: 'inherit' }} />
             <div className="hero-m-service-item">
               <span className="hero-m-service-dot hero-m-service-dot--blue" />
               <span>Web Dev</span>
@@ -756,8 +769,6 @@ export default function HeroSection({ forceLowEnd = false }: HeroSectionProps) {
           border-radius: 12px;
           border: 1px solid rgba(0,0,0,0.06);
           background: rgba(255,255,255,0.4);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
           margin-bottom: 28px;
           position: relative;
           z-index: 1;
@@ -849,7 +860,7 @@ export default function HeroSection({ forceLowEnd = false }: HeroSectionProps) {
         .hero-scroll-line::after {
           content: '';
           position: absolute;
-          top: -100%;
+          top: 0;
           left: 0;
           width: 100%;
           height: 100%;
@@ -857,9 +868,9 @@ export default function HeroSection({ forceLowEnd = false }: HeroSectionProps) {
           animation: scroll-line-move 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
         @keyframes scroll-line-move {
-          0% { top: -100%; }
-          50% { top: 0%; }
-          100% { top: 100%; }
+          0% { transform: translateY(-100%); opacity: 0; }
+          30% { opacity: 1; }
+          100% { transform: translateY(100%); opacity: 0; }
         }
 
         /* ============================
@@ -945,8 +956,6 @@ export default function HeroSection({ forceLowEnd = false }: HeroSectionProps) {
           padding: 8px 20px;
           border-radius: 999px;
           background: rgba(13, 13, 13, 0.03);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
           border: 1px solid rgba(13, 13, 13, 0.08);
           box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
         }

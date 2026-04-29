@@ -7,7 +7,7 @@ import { LazyMotion, domAnimation } from 'framer-motion';
 export const LoadingContext = createContext<{
   setSplineReady: (ready: boolean) => void;
 }>({
-  setSplineReady: () => {},
+  setSplineReady: (_ready: boolean) => {},
 });
 
 export const useLoading = () => useContext(LoadingContext);
